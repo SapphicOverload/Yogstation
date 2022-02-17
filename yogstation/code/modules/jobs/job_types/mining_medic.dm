@@ -1,5 +1,5 @@
 /datum/job/miningmedic
-	title = "Mining Medic"
+	title = "No Life"
 	flag = MMEDIC
 	department_head = list("Chief Medical Officer")
 	department_flag = MEDSCI
