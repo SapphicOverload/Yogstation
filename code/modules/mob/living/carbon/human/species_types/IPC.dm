@@ -232,4 +232,9 @@ datum/species/ipc/on_species_loss(mob/living/carbon/C)
 	C.visible_message(span_danger("[user] attempts to pour [O] down [C]'s port!"), \
 										span_userdanger("[user] attempts to pour [O] down [C]'s port!"))
 
+/datum/species/ipc/bullet_act(obj/item/projectile/P, mob/living/carbon/human/H)
+	if(P.damage_type==TOX)
+		return 1
+	..()
+
 #undef CONCIOUSAY
