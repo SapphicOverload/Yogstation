@@ -289,4 +289,14 @@
 		qdel(src)
 		return
 
+/obj/item/kitchen/comically_large_spoon
+	name = "comically large spoon"
+	desc = "For when you're only allowed one spoonful of something."
+	icon_state = "bigspoon"
+	hitsound = 'yogstation/sound/weapons/pan.ogg'
+	slot_flags = ITEM_SLOT_BACK
+	w_class = WEIGHT_CLASS_NORMAL
+	force = 8
+	throwforce = 5
+
 /* Trays  moved to /obj/item/storage/bag */

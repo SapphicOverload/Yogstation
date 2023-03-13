@@ -19,7 +19,8 @@
 					/obj/item/reagent_containers/food/condiment/cinnamon = 5, // Yogs -- cinnamon shakers!
 					/obj/item/plate = 10) 
 	contraband = list(/obj/item/kitchen/knife/butcher = 2, // Yogs -- Pan
-					  /obj/item/melee/fryingpan = 2) // Yogs -- Pan
+					  /obj/item/melee/fryingpan = 2, // Yogs -- Pan
+					  /obj/item/kitchen/comically_large_spoon = 2)
 	refill_canister = /obj/item/vending_refill/dinnerware
 	default_price = 5
 	extra_price = 50
