@@ -298,14 +298,40 @@
 	update_icon(1)
 	return TRUE
 
+/obj/item/assembly/flash/armimplant/update_icon(flash = FALSE)
+	cut_overlays()
+	attached_overlays = list()
+	if(burnt_out || overheat) // visual cooldown indicator
+		add_overlay("flashburnt")
+		attached_overlays += "flashburnt"
+	if(flash)
+		add_overlay(flashing_overlay)
+		attached_overlays += flashing_overlay
+		addtimer(CALLBACK(src, PROC_REF(update_icon)), 5)
+	if(holder)
+		holder.update_icon()
 
 /obj/item/assembly/flash/armimplant/proc/cooldown()
 	overheat = FALSE
+	update_icon()
 
 /obj/item/assembly/flash/armimplant/rev
 	name = "syndicate flash"
 	desc = "A flash which, used with certain hypnotic and subliminal messaging techniques, can turn loyal crewmembers into vicious revolutionaries."
 	can_convert = TRUE
+
+/obj/item/assembly/flash/armimplant/rev/try_use_flash(mob/user)
+	if(user.mind)
+		var/datum/antagonist/rev/head/RH = is_head_revolutionary(user)
+		if(RH && RH.rev_team?.members)
+			var/total_revs = 0
+			for(var/datum/mind/M in RH.rev_team.members)
+				if(M.current && M.current.stat != DEAD)
+					total_revs++
+			flashcd = max(5 * total_revs, initial(flashcd)) // 0.5 seconds for every current living member of the revolution, minimum of 2 seconds
+		else
+			flashcd = initial(flashcd) // just in case
+	return ..()
 
 /obj/item/assembly/flash/hypnotic
 	desc = "A modified flash device, programmed to emit a sequence of subliminal flashes that can send a vulnerable target into a hypnotic trance."
