@@ -149,12 +149,14 @@
 	projectile_type = /obj/item/projectile/bullet/ipcmartial
 	click_cooldown_override = 0.1 //this gun shoots faster
 
-/obj/item/projectile/bullet/ipcmartial //literally just default 357 with mob piercing
+/obj/item/projectile/bullet/ipcmartial //weaker than normal .357 because you can spam it
 	name = ".357 piercer bullet"
-	damage = 40
-	armour_penetration = 15
+	damage = 30
+	armour_penetration = 25
 	wound_bonus = -45
 	wound_falloff_tile = -2.5
+	ricochets_max = 1 // 100% chance to ricochet, but only once
+	ricochet_chance = INFINITY
 	penetrating = TRUE
 
 /obj/item/projectile/bullet/ipcmartial/on_hit(atom/target, blocked)
@@ -164,20 +166,20 @@
 	var/mob/living/L = target
 	if(L.stat == DEAD)
 		return . // no using dead bodies to gain style, that's boring and uncool KILL SOME REAL THINGS
+	if(ishuman(target) && !blocked)
+		var/mob/living/carbon/human/H = target
+		H.add_splatter_floor(H.loc, TRUE)//janitors everywhere cry when they hear that an ipc is going off
 	if(ishuman(firer))
 		var/mob/living/carbon/human/H = firer
-		if(H.mind?.has_martialart(MARTIALART_ULTRAVIOLENCE))
+		if(H.mind?.has_martialart(MARTIALART_ULTRAVIOLENCE) && initial(damage)) // don't divide by zero
 			var/datum/martial_art/ultra_violence/UV = H.mind.martial_art
 			if(ricochets) // the most powerful weapon: coins
 				UV.handle_style(H, 1)
 				H.balloon_alert(H, "+RICOSHOT")
 			UV.handle_style(H, 0.2 * damage / initial(damage), STYLE_REVOLVER)
 
-/obj/item/projectile/bullet/ipcmartial/on_hit(atom/target, blocked)
-	. = ..()
-	if(ishuman(target) && !blocked)
-		var/mob/living/carbon/human/H = target
-		H.add_splatter_floor(H.loc, TRUE)//janitors everywhere cry when they hear that an ipc is going off
+/obj/item/projectile/bullet/ipcmartial/check_ricochet_flag(atom/A)
+	return !isliving(A) // don't bounce off of people, that would be weird
 
 /obj/item/gun/ballistic/revolver/ipcmartial/Initialize(mapload)
 	. = ..()
