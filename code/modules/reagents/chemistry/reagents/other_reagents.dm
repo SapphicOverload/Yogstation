@@ -186,7 +186,7 @@
 	if(!istype(M))
 		return
 	if(methods & TOUCH)
-		M.adjust_fire_stacks(-(reac_volume / 10) * M.get_permeability(null, TRUE))
+		M.adjust_fire_stacks(-(reac_volume / 10) * sqrt(M.get_permeability(null, TRUE)))
 		M.extinguish_mob() // permeability affects the negative fire stacks but not the extinguishing
 	..()
 
