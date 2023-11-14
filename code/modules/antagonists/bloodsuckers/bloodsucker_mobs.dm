@@ -214,7 +214,7 @@
 		switch(bloodsuckerdatum.clanprogress)
 			if(1)
 				additionalmessage = "You have mutated a collar made out of fur!"
-				user_species.armor += 10
+				user_species.damage_resistance += 10
 				mutation = /obj/item/clothing/neck/wolfcollar
 				slot = ITEM_SLOT_NECK
 			if(2)

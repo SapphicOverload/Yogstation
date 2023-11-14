@@ -7,7 +7,7 @@
 	inherent_biotypes = MOB_INORGANIC|MOB_HUMANOID
 	mutant_organs = list(/obj/item/organ/adamantine_resonator)
 	speedmod = 2
-	armor = 55
+	damage_resistance = 55
 	siemens_coeff = 0
 	punchdamagelow = 5
 	punchdamagehigh = 14
@@ -169,7 +169,7 @@
 	id = "diamond golem"
 	limbs_id = "cr_golem"
 	fixed_mut_color = "#00ffff"
-	armor = 70 //up from 55
+	damage_resistance = 70 //up from 55
 	meat = /obj/item/stack/ore/diamond
 	info_text = "As a <span class='danger'>Diamond Golem</span>, you are more resistant than the average golem."
 	prefix = "Diamond"
@@ -182,7 +182,7 @@
 	id = "gold golem"
 	fixed_mut_color = "#cccc00"
 	speedmod = 1
-	armor = 25 //down from 55
+	damage_resistance = 25 //down from 55
 	meat = /obj/item/stack/ore/gold
 	info_text = "As a <span class='danger'>Gold Golem</span>, you are faster but less resistant than the average golem."
 	prefix = "Golden"
@@ -309,7 +309,7 @@
 	meat = /obj/item/stack/sheet/mineral/wood
 	//Can burn and take damage from heat
 	inherent_traits = list(TRAIT_NOBREATH, TRAIT_RESISTCOLD,TRAIT_RESISTHIGHPRESSURE,TRAIT_RESISTLOWPRESSURE,TRAIT_NOGUNS,TRAIT_RADIMMUNE,TRAIT_GENELESS,TRAIT_PIERCEIMMUNE,TRAIT_NODISMEMBER,TRAIT_NOHUNGER)
-	armor = 30
+	damage_resistance = 30
 	burnmod = 1.25
 	heatmod = 1.5
 	info_text = "As a <span class='danger'>Wooden Golem</span>, you have plant-like traits: you take damage from extreme temperatures, can be set on fire, and have lower armor than a normal golem. You regenerate when in the light and wither in the darkness."
@@ -413,7 +413,7 @@
 	id = "sand golem"
 	fixed_mut_color = "#ffdc8f"
 	meat = /obj/item/stack/ore/glass //this is sand
-	armor = 0
+	damage_resistance = 0
 	burnmod = 3 //melts easily
 	brutemod = 0.25
 	info_text = "As a <span class='danger'>Sand Golem</span>, you are immune to physical bullets and take very little brute damage, but are extremely vulnerable to burn damage and energy weapons. You will also turn to sand when dying, preventing any form of recovery."
@@ -447,7 +447,7 @@
 	limbs_id = "cr_golem"
 	fixed_mut_color = "#5a96b4aa" //transparent body
 	meat = /obj/item/shard
-	armor = 0
+	damage_resistance = 0
 	brutemod = 3 //very fragile
 	burnmod = 0.25
 	info_text = "As a <span class='danger'>Glass Golem</span>, you reflect lasers and energy weapons, and are very resistant to burn damage. However, you are extremely vulnerable to brute damage. On death, you'll shatter beyond any hope of recovery."
@@ -731,7 +731,7 @@
 	limbs_id = "clockgolem"
 	info_text = "<span class='bold alloy'>As a </span><span class='bold brass'>Clockwork Golem</span><span class='bold alloy'>, you are faster than other types of golems. On death, you will break down into scrap.</span>"
 	species_traits = list(NOBLOOD,NO_UNDERWEAR,NOEYESPRITES,NOFLASH)
-	armor = 20 //Reinforced, but much less so to allow for fast movement
+	damage_resistance = 20 //Reinforced, but much less so to allow for fast movement
 	attack_verb = "smash"
 	attack_sound = 'sound/magic/clockwork/anima_fragment_attack.ogg'
 	sexes = FALSE
@@ -772,7 +772,7 @@
 
 /datum/species/golem/clockwork/no_scrap //These golems are created through the herald's beacon and leave normal corpses on death.
 	id = "clockwork golem servant"
-	armor = 15 //Balance reasons make this armor weak
+	damage_resistance = 15 //Balance reasons make this armor weak
 	no_equip = list()
 	nojumpsuit = FALSE
 	has_corpse = TRUE
@@ -790,7 +790,7 @@
 	species_traits = list(NOBLOOD,NO_UNDERWEAR) //no mutcolors, and can burn
 	inherent_traits = list(TRAIT_RESISTCOLD,TRAIT_NOBREATH,TRAIT_RESISTHIGHPRESSURE,TRAIT_RESISTLOWPRESSURE,TRAIT_RADIMMUNE,TRAIT_GENELESS,TRAIT_PIERCEIMMUNE,TRAIT_NODISMEMBER,TRAIT_NOGUNS,TRAIT_NOHUNGER)
 	inherent_biotypes = MOB_UNDEAD|MOB_HUMANOID
-	armor = 15 //feels no pain, but not too resistant
+	damage_resistance = 15 //feels no pain, but not too resistant
 	burnmod = 2 // don't get burned
 	speedmod = 1 // not as heavy as stone
 	punchdamagelow = 4
@@ -987,7 +987,7 @@
 	id = "snow golem"
 	limbs_id = "sn_golem"
 	fixed_mut_color = "null" //custom sprites
-	armor = 45 //down from 55
+	damage_resistance = 45 //down from 55
 	burnmod = 3 //melts easily
 	info_text = "As a <span class='danger'>Snow Golem</span>, you are extremely vulnerable to burn damage, but you can generate snowballs and shoot cryokinetic beams. You will also turn to snow when dying, preventing any form of recovery."
 	prefix = "Snow"
@@ -1042,7 +1042,7 @@
 	attack_sound = 'sound/weapons/whip.ogg'
 	miss_sound = 'sound/weapons/etherealmiss.ogg'
 	fixed_mut_color = null
-	armor = 25
+	damage_resistance = 25
 	burnmod = 1.25
 	heatmod = 2
 	speedmod = 1.5
@@ -1302,7 +1302,7 @@
 	fixed_mut_color = "#F1D127"
 	meat = /obj/item/stack/sheet/cheese
 	inherent_traits = list(TRAIT_RESISTCOLD,TRAIT_RESISTHIGHPRESSURE,TRAIT_RESISTLOWPRESSURE,TRAIT_NOGUNS,TRAIT_RADIMMUNE,TRAIT_GENELESS,TRAIT_PIERCEIMMUNE,TRAIT_NODISMEMBER,TRAIT_NOHUNGER)
-	armor = 10
+	damage_resistance = 10
 	burnmod = 1.25
 	heatmod = 1.5
 	brutemod = 0.8
@@ -1338,7 +1338,7 @@
 	prefix = "Hydrogen"
 	stunmod = 0.6 //as opposed to plasteel's 0.4
 	special_names = list("Primordial","Indivisible","Proton", "Superconductor","Supersolid","Metastable","Oppenheimer") //the first element, in an exotic and theoretical state
-	armor = 75 //5 more than diamond, 20 more than base golem
+	damage_resistance = 75 //5 more than diamond, 20 more than base golem
 	inherent_traits = list(TRAIT_RESISTHEAT,TRAIT_NOBREATH,TRAIT_RESISTCOLD,TRAIT_RESISTHIGHPRESSURE,TRAIT_RESISTLOWPRESSURE,TRAIT_RADIMMUNE,TRAIT_GENELESS,TRAIT_PIERCEIMMUNE,TRAIT_NODISMEMBER,TRAIT_NOHUNGER,TRAIT_NOGUNS,TRAIT_NOHUNGER) //removed NOFIRE because hydrogen burns and they come from the fire department
 	ghost_cooldown = 30 MINUTES // Objectively better than diamond golems.
 
@@ -1419,7 +1419,7 @@
 	id = "ruinous golem"
 	limbs_id = "ruingolem"
 	sexes = FALSE
-	armor = 40 //down from 55
+	damage_resistance = 40 //down from 55
 	species_traits = list(NOBLOOD,NO_UNDERWEAR,NOEYESPRITES) //no mutcolors or eyesprites
 	speedmod = 1.5 //inbetween gold golem and iron
 	meat = /obj/item/reagent_containers/food/snacks/meat/slab/blessed
@@ -1461,7 +1461,7 @@
 	While you can burn, you take much less burn damage than other golems. You also have the ability to revive after death if you died while on fire."
 	species_traits = list(NOBLOOD,NO_UNDERWEAR, NO_DNA_COPY, NOTRANSSTING, NOEYESPRITES) //no mutcolors or eyesprites
 	inherent_traits = list(TRAIT_RESISTCOLD,TRAIT_NOBREATH,TRAIT_RESISTHIGHPRESSURE,TRAIT_RESISTLOWPRESSURE,TRAIT_RADIMMUNE,TRAIT_GENELESS,TRAIT_PIERCEIMMUNE,TRAIT_NODISMEMBER,TRAIT_NOGUNS,TRAIT_NOHUNGER) //no resistheat or nofire
-	armor = 10 // made of wax, tough wax but still wax
+	damage_resistance = 10 // made of wax, tough wax but still wax
 	burnmod = 0.75
 	speedmod = 1 // not as heavy as stone
 	heatmod = 0.1 //very little damage, but still there. Its like how a candle doesn't melt in seconds but still melts.

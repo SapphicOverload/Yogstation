@@ -197,7 +197,7 @@
 /datum/species/lizard/ashwalker/shaman
 	name = "Ash Walker Shaman"
 	id = "ashlizardshaman"
-	armor = -1 //more of a support than a standard ashwalker, don't get hit
+	damage_resistance = -1 //more of a support than a standard ashwalker, don't get hit
 	brutemod = 1.15
 	burnmod = 1.15
 	speedmod = -0.1 //similar to ethereals, should help with saving others

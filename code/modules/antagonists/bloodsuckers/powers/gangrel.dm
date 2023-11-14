@@ -72,7 +72,7 @@
 				playsound(user.loc, 'sound/voice/feline/meow1.ogg', 50)
 			if(!LAZYFIND(user_species.species_traits, DIGITIGRADE))
 				user_species.species_traits += DIGITIGRADE
-				user.dna.species.armor -= 20 //careful
+				user.dna.species.damage_resistance -= 20 //careful
 				user.dna.species.speedmod = -0.5
 				user.dna.species.action_speed_coefficient *= 0.7
 				bloodsuckerdatum.AddBloodVolume(75)
@@ -85,7 +85,7 @@
 			user.dna.species.punchdamagehigh += 10 //very stronk
 			user.dna.species.punchstunthreshold += 10
 			user.dna.species.action_speed_coefficient *= 1.3
-			user.dna.species.armor += 40
+			user.dna.species.damage_resistance += 40
 			bloodsuckerdatum.AddBloodVolume(50)
 		if("Bat")
 			var/mob/living/simple_animal/hostile/bloodsucker/giantbat/gb

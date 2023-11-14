@@ -49,7 +49,7 @@
 	limbs_id = "zombie"
 	inherent_traits = list(TRAIT_STABLELIVER, TRAIT_STABLEHEART, TRAIT_RESISTCOLD,TRAIT_RESISTHIGHPRESSURE,TRAIT_RESISTLOWPRESSURE,TRAIT_RADIMMUNE,TRAIT_EASILY_WOUNDED,TRAIT_LIMBATTACHMENT,TRAIT_NOBREATH,TRAIT_NODEATH,TRAIT_FAKEDEATH,TRAIT_STUNIMMUNE)
 	mutanthands = /obj/item/zombie_hand
-	armor = 20 // 120 damage to KO a zombie, which kills it
+	damage_resistance = 20 // 120 damage to KO a zombie, which kills it
 	speedmod = 1.6
 	mutanteyes = /obj/item/organ/eyes/night_vision/zombie
 	var/heal_rate = 1
@@ -165,7 +165,7 @@
 
 //The special zombie you get turned into in the zombie gamemode
 /datum/species/zombie/infectious/gamemode
-	armor = 20
+	damage_resistance = 20
 	brutemod = 0.925
 	burnmod = 0.925
 	speedmod = 1.45
@@ -176,19 +176,19 @@
 
 /datum/species/zombie/infectious/gamemode/runner
 	mutanthands = /obj/item/zombie_hand/gamemode/runner
-	armor = 10 // 110 damage to KO a zombie, which kills it
+	damage_resistance = 10 // 110 damage to KO a zombie, which kills it
 	speedmod = 0.45
 	brutemod = 1
 
 /datum/species/zombie/infectious/gamemode/juggernaut
 	mutanthands = /obj/item/zombie_hand/gamemode/tank
-	armor = 30 // 135 damage to KO a zombie, which kills it
+	damage_resistance = 30 // 135 damage to KO a zombie, which kills it
 	brutemod = 0.75
 	speedmod = 1.3
 	heal_rate = 1.20
 
 /datum/species/zombie/infectious/gamemode/spitter
-	armor = 5 // 110 damage to KO a zombie, which kills it
+	damage_resistance = 5 // 110 damage to KO a zombie, which kills it
 	brutemod = 1
 	burnmod = 1
 
@@ -204,18 +204,18 @@
 
 
 /datum/species/zombie/infectious/gamemode/coordinator
-	armor = 17
+	damage_resistance = 17
 	speedmod = 1.2
 
 /datum/species/zombie/infectious/gamemode/necromancer
 	mutanthands = /obj/item/zombie_hand/gamemode/necro
-	armor = 10
+	damage_resistance = 10
 	speedmod = 1.2
 
 /datum/species/zombie/infectious/gamemode/necromanced_minion
 	var/mob/living/carbon/human/master
 	var/max_distance = 1 //Default value
-	armor = 10
+	damage_resistance = 10
 	brutemod = 1.05
 	burnmod = 1.05
 	species_traits = list(NO_UNDERWEAR, NOBLOOD, NOZOMBIE, NOTRANSSTING, HAS_FLESH, HAS_BONE)
