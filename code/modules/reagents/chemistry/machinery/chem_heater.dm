@@ -67,6 +67,7 @@
 		return
 	if(on)
 		if(beaker && beaker.reagents.total_volume)
+			//keep constant with the chemical acclimator please
 			var/direction = beaker.reagents.chem_temp > target_temperature // is it cooling? used to allow it to snap to the target temp
 			var/heating = (1000 - beaker.reagents.chem_temp) * heater_coefficient * delta_time * (direction ? -1 : 1) // How much to increase the heat by
 			if(heating + beaker.reagents.chem_temp >= target_temperature && !direction) // Heat snapping condition
