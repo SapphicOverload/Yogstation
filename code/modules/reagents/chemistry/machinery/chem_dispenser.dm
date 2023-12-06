@@ -35,7 +35,7 @@
 	//This will display every reagent that it could POSSIBLY dispense if it was fully upgraded (barring emagged chemicals). Ones you can't use will show what tier you need.
 	//If you want to add more to the tiers, it has to be in dispensable_reagents AND the list of what you tier you want it in below.
 	var/list/display_reagents = list()
-
+	//dispensable_reagents is copypasted in plumbing synthesizers. Please update accordingly. (I didn't make it global because that would limit custom chem dispensers)
 	var/list/dispensable_reagents = list(
 		/datum/reagent/aluminium,
 		/datum/reagent/bromine,

@@ -1,13 +1,19 @@
 /datum/component/plumbing
-	var/list/datum/ductnet/ducts = list() //Index with "1" = /datum/ductnet/theductpointingnorth etc. "1" being the num2text from NORTH define
+	///Index with "1" = /datum/ductnet/theductpointingnorth etc. "1" being the num2text from NORTH define
+	var/list/datum/ductnet/ducts = list()
+	///shortcut to our parents' reagent holder
 	var/datum/reagents/reagents
-	var/use_overlays = TRUE //TRUE if we wanna add proper pipe outless under our parent object
-	var/list/image/ducterlays //We can't just cut all of the parents' overlays, so we'll track them here
-
-	var/supply_connects //directions in wich we act as a supplier
-	var/demand_connects //direction in wich we act as a demander
-
-	var/active = FALSE //FALSE to pretty much just not exist in the plumbing world so we can be moved, TRUE to go plumbo mode
+	///TRUE if we wanna add proper pipe outless under our parent object. this is pretty good if i may so so myself
+	var/use_overlays = TRUE
+	///We can't just cut all of the parents' overlays, so we'll track them here
+	var/list/image/ducterlays
+	///directions in wich we act as a supplier
+	var/supply_connects
+	///direction in wich we act as a demander
+	var/demand_connects
+	///FALSE to pretty much just not exist in the plumbing world so we can be moved, TRUE to go plumbo mode
+	var/active = FALSE
+	///if TRUE connects will spin with the parent object visually and codually, so you can have it work in any direction. FALSE if you want it to be static
 	var/turn_connects = TRUE
 
 /datum/component/plumbing/Initialize(start=TRUE, _turn_connects=TRUE) //turn_connects for wheter or not we spin with the object to change our pipes
@@ -19,13 +25,20 @@
 	reagents = AM.reagents
 	turn_connects = _turn_connects
 
-	RegisterSignals(parent, list(COMSIG_MOVABLE_MOVED,COMSIG_PARENT_PREQDELETED), PROC_REF(disable))
+	
 
 	if(start)
-		start()
+		enable()
 
 	if(use_overlays)
 		create_overlays()
+
+/datum/component/plumbing/RegisterWithParent()
+	RegisterSignals(parent, list(COMSIG_MOVABLE_MOVED,COMSIG_PARENT_PREQDELETED), PROC_REF(disable))
+	RegisterSignal(parent, COMSIG_OBJ_DEFAULT_UNFASTEN_WRENCH, PROC_REF(toggle_active))
+
+/datum/component/plumbing/UnregisterFromParent()
+	UnregisterSignal(parent, list(COMSIG_MOVABLE_MOVED, COMSIG_PARENT_PREQDELETED, COMSIG_OBJ_DEFAULT_UNFASTEN_WRENCH))
 
 /datum/component/plumbing/process()
 	if(!demand_connects || !reagents)
@@ -36,6 +49,7 @@
 			if(D & demand_connects)
 				send_request(D)
 
+///Can we be added to the ductnet?
 /datum/component/plumbing/proc/can_add(datum/ductnet/D, dir)
 	if(!active)
 		return
@@ -46,9 +60,11 @@
 
 	return TRUE
 
-/datum/component/plumbing/proc/send_request(dir) //this should usually be overwritten when dealing with custom pipes
+///called from in process(). only calls process_request(), but can be overwritten for children with special behaviour
+/datum/component/plumbing/proc/send_request(dir)
 	process_request(amount = 10, reagent = null, dir = dir)
 
+///check who can give us what we want, and how many each of them will give us
 /datum/component/plumbing/proc/process_request(amount, reagent, dir)
 	var/list/valid_suppliers = list()
 	var/datum/ductnet/net
@@ -63,6 +79,7 @@
 		var/datum/component/plumbing/give = A
 		give.transfer_to(src, amount / valid_suppliers.len, reagent)
 
+///returns TRUE when they can give the specified amount and reagent. called by process request
 /datum/component/plumbing/proc/can_give(amount, reagent)
 	if(!reagents || amount <= 0)
 		return
@@ -73,6 +90,7 @@
 	else if(reagents.total_volume > 0) //take whatever
 		return TRUE
 
+///this is where the reagent is actually transferred and is thus the finish point of our process()
 /datum/component/plumbing/proc/transfer_to(datum/component/plumbing/target, amount, reagent)
 	if(!reagents || !target || !target.reagents)
 		return FALSE
@@ -81,6 +99,7 @@
 	else
 		reagents.trans_to(target.reagents, amount)
 
+///We create our luxurious piping overlays/underlays, to indicate where we do what. only called once if use_overlays = TRUE in Initialize()
 /datum/component/plumbing/proc/create_overlays()
 	var/atom/movable/AM = parent
 	for(var/image/I in ducterlays)
@@ -114,7 +133,8 @@
 		AM.add_overlay(I)
 		ducterlays += I
 
-/datum/component/plumbing/proc/disable() //we stop acting like a plumbing thing and disconnect if we are, so we can safely be moved and stuff
+///we stop acting like a plumbing thing and disconnect if we are, so we can safely be moved and stuff
+/datum/component/plumbing/proc/disable()
 	if(!active)
 		return
 	STOP_PROCESSING(SSplumbing, src)
@@ -123,8 +143,13 @@
 		D.remove_plumber(src)
 
 	active = FALSE
+	for(var/D in GLOB.cardinals)
+		if(D & (demand_connects | supply_connects))
+			for(var/obj/machinery/duct/duct in get_step(parent, D))
+				duct.attempt_connect()
 
-/datum/component/plumbing/proc/start() //settle wherever we are, and start behaving like a piece of plumbing
+///settle wherever we are, and start behaving like a piece of plumbing
+/datum/component/plumbing/proc/enable()
 	if(active)
 		return
 	update_dir()
@@ -134,15 +159,21 @@
 		START_PROCESSING(SSplumbing, src)
 
 	for(var/D in GLOB.cardinals)
-		if(D & (demand_connects + supply_connects))
+		if(D & (demand_connects | supply_connects))
 			for(var/obj/machinery/duct/duct in get_step(parent, D))
-				var/turned_dir = turn(D, 180)
-				if(turned_dir & duct.connects)
-					duct.attempt_connect()
+				duct.attempt_connect()
 
-	//TODO: Let plumbers directly plumb into one another without ducts if placed adjacent to each other
+/// Toggle our machinery on or off. This is called by a hook from default_unfasten_wrench with anchored as only param, so we dont have to copypaste this on every object that can move
+/datum/component/plumbing/proc/toggle_active(obj/O, new_state)
+	if(new_state)
+		enable()
+	else
+		disable()
 
-/datum/component/plumbing/proc/update_dir() //note that this is only called when we settle down. If someone wants it to fucking spin while connected to something go actually knock yourself out
+/** We update our connects only when we settle down by taking our current and original direction to find our new connects
+* If someone wants it to fucking spin while connected to something go actually knock yourself out
+*/
+/datum/component/plumbing/proc/update_dir()
 	if(!turn_connects)
 		return
 	var/atom/movable/AM = parent
@@ -162,12 +193,15 @@
 		demand_connects = new_demand_connects
 		supply_connects = new_supply_connects
 
+///has one pipe input that only takes, example is manual output pipe
 /datum/component/plumbing/simple_demand
 	demand_connects = NORTH
 
+///has one pipe output that only supplies. example is liquid pump and manual input pipe
 /datum/component/plumbing/simple_supply
 	supply_connects = NORTH
 
+///input and output, like a holding tank
 /datum/component/plumbing/tank
 	demand_connects = WEST
 	supply_connects = EAST
