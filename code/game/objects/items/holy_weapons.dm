@@ -346,18 +346,38 @@
 	icon = 'icons/obj/weapons/misc.dmi'
 	icon_state = "bostaff0"
 	item_state = "bostaff0"
+	base_icon_state = "bostaff"
 	lefthand_file = 'icons/mob/inhands/weapons/staves_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/weapons/staves_righthand.dmi'
-	hitsound = "swing_hit"
+	hitsound = 'sound/effects/woodhit.ogg'
 	attack_verb = list("smashed", "slammed", "whacked", "thwacked")
 	w_class = WEIGHT_CLASS_BULKY
 	damtype = STAMINA
-	force = 15
+	force = 12 // 18 if wielded
 	block_chance = 40
 	slot_flags = ITEM_SLOT_BACK
 	sharpness = SHARP_NONE
 	menutab = MENU_WEAPON
-	additional_desc = "The weapon of choice for a devout monk. Block incoming blows while striking weak points until your opponent is too exhausted to continue."
+	additional_desc = "The weapon of choice for a devout monk. Block incoming blows while striking weak points until your opponent is too exhausted to continue. Requires two hands to wield properly."
+
+/obj/item/nullrod/bostaff/Initialize(mapload)
+	. = ..()
+	AddComponent(/datum/component/two_handed, force_wielded = 6)
+
+/obj/item/nullrod/bostaff/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text, final_block_chance, damage, attack_type)
+	if(!HAS_TRAIT(src, TRAIT_WIELDED))
+		return FALSE // can't block if you aren't wielding it
+	return ..()
+
+/obj/item/nullrod/bostaff/attack(mob/living/M, mob/living/user)
+	. = ..()
+	if(HAS_TRAIT(src, TRAIT_WIELDED)) // audio feedback is cool
+		playsound(get_turf(user), 'sound/effects/hit_kick.ogg', 75, 1, -1)
+
+/obj/item/nullrod/bostaff/update_icon_state()
+	. = ..()
+	icon_state = "[base_icon_state][HAS_TRAIT(src, TRAIT_WIELDED)]"
+	item_state = icon_state
 
 /obj/item/nullrod/tribal_knife
 	name = "arrhythmic knife"
