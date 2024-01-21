@@ -606,8 +606,6 @@ SUBSYSTEM_DEF(job)
 			msgr.receiving = TRUE
 	if(SSevents.holidays && SSevents.holidays["St. Patrick's Day"])
 		irish_override() // Assuming direct control.
-	else if(living_mob.job == "Bartender")
-		job.give_bar_choice(living_mob, M)
 	else if(living_mob.job == "Clerk")
 		job.give_clerk_choice(living_mob, M)
 	else if(living_mob.job == "Chaplain")
@@ -687,71 +685,6 @@ SUBSYSTEM_DEF(job)
 	for(var/obj/effect/landmark/stationroom/box/chapel/B in GLOB.landmarks_list)
 		template.load(B.loc, centered = FALSE)
 		qdel(B)
-
-/datum/controller/subsystem/job/proc/random_bar_init()
-	try
-		var/list/player_box = list()
-		for(var/mob/H in GLOB.player_list)
-			if(H.client && H.client.prefs) // Prefs was null once and there was no bar
-				player_box += H.client.prefs.read_preference(/datum/preference/choiced/bar_choice)
-
-		var/choice
-		if(player_box.len == 0)
-			choice = "Random"
-		else
-			choice = pick(player_box)
-
-		if(choice != "Random")
-			var/bar_sanitize = FALSE
-			for(var/A in GLOB.potential_box_bars)
-				if(choice == A)
-					bar_sanitize = TRUE
-					break
-		
-			if(!bar_sanitize)
-				choice = "Random"
-		
-		if(choice == "Random")
-			choice = pick(GLOB.potential_box_bars)
-
-		var/datum/map_template/template = SSmapping.station_room_templates[choice]
-
-		if(isnull(template))
-			message_admins("WARNING: BAR TEMPLATE [choice] FAILED TO LOAD! ATTEMPTING TO LOAD BACKUP")
-			log_game("WARNING: BAR TEMPLATE [choice] FAILED TO LOAD! ATTEMPTING TO LOAD BACKUP")
-			for(var/backup_bar in GLOB.potential_box_bars)
-				template = SSmapping.station_room_templates[backup_bar]
-				if(!isnull(template))
-					break
-				message_admins("WARNING: BAR TEMPLATE [backup_bar] FAILED TO LOAD! ATTEMPTING TO LOAD BACKUP")
-				log_game("WARNING: BAR TEMPLATE [backup_bar] FAILED TO LOAD! ATTEMPTING TO LOAD BACKUP")
-
-		if(isnull(template))
-			message_admins("WARNING: BAR RECOVERY FAILED! THERE WILL BE NO BAR FOR THIS ROUND!")
-			log_game("WARNING: BAR RECOVERY FAILED! THERE WILL BE NO BAR FOR THIS ROUND!")
-			return
-
-		for(var/obj/effect/landmark/stationroom/box/bar/B in GLOB.landmarks_list)
-			template.load(B.loc, centered = FALSE)
-			qdel(B)
-	catch(var/exception/e)
-		message_admins("RUNTIME IN RANDOM_BAR_INIT")
-		spawn_bar()
-		throw e
-
-/proc/spawn_bar()
-	var/datum/map_template/template
-	for(var/backup_bar in GLOB.potential_box_bars)
-		template = SSmapping.station_room_templates[backup_bar]
-		if(!isnull(template))
-			break
-	if(isnull(template))
-		message_admins("UNABLE TO SPAWN BAR")
-	
-	for(var/obj/effect/landmark/stationroom/box/bar/B in GLOB.landmarks_list)
-		template.load(B.loc, centered = FALSE)
-		qdel(B)
-
 
 /datum/controller/subsystem/job/proc/random_clerk_init()
 	try
@@ -960,38 +893,66 @@ SUBSYSTEM_DEF(job)
 		return
 
 	//bad mojo
-	var/area/shuttle/arrival/A = GLOB.areas_by_type[/area/shuttle/arrival]
-	if(A)
-		//first check if we can find a chair
-		var/obj/structure/chair/C = locate() in A
-		if(C)
-			C.JoinPlayerHere(M, buckle)
-			return
-
-		//last hurrah
-		var/list/avail = list()
-		for(var/turf/T in A)
-			if(!T.is_blocked_turf(TRUE))
-				avail += T
-		if(avail.len)
-			destination = pick(avail)
+	if(SSmapping.config.cryo_spawn)
+		var/area/shuttle/arrival/A = GLOB.areas_by_type[/area/crew_quarters/cryopods]
+		if(A)
+			var/list/pods = list()
+			var/list/unoccupied_pods = list()
+			for(var/obj/machinery/cryopod/pod in A)
+				pods |= pod
+				if(!pod.occupant)
+					unoccupied_pods |= pod
+			if(length(unoccupied_pods)) //if we have any unoccupied ones
+				destination = pick(unoccupied_pods)
+			else if(length(pods))
+				destination = pick(pods) //if they're all full somehow??
+			else //no pods at all
+				var/list/available = list()
+				for(var/turf/T in A)
+					if(!T.is_blocked_turf(TRUE))
+						available += T
+				if(length(available))
+					destination = pick(available)
+		if(destination)
 			destination.JoinPlayerHere(M, FALSE)
-			return
+		else
+			var/msg = "Unable to send mob [M] to late join (CRYOPODS)!"
+			message_admins(msg)
+			CRASH(msg)
 
-	//pick an open spot on arrivals and dump em
-	var/list/arrivals_turfs = shuffle(get_area_turfs(/area/shuttle/arrival))
-	if(arrivals_turfs.len)
-		for(var/turf/T in arrivals_turfs)
-			if(!T.is_blocked_turf(TRUE))
-				T.JoinPlayerHere(M, FALSE)
-				return
-		//last chance, pick ANY spot on arrivals and dump em
-		destination = arrivals_turfs[1]
-		destination.JoinPlayerHere(M, FALSE)
 	else
-		var/msg = "Unable to send mob [M] to late join!"
-		message_admins(msg)
-		CRASH(msg)
+		var/area/shuttle/arrival/A = GLOB.areas_by_type[/area/shuttle/arrival]
+		if(A)
+			//first check if we can find a chair
+			var/obj/structure/chair/C = locate() in A
+			if(C)
+				C.JoinPlayerHere(M, buckle)
+				return
+
+			//last hurrah
+			var/list/avail = list()
+			for(var/turf/T in A)
+				if(!T.is_blocked_turf(TRUE))
+					avail += T
+			if(avail.len)
+				destination = pick(avail)
+				destination.JoinPlayerHere(M, FALSE)
+				return
+
+		//pick an open spot on arrivals and dump em
+		var/list/arrivals_turfs = shuffle(get_area_turfs(/area/shuttle/arrival))
+		if(arrivals_turfs.len)
+			for(var/turf/T in arrivals_turfs)
+				if(!T.is_blocked_turf(TRUE))
+					T.JoinPlayerHere(M, FALSE)
+					return
+			//last chance, pick ANY spot on arrivals and dump em
+			destination = arrivals_turfs[1]
+			destination.JoinPlayerHere(M, FALSE)
+		else
+			var/msg = "Unable to send mob [M] to late join!"
+			message_admins(msg)
+			CRASH(msg)
 
 ///Lands specified mob at a random spot in the hallways
 /datum/controller/subsystem/job/proc/DropLandAtRandomHallwayPoint(mob/living/living_mob)
