@@ -237,9 +237,10 @@
 				if(H.check_shields(src, 0, "[A]", attack_type = LEAP_ATTACK))
 					blocked = TRUE
 			L.visible_message("<span class ='danger'>[A] pounces on [L]!</span>", "<span class ='userdanger'>[A] pounces on you!</span>")
-			L.Paralyze(blocked ? 6 SECONDS : 0)
-			L.Knockdown(10 SECONDS)
-			L.Immobilize(6 SECONDS)
+			if(blocked)
+				L.Paralyze(6 SECONDS)
+				L.Knockdown(10 SECONDS)
+				L.Immobilize(6 SECONDS)
 			A.SetKnockdown(0)
 			A.SetImmobilized(10 SECONDS) //due to our stun resistance this is actually about 6.6 seconds
 			if(linked_leap && !blocked)
