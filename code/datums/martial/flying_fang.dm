@@ -237,7 +237,7 @@
 				if(H.check_shields(src, 0, "[A]", attack_type = LEAP_ATTACK))
 					blocked = TRUE
 			L.visible_message("<span class ='danger'>[A] pounces on [L]!</span>", "<span class ='userdanger'>[A] pounces on you!</span>")
-			if(blocked)
+			if(!blocked)
 				L.Paralyze(6 SECONDS)
 				L.Knockdown(10 SECONDS)
 				L.Immobilize(6 SECONDS)
