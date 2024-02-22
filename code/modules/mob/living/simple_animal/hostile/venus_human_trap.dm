@@ -105,7 +105,7 @@
 	obj_damage = 60
 	melee_damage_lower = 25
 	melee_damage_upper = 25
-	ranged_cooldown_time = 8 SECONDS // ranged knockdown + disarm + immobilize + damage
+	ranged_cooldown_time = 3 SECONDS // ranged knockdown + disarm + immobilize + damage
 	a_intent = INTENT_HARM
 	attack_sound = 'sound/weapons/bladeslice.ogg'
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
