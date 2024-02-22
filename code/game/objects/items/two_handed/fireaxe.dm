@@ -11,6 +11,7 @@
 	demolition_mod = 3 // specifically designed for breaking things
 	w_class = WEIGHT_CLASS_BULKY
 	slot_flags = ITEM_SLOT_BACK
+	tool_behaviour = TOOL_HATCHET // it's an axe, it can chop things
 	attack_verb = list("attacked", "chopped", "cleaved", "torn", "cut", "axed")
 	hitsound = 'sound/weapons/bladeslice.ogg'
 	sharpness = SHARP_EDGED

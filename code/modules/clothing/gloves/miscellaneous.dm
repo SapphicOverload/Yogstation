@@ -56,6 +56,7 @@
 	heat_protection = HANDS
 	max_heat_protection_temperature = GLOVES_MAX_TEMP_PROTECT
 	resistance_flags = NONE
+	clothing_flags = THICKMATERIAL // protects from thorny vines
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 5, RAD = 0, FIRE = 70, ACID = 30)
 
 /obj/item/clothing/gloves/combat

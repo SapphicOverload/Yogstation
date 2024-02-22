@@ -71,13 +71,13 @@
 	)
 	AddElement(/datum/element/connect_loc, loc_connections)
 
-/obj/effect/ebeam/vine/proc/on_entered(datum/source, atom/movable/AM)
+/obj/effect/ebeam/vine/proc/on_entered(datum/source, atom/movable/entering_atom)
 	SIGNAL_HANDLER
-	if(isliving(AM))
-		var/mob/living/L = AM
-		if(!isvineimmune(L))
-			L.adjustBruteLoss(5)
-			to_chat(L, span_alert("You cut yourself on the thorny vines."))
+	if(isliving(entering_atom))
+		var/mob/living/victim = entering_atom
+		if(!isvineimmune(victim) && victim.can_inject(victim, FALSE, BODY_ZONE_CHEST))
+			victim.adjustBruteLoss(5 * (100 - victim.getarmor(null, BIO)) / 100)
+			to_chat(victim, span_alert("You cut yourself on the thorny vines."))
 
 /**
   * Venus Human Trap
@@ -105,6 +105,7 @@
 	obj_damage = 60
 	melee_damage_lower = 25
 	melee_damage_upper = 25
+	ranged_cooldown_time = 8 SECONDS // ranged knockdown + disarm + immobilize + damage
 	a_intent = INTENT_HARM
 	attack_sound = 'sound/weapons/bladeslice.ogg'
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
@@ -140,7 +141,7 @@
 	
 /mob/living/simple_animal/hostile/venus_human_trap/proc/weedkiller(damage = 6)
 	adjustHealth(damage)
-	to_chat(src, span_danger("The chemical reacts with you and starts to melt you away!"))
+	to_chat(src, span_userdanger("The weedkiller starts to melt you away!"))
 
 /mob/living/simple_animal/hostile/venus_human_trap/AttackingTarget()
 	. = ..()
@@ -163,7 +164,7 @@
 		for(var/obj/O in T)
 			if(O.density)
 				return
-	
+
 	var/datum/beam/new_vine = Beam(the_target, icon_state = "vine", time = vine_duration * (ismob(the_target) ? 1 : 2), beam_type = /obj/effect/ebeam/vine, emissive = FALSE)
 	RegisterSignal(new_vine, COMSIG_QDELETING, PROC_REF(remove_vine), new_vine)
 	listclearnulls(vines)
@@ -242,8 +243,16 @@
   * Damages the mob if not
   */
 /mob/living/simple_animal/hostile/venus_human_trap/proc/kudzu_need(feedback = TRUE)
+	var/turf/our_turf = get_turf(src)
+	if(!our_turf)
+		CRASH("[type] called kudzu_need while somehow not on a turf!")
+	var/datum/gas_mixture/our_air = our_turf.return_air()
 	for(var/obj/structure/spacevine/vine_found in view(3, src))
-		return TRUE
+		if(our_air.return_temperature() >= FIRE_MINIMUM_TEMPERATURE_TO_EXIST && !(vine_found.resistance_flags & FIRE_PROOF))
+			continue // too hot
+		if(our_air.return_temperature() <= COLD_FIRE_MAXIMUM_TEMPERATURE_TO_EXIST && !(vine_found.resistance_flags & FREEZE_PROOF))
+			continue // too cold
+		return TRUE // at least one vine nearby that can support our current environment
 	if(feedback && prob(20))
 		to_chat(src, span_danger("You wither away without the support of the kudzu..."))
 	return FALSE

@@ -19,6 +19,7 @@
 	attack_verb = list("sawed", "torn", "cut", "chopped", "diced")
 	hitsound = "swing_hit"
 	sharpness = SHARP_EDGED
+	tool_behaviour = TOOL_HATCHET // it can REALLY chop things
 	actions_types = list(/datum/action/item_action/startchainsaw)
 	var/on = FALSE
 	var/force_on = 24
