@@ -189,10 +189,15 @@
 	var/turf/mob_turf = get_turf(mob_to_check)
 
 	if(!mob_turf)
-		return
+		return FALSE
 
 	if(!(mob_turf.z in impacted_z_levels))
-		return
+		return FALSE
+	
+	if(ismecha(mob_to_check.loc))
+		var/obj/mecha/mech = mob_to_check.loc
+		if(mech.enclosed)
+			return FALSE
 
 	if(istype(mob_to_check.loc, /obj/structure/closet))
 		var/obj/structure/closet/current_locker = mob_to_check.loc
@@ -201,10 +206,10 @@
 				return
 
 	if((immunity_type in mob_to_check.weather_immunities) || (WEATHER_ALL in mob_to_check.weather_immunities))
-		return
+		return FALSE
 
 	if(!(get_area(mob_to_check) in impacted_areas))
-		return
+		return FALSE
 
 	return TRUE
 
