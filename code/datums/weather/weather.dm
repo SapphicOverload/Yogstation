@@ -203,7 +203,7 @@
 		var/obj/structure/closet/current_locker = mob_to_check.loc
 		if(current_locker.weather_protection)
 			if((immunity_type in current_locker.weather_protection) || (WEATHER_ALL in current_locker.weather_protection))
-				return
+				return FALSE
 
 	if((immunity_type in mob_to_check.weather_immunities) || (WEATHER_ALL in mob_to_check.weather_immunities))
 		return FALSE
