@@ -80,6 +80,8 @@
 
 #define HALLUCINATION_RANGE(P) (min(7, round(P ** 0.25)))
 
+#define DECAY_POWER(power, inhibitor) abs(power - ((power/500)**3) * inhibitor) // negative power becomes positive power
+
 //If integrity percent remaining is less than these values, the monitor sets off the relevant alarm.
 #define SUPERMATTER_DELAM_PERCENT 5
 #define SUPERMATTER_EMERGENCY_PERCENT 25
@@ -439,6 +441,8 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 
 	damage_archived = damage
 
+	power = clamp(power, 0, SUPERMATTER_MAXIMUM_ENERGY) // clamp power between 0 and the maximum, whether or not there's any gas in it 
+
 	if(!removed || !removed.total_moles() || isspaceturf(T)) //we're in space or there is no gas to process
 		if(takes_damage)
 			damage += max((power / 1000) * DAMAGE_INCREASE_MULTIPLIER, 0.1) // always does at least some damage
@@ -531,12 +535,13 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 			temp_factor = 30
 			icon_state = initial(icon_state)
 
-		power = clamp((removed.return_temperature() * temp_factor / T0C) * gasmix_power_ratio + power, 0, SUPERMATTER_MAXIMUM_ENERGY) //Total laser power plus an overload
+		power = (removed.return_temperature() * temp_factor / T0C) * gasmix_power_ratio + power //Total laser power plus an overload
+		power = abs(power - ((power/500)**3) * powerloss_inhibitor) // decay the power, negative becomes positive
 
 		if(prob(50))
 			//1 + (tritRad + pluoxDampen * bzDampen * o2Rad * plasmaRad / (10 - bzrads))
 			last_rads = power * (1 + (tritiumcomp * TRITIUM_RADIOACTIVITY_MODIFIER) + (((pluoxiumcomp ** 2) * PLUOXIUM_RADIOACTIVITY_MODIFIER)) * (power_transmission_bonus/(10-(bzcomp * BZ_RADIOACTIVITY_MODIFIER)))) * radmodifier
-			radiation_pulse(src, max(last_rads))
+			radiation_pulse(src, last_rads)
 
 		if(nitriummol > NITRO_BALL_MOLES_REQUIRED) // haha funny particles go brrrrr
 			var/balls_shot = min(round(nitriummol / NITRO_BALL_MOLES_REQUIRED), NITRO_BALL_MAX_REACT_RATE / NITRO_BALL_MOLES_REQUIRED)
@@ -610,8 +615,6 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 		hallucination_duration = power * 0.1,
 		hallucination_max_duration = 400 SECONDS,
 	)
-
-	power -= ((power/500)**3) * powerloss_inhibitor
 
 	if(power > POWER_PENALTY_THRESHOLD || damage > damage_penalty_point)
 		if(power > POWER_PENALTY_THRESHOLD)
@@ -1290,5 +1293,3 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 		load(tongs, user)
 	else
 		return ..()
-
-#undef HALLUCINATION_RANGE
