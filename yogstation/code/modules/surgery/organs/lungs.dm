@@ -54,6 +54,3 @@
 /obj/item/reagent_containers/food/snacks/organ/plant_lung
 	list_reagents = list(/datum/reagent/consumable/nutriment = 5, /datum/reagent/medicine/salbutamol = 5)
 	foodtype = VEGETABLES | FRUIT
-
-/obj/item/organ/lungs/plant/ivymen
-	desc = "These lungs appear to be covered in a symbiotic fungus that allows ivymen to handle higher temperatures."

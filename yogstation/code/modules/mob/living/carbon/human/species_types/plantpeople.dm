@@ -364,7 +364,6 @@
 	limbs_id = "pod"
 	inherent_traits = list(TRAIT_NOGUNS,TRAIT_RESISTHIGHPRESSURE)
 	speedmod = 0
-	mutantlungs = /obj/item/organ/lungs/plant/ivymen
 	disliked_food = DAIRY
 
 /datum/species/pod/ivymen/on_species_gain(mob/living/carbon/C, datum/species/old_species)
