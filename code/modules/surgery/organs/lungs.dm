@@ -49,23 +49,10 @@
 	/// Whether helium speech effects are currently active
 	var/helium_speech = FALSE
 
+	/// How resistant you are to heating/cooling by breathing hot/cold gas. Higher means slower cooling.
+	var/internal_heat_capacity = 40
 	var/cold_message = "your face freezing and an icicle forming"
-	var/cold_level_1_threshold = 260
-	var/cold_level_2_threshold = 200
-	var/cold_level_3_threshold = 120
-	var/cold_level_1_damage = COLD_GAS_DAMAGE_LEVEL_1 //Keep in mind with gas damage levels, you can set these to be negative, if you want someone to heal, instead.
-	var/cold_level_2_damage = COLD_GAS_DAMAGE_LEVEL_2
-	var/cold_level_3_damage = COLD_GAS_DAMAGE_LEVEL_3
-	var/cold_damage_type = BURN
-
 	var/hot_message = "your face burning and a searing heat"
-	var/heat_level_1_threshold = 360
-	var/heat_level_2_threshold = 400
-	var/heat_level_3_threshold = 1000
-	var/heat_level_1_damage = HEAT_GAS_DAMAGE_LEVEL_1
-	var/heat_level_2_damage = HEAT_GAS_DAMAGE_LEVEL_2
-	var/heat_level_3_damage = HEAT_GAS_DAMAGE_LEVEL_3
-	var/heat_damage_type = BURN
 
 	var/crit_stabilizing_reagent = /datum/reagent/medicine/epinephrine
 
@@ -412,30 +399,15 @@
 
 /obj/item/organ/lungs/proc/handle_breath_temperature(datum/gas_mixture/breath, mob/living/carbon/human/H) // called by human/life, handles temperatures
 	var/breath_temperature = breath.return_temperature()
-
-	if(!HAS_TRAIT(H, TRAIT_RESISTCOLD)) // COLD DAMAGE
-		var/cold_modifier = H.dna.species.coldmod
-		if(breath_temperature < cold_level_3_threshold)
-			H.apply_damage_type(cold_level_3_damage*cold_modifier, cold_damage_type)
-		if(breath_temperature > cold_level_3_threshold && breath_temperature < cold_level_2_threshold)
-			H.apply_damage_type(cold_level_2_damage*cold_modifier, cold_damage_type)
-		if(breath_temperature > cold_level_2_threshold && breath_temperature < cold_level_1_threshold)
-			H.apply_damage_type(cold_level_1_damage*cold_modifier, cold_damage_type)
-		if(breath_temperature < cold_level_1_threshold)
-			if(prob(20))
-				to_chat(H, span_warning("You feel [cold_message] in your [name]!"))
-
-	if(!HAS_TRAIT(H, TRAIT_RESISTHEAT)) // HEAT DAMAGE
-		var/heat_modifier = H.dna.species.heatmod
-		if(breath_temperature > heat_level_1_threshold && breath_temperature < heat_level_2_threshold)
-			H.apply_damage_type(heat_level_1_damage*heat_modifier, heat_damage_type)
-		if(breath_temperature > heat_level_2_threshold && breath_temperature < heat_level_3_threshold)
-			H.apply_damage_type(heat_level_2_damage*heat_modifier, heat_damage_type)
-		if(breath_temperature > heat_level_3_threshold)
-			H.apply_damage_type(heat_level_3_damage*heat_modifier, heat_damage_type)
-		if(breath_temperature > heat_level_1_threshold)
-			if(prob(20))
-				to_chat(H, span_warning("You feel [hot_message] in your [name]!"))
+	var/breath_heat_capacity = breath.heat_capacity()
+	if(!breath_heat_capacity) // divide by zero error
+		return
+	var/temp_change = clamp((breath_temperature - H.bodytemperature) * breath_heat_capacity / (breath_heat_capacity + internal_heat_capacity), BODYTEMP_COOLING_MAX, BODYTEMP_HEATING_MAX)
+	H.adjust_bodytemperature(temp_change, TCMB, 1000)
+	if(breath_temperature < BODYTEMP_COLD_DAMAGE_LIMIT && !HAS_TRAIT(H, TRAIT_RESISTCOLD) && prob(20)) // COLD DAMAGE
+		to_chat(H, span_warning("You feel [cold_message] in your [name]!"))
+	if(breath_temperature > BODYTEMP_HEAT_DAMAGE_LIMIT && !HAS_TRAIT(H, TRAIT_RESISTHEAT) && prob(20)) // HEAT DAMAGE
+		to_chat(H, span_warning("You feel [hot_message] in your [name]!"))
 
 /obj/item/organ/lungs/proc/handle_helium_speech(owner, list/speech_args)
 	SIGNAL_HANDLER
@@ -543,10 +515,6 @@
 	icon_state = "lungs-x"
 	breathing_class = /datum/breathing_class/oxygen_plas
 
-	heat_level_1_threshold = 313
-	heat_level_2_threshold = 353
-	heat_level_3_threshold = 600
-
 /obj/item/organ/lungs/xeno/populate_gas_info()
 	..()
 	gas_max -= GAS_PLASMA
@@ -602,14 +570,6 @@
 	SA_para_min = 3
 	SA_sleep_min = 6
 	BZ_trip_balls_min = 2
-
-	cold_level_1_threshold = 200
-	cold_level_2_threshold = 140
-	cold_level_3_threshold = 80
-
-	heat_level_1_threshold = 500
-	heat_level_2_threshold = 800
-	heat_level_3_threshold = 1400
 
 // ELECTROLYZER LUNGS!!!!!
 /obj/item/organ/lungs/ethereal
