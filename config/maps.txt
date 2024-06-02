@@ -50,7 +50,6 @@ map runtimestation
 	disabled 
 endmap
 
-
-
-
-
+map atmoscomputer
+	disabled
+endmap

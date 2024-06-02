@@ -637,6 +637,12 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 	icon_state = "atmos_hfr"
 	sound_environment = SOUND_AREA_SMALL_ENCLOSED
 
+/area/engine/atmos/debug
+	name = "\improper Atmospherics Computing Room"
+	icon_state = "atmos_project"
+	sound_environment = SOUND_AREA_LARGE_ENCLOSED
+	requires_power = FALSE
+
 /area/engine/supermatter
 	name = "Supermatter Engine"
 	icon_state = "engine_sm"

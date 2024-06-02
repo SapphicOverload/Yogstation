@@ -1,0 +1,44 @@
+{
+    "map_name": "Atmos Computer",
+    "map_path": "map_files/debug",
+    "map_file": "atmoscomputer.dmm",
+	"ignored_unit_tests": [
+		"/datum/unit_test/job_roundstart_spawnpoints"
+	],
+	"traits": [
+		{
+			"Up": true,	
+			"Linkage": null,
+			"Gravity": true,
+			"Baseturf": "/turf/open/floor/plating"
+		},
+		{
+			"Down": true,
+			"Up": true,	
+			"Linkage": null,
+			"Gravity": true,
+			"Baseturf": "/turf/open/openspace"
+		},
+		{
+			"Down": true,
+			"Up": true,	
+			"Linkage": null,
+			"Gravity": true,
+			"Baseturf": "/turf/open/openspace"
+		},
+		{
+			"Down": true,
+			"Up": true,	
+			"Linkage": null,
+			"Gravity": true,
+			"Baseturf": "/turf/open/openspace"
+		},
+		{
+			"Down": true,
+			"Linkage": null,
+			"Gravity": true,
+			"Baseturf": "/turf/open/openspace"
+		}
+	],
+	"minetype": "none"
+}

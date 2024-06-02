@@ -29,14 +29,21 @@
 // Uncomment to run runtimestation (less time to compile)
 //#define LOWMEMORYMODE
 
+// Uncomment to run the atmos computer test instead of runtimestation
+#define ATMOS_COMPUTER_TEST // remind me to comment this out later
+
 #ifndef PRELOAD_RSC				//set to:
 #define PRELOAD_RSC	2			//	0 to allow using external resources or on-demand behaviour;
 #endif							//	1 to use the default behaviour;
 								//	2 for preloading absolutely everything;
 
-#ifdef LOWMEMORYMODE
-#define FORCE_MAP "runtimestation"
-#define FORCE_MAP_DIRECTORY "_maps"
+#if defined(LOWMEMORYMODE)
+	#if defined(ATMOS_COMPUTER_TEST)
+		#define FORCE_MAP "atmoscomputer"
+	#else
+		#define FORCE_MAP "runtimestation"
+	#endif
+	#define FORCE_MAP_DIRECTORY "_maps"
 #endif
 
 //Additional code for the above flags.
