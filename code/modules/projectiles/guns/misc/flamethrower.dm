@@ -250,7 +250,7 @@
 		qdel(src)
 	var/turf/target_turf = get_turf(newloc)
 	target_turf.ignite_turf(rand(damage, damage * 4))
-	new /obj/effect/hotspot(target_turf, CELL_VOLUME, igniter_temp)
+	new /obj/effect/hotspot(target_turf, CELL_VOLUME / 2.5, igniter_temp)
 
 /obj/projectile/flamethrower/Moved(atom/old_loc, movement_dir, forced, list/old_locs, momentum_change)
 	. = ..()
