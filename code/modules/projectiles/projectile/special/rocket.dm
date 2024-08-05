@@ -50,13 +50,6 @@
 	damage = 30
 	demolition_mod = 4
 	ricochets_max = 0 //it's a MISSILE
-	var/sturdy = list(
-	/turf/closed,
-	/obj/mecha,
-	/obj/machinery/door/,
-	/obj/machinery/door/poddoor/shutters,
-	/obj/structure/window
-	)
 
 /obj/item/broken_missile
 	name = "\improper broken missile"
@@ -67,12 +60,10 @@
 
 
 /obj/projectile/bullet/a84mm_br/on_hit(atom/target, blocked=0)
-	..()
-	for(var/i in sturdy)
-		if(istype(target, i))
-			explosion(target, 0, 1, 1, 2)
-			return BULLET_ACT_HIT
-	//if(istype(target, /turf/closed) || ismecha(target))
+	. = ..()
+	if(target.uses_integrity) // any dense objects that can be conventionally destroyed
+		explosion(target, 0, 1, 1, 2)
+		return BULLET_ACT_HIT
 	new /obj/item/broken_missile(get_turf(src), 1)
 
 /obj/projectile/bullet/cball
