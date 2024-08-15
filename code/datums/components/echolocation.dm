@@ -198,7 +198,7 @@
 	receivers -= from_when
 
 /atom/movable/screen/fullscreen/echo
-	icon_state = "echo"
+	icon_state = "blindimageoverlay"
 	layer = ECHO_LAYER
 	show_when_dead = TRUE
 
