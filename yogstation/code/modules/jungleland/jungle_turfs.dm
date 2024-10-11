@@ -40,7 +40,7 @@ Temperature: 126.85 °C (400 K)
 	//base_lighting_color = COLOR_STARLIGHT
 	blob_allowed = FALSE //just in case
 	//ambience_index = AMBIENCE_JUNGLE
-	sound_environment = SOUND_ENVIRONMENT_FOREST
+	sound_environment = SOUND_AREA_LAVALAND
 
 /area/jungleland/explored
 	name = "Explored Jungle"
