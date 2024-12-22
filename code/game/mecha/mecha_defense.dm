@@ -19,6 +19,7 @@
 				check_for_internal_damage(list(MECHA_INT_FIRE,MECHA_INT_TEMP_CONTROL,MECHA_INT_TANK_BREACH,MECHA_INT_CONTROL_LOST,MECHA_INT_SHORT_CIRCUIT))
 		if(. >= 5 || prob(33))
 			occupant_message(span_userdanger("Taking damage!"))
+		adjust_overheat(damage_amount * (damage_type == BURN ? 0.1 : 0.05)) // add some overheat when taking damage, burn is more effective at this (duh)
 		log_message("Took [damage_amount] points of damage. Damage type: [damage_type]", LOG_MECHA)
 		diag_hud_set_mechhealth()
 

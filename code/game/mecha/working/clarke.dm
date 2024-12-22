@@ -15,7 +15,7 @@
 	light_power = 7
 	deflect_chance = 10
 	flags_1 = HEAR_1 | RAD_PROTECT_CONTENTS_1 | RAD_NO_CONTAMINATE_1
-	armor = list(MELEE = 25, BULLET = 10, LASER = 20, ENERGY = 0, BOMB = 60, BIO = 0, RAD = 100, FIRE = 100, ACID = 100)
+	armor = list(MELEE = 25, BULLET = -20, LASER = -20, ENERGY = 0, BOMB = 60, BIO = 0, RAD = 100, FIRE = 100, ACID = 100) // i apologize for my abuse of this mech (i will do it again)
 	max_equip = 7
 	enter_delay = 40
 	pivot_step = TRUE
@@ -28,7 +28,7 @@
 	box = new /obj/structure/ore_box(src)
 	var/obj/item/mecha_parts/mecha_equipment/orebox_manager/ME = new(src)
 	ME.attach(src)
-	AddComponent(/datum/component/armor_plate, 5, /obj/item/stack/sheet/animalhide/weaver_chitin, list(MELEE = 5, BULLET = 2, LASER = 2))
+	AddComponent(/datum/component/armor_plate, 5, /obj/item/stack/sheet/animalhide/weaver_chitin, list(MELEE = 5, BULLET = 4, LASER = 4)) // bullet/laser armor up to 0 at full reinforcement
 
 /obj/mecha/working/clarke/Destroy()
 	box.dump_box_contents()

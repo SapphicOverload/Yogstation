@@ -207,13 +207,17 @@
 	name = "12g breaching round"
 	desc = "A breaching round designed to destroy airlocks and windows with only a few shots, but is ineffective against other targets."
 	hitsound = 'sound/weapons/sonic_jackhammer.ogg'
-	damage = 10 //does shit damage to everything except doors and windows
-	demolition_mod = 6 //not that bad at breaking things
+	damage = 10 // weak against most things that aren't structures
+	demolition_mod = 50 // exceedingly good at breaking things
+
+/obj/projectile/bullet/shotgun/slug/breaching/Initialize(mapload)
+	. = ..()
+	ADD_TRAIT(src, TRAIT_SHIELDBUSTER)
 
 /obj/projectile/bullet/shotgun/slug/breaching/on_hit(atom/target)
-	if(istype(target, /obj/structure/window) || istype(target, /obj/machinery/door) || istype(target, /obj/structure/door_assembly) || istype(target, /obj/structure/grille))
-		demolition_mod = 50 //one shot to break a window or 3 shots to breach an airlock door
-	..()
+	if(ismecha(target) || isliving(target))
+		demolition_mod = 6 // turns it down to something more reasonable against mechs
+	return ..()
 
 /obj/projectile/bullet/pellet/hardlight
 	name = "scattered hardlight beam"

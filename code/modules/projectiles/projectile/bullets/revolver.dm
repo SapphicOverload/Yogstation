@@ -101,11 +101,16 @@
 /obj/projectile/bullet/a357/nutcracker
 	name = ".357 Nutcracker bullet"
 	damage = 30
+	demolition_mod = 25 // basically breaching slug with 1.5x damage
 
-/obj/projectile/bullet/a357/nutcracker/on_hit(atom/target) //Basically breaching slug with 1.5x damage
-	if(istype(target, /obj/structure/window) || istype(target, /obj/machinery/door) || istype(target, /obj/structure/door_assembly))
-		damage = 750 //One shot to break a window, two shots for a door, three if reinforced
-	..()
+/obj/projectile/bullet/a357/nutcracker/Initialize(mapload)
+	. = ..()
+	ADD_TRAIT(src, TRAIT_SHIELDBUSTER)
+
+/obj/projectile/bullet/a357/nutcracker/on_hit(atom/target) 
+	if(ismecha(target) || isliving(target))
+		demolition_mod = 3 // turns it down to be more reasonable against mechs
+	return ..()
 
 /obj/projectile/bullet/a357/metalshock
 	name = ".357 Metalshock bullet"
