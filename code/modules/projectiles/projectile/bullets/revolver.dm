@@ -109,7 +109,7 @@
 
 /obj/projectile/bullet/a357/nutcracker/on_hit(atom/target) 
 	if(ismecha(target) || isliving(target))
-		demolition_mod = 3 // turns it down to be more reasonable against mechs
+		demolition_mod = 2.45 // turns it down to be more reasonable against mechs
 	return ..()
 
 /obj/projectile/bullet/a357/metalshock
