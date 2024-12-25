@@ -105,7 +105,7 @@
 
 /obj/projectile/bullet/a357/nutcracker/Initialize(mapload)
 	. = ..()
-	ADD_TRAIT(src, TRAIT_SHIELDBUSTER)
+	ADD_TRAIT(src, TRAIT_SHIELDBUSTER, INNATE_TRAIT)
 
 /obj/projectile/bullet/a357/nutcracker/on_hit(atom/target) 
 	if(ismecha(target) || isliving(target))

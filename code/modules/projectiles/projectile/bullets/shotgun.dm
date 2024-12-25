@@ -212,7 +212,7 @@
 
 /obj/projectile/bullet/shotgun/slug/breaching/Initialize(mapload)
 	. = ..()
-	ADD_TRAIT(src, TRAIT_SHIELDBUSTER)
+	ADD_TRAIT(src, TRAIT_SHIELDBUSTER, INNATE_TRAIT)
 
 /obj/projectile/bullet/shotgun/slug/breaching/on_hit(atom/target)
 	if(ismecha(target) || isliving(target))
