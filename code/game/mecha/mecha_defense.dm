@@ -478,6 +478,8 @@
 
 /obj/mecha/atom_break(damage_flag)
 	. = ..()
+	if(wrecked)
+		return
 	wrecked = TRUE
 	repair_state = MECHA_WRECK_CUT
 	repair_hint = span_notice("The parts are scattered apart, but can be <b>welded</b> back together.")
