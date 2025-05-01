@@ -464,7 +464,7 @@
 /mob/living/proc/has_quirk(quirktype)
 	for(var/datum/quirk/Q in roundstart_quirks)
 		if(Q.type == quirktype)
-			return TRUE
+			return Q
 	return FALSE
 
 /mob/living/proc/remove_all_quirks()
@@ -502,11 +502,12 @@
 		return TRUE
 
 /mob/living/proc/become_husk(source)
-	if(!HAS_TRAIT(src, TRAIT_HUSK))
-		ADD_TRAIT(src, TRAIT_DISFIGURED, "husk")
-		. = TRUE
+	var/was_husk = HAS_TRAIT(src, TRAIT_HUSK)
 	ADD_TRAIT(src, TRAIT_HUSK, source)
-	update_body()
+	if(!was_husk)
+		ADD_TRAIT(src, TRAIT_DISFIGURED, "husk")
+		update_body()
+		. = TRUE
 
 /mob/living/proc/cure_fakedeath(list/sources)
 	REMOVE_TRAIT(src, TRAIT_FAKEDEATH, sources)

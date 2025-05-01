@@ -1,7 +1,7 @@
 /datum/species/mush //mush mush codecuck
 	name = "Mushroomperson"
 	plural_form = "Mushroompeople"
-	id = "mush"
+	id = SPECIES_MUSHROOM
 	mutant_bodyparts = list("caps")
 	default_features = list("caps" = "Round")
 	changesource_flags = MIRROR_BADMIN | WABBAJACK | ERT_SPAWN | SLIME_EXTRACT
@@ -17,7 +17,7 @@
 
 	punchdamagelow = 6
 	punchdamagehigh = 14
-	punchstunthreshold = 14 //about 44% chance to stun
+	punchstunchance = 0.44 //44% chance to stun
 
 	no_equip = list(ITEM_SLOT_MASK, ITEM_SLOT_OCLOTHING, ITEM_SLOT_GLOVES, ITEM_SLOT_FEET, ITEM_SLOT_ICLOTHING)
 

@@ -48,6 +48,11 @@
 
 /obj/item/organ/tail/cat/get_butt_sprite()
 	return BUTT_SPRITE_CAT
+	
+/obj/item/organ/tail/cat/fox
+	name = "fox tail"
+	desc = "A severed fox tail. Witty one-liner goes here."
+	tail_type = "Fox"
 
 /obj/item/organ/tail/lizard
 	name = "lizard tail"
@@ -56,6 +61,7 @@
 	color = "#116611"
 	tail_type = "Smooth"
 	var/spines = "None"
+	var/sound_override //for thumping
 
 /obj/item/organ/tail/lizard/Insert(mob/living/carbon/human/H, special = 0, drop_if_replaced = TRUE)
 	..()

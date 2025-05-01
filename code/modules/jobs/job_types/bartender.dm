@@ -14,11 +14,20 @@
 	outfit = /datum/outfit/job/bartender
 
 	added_access = list(ACCESS_HYDROPONICS, ACCESS_KITCHEN, ACCESS_MORGUE)
-	base_access = list(ACCESS_BAR, ACCESS_MINERAL_STOREROOM, ACCESS_WEAPONS, ACCESS_SERVHALL)
+	base_access = list(ACCESS_SERVICE, ACCESS_BAR, ACCESS_WEAPONS_PERMIT)
 	paycheck = PAYCHECK_EASY
 	paycheck_department = ACCOUNT_SRV
 	display_order = JOB_DISPLAY_ORDER_BARTENDER
 	minimal_character_age = 21 //I shouldn't have to explain this one
+
+	base_skills = list(
+		SKILL_PHYSIOLOGY = EXP_NONE,
+		SKILL_MECHANICAL = EXP_NONE,
+		SKILL_TECHNICAL = EXP_NONE,
+		SKILL_SCIENCE = EXP_NONE,
+		SKILL_FITNESS = EXP_MID,
+	)
+	skill_points = 2
 
 	departments_list = list(
 		/datum/job_department/service,

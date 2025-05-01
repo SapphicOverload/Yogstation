@@ -97,7 +97,7 @@
 		LAZYREMOVE(owner.all_scars, S)
 
 	var/mob/living/carbon/phantom_owner = owner // so we can still refer to the guy who lost their limb after said limb forgets 'em
-	owner = null
+	set_owner(null)
 
 	for(var/X in phantom_owner.surgeries) //if we had an ongoing surgery on that limb, we stop it.
 		var/datum/surgery/S = X
@@ -255,7 +255,7 @@
 		C.update_inv_gloves() //to remove the bloody hands overlay
 
 
-/obj/item/bodypart/r_leg/drop_limb(special)
+/obj/item/bodypart/leg/right/drop_limb(special)
 	if(owner && !special)
 		if(owner.legcuffed)
 			owner.legcuffed.forceMove(owner.drop_location()) //At this point bodypart is still in nullspace
@@ -266,7 +266,7 @@
 			owner.dropItemToGround(owner.shoes, TRUE)
 	..()
 
-/obj/item/bodypart/l_leg/drop_limb(special) //copypasta
+/obj/item/bodypart/leg/left/drop_limb(special) //copypasta
 	if(owner && !special)
 		if(owner.legcuffed)
 			owner.legcuffed.forceMove(owner.drop_location())
@@ -425,8 +425,6 @@
 		limb_list -= excluded_limbs
 	for(var/Z in limb_list)
 		. += regenerate_limb(Z, noheal)
-	if(("legs" in dna?.species?.mutant_bodyparts) && dna.features["legs"] == "Digitigrade Legs")
-		Digitigrade_Leg_Swap(FALSE)
 
 /mob/living/proc/regenerate_limb(limb_zone, noheal)
 	return

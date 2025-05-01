@@ -8,7 +8,7 @@
 	initial_language_holder = /datum/language_holder/synthetic
 	infra_luminosity = 0
 	bubble_icon = BUBBLE_MACHINE
-	weather_immunities = list("ash")
+	weather_immunities = WEATHER_STORM
 	mob_biotypes = MOB_ROBOTIC
 	deathsound = 'sound/voice/borg_deathsound.ogg'
 	speech_span = SPAN_ROBOT
@@ -45,7 +45,6 @@
 	var/interaction_range = 7			//wireless control range
 	///The reference to the built-in tablet that borgs carry.
 	var/obj/item/modular_computer/tablet/integrated/modularInterface
-	var/obj/item/pda/aiPDA
 
 /mob/living/silicon/Initialize(mapload)
 	. = ..()
@@ -122,7 +121,7 @@
 				if(alarm_types_show["Camera"])
 					msg += "CAMERA: [alarm_types_show["Camera"]] alarms detected. - "
 
-				msg += "<A href=?src=[REF(src)];showalerts=1'>\[Show Alerts\]</a>"
+				msg += "<A href=byond://?src=[REF(src)];showalerts=1'>\[Show Alerts\]</a>"
 				to_chat(src, msg)
 
 			if(alarms_to_clear.len < 3)
@@ -147,7 +146,7 @@
 				if(alarm_types_show["Camera"])
 					msg += "CAMERA: [alarm_types_clear["Camera"]] alarms cleared. - "
 
-				msg += "<A href=?src=[REF(src)];showalerts=1'>\[Show Alerts\]</a>"
+				msg += "<A href=byond://?src=[REF(src)];showalerts=1'>\[Show Alerts\]</a>"
 				to_chat(src, msg)
 
 
@@ -262,12 +261,6 @@
 
 /mob/living/silicon/put_in_hand_check() // This check is for borgs being able to receive items, not put them in others' hands.
 	return 0
-
-// The src mob is trying to place an item on someone
-// But the src mob is a silicon!!  Disable.
-/mob/living/silicon/stripPanelEquip(obj/item/what, mob/who, slot)
-	return 0
-
 
 /mob/living/silicon/assess_threat(judgement_criteria, lasercolor = "", datum/callback/weaponcheck=null) //Secbots won't hunt silicon units
 	return -10

@@ -35,7 +35,7 @@
 	var/drawtype
 	var/text_buffer = ""
 
-	var/static/list/graffiti = list("amyjon","face","matt","revolution","engie","guy","end","dwarf","uboa","body","cyka","star","poseur tag","prolizard","antilizard")
+	var/static/list/graffiti = list("amyjon","face","matt","revolution","engie","guy","end","dwarf","uboa","body","cyka","star","poseur tag","prolizard","antilizard","voxpox")
 	var/static/list/symbols = list("danger","firedanger","electricdanger","biohazard","radiation","safe","evac","space","med","trade","shop","food","peace","like","skull","nay","heart","credit")
 	var/static/list/drawings = list("smallbrush","brush","largebrush","splatter","snake","stickman","carp","ghost","clown","taser","disk","fireaxe","toolbox","corgi","cat","toilet","blueprint","beepsky","scroll","bottle","shotgun")
 	var/static/list/oriented = list("arrow","line","thinline","shortline","body","chevron","footprint","clawprint","pawprint") // These turn to face the same way as the drawer
@@ -330,12 +330,6 @@
 		temp = "number"
 	else if(is_alpha(drawing))
 		temp = "letter"
-	var/gang_check = hippie_gang_check(user,target) // yogs start -- gang check and temp setting
-	if(!gang_check)
-		return
-	//else if(gang_check == "gang graffiti")
-	//	temp = gang_check // yogs end
-
 
 	var/graf_rot
 	if(drawing in oriented)
@@ -367,8 +361,7 @@
 	var/wait_time = 50
 	if(paint_mode == PAINT_LARGE_HORIZONTAL)
 		wait_time *= 3
-	if(gang) //yogs
-		instant = FALSE // yogs -- gang spraying must not be instant, balance reasons
+
 	if(!instant)
 		if(!do_after(user, 5 SECONDS, target))
 			return
@@ -384,11 +377,6 @@
 
 	var/list/turf/affected_turfs = list()
 
-	if(gang) // yogs start -- gang spraying is done differently
-		if(gang_final(user, target, affected_turfs))
-			return
-		actually_paints = FALSE // skip the next if check
-	// yogs end
 	if(actually_paints)
 		switch(paint_mode)
 			if(PAINT_NORMAL)
@@ -689,6 +677,15 @@
 
 		return
 
+	if(istype(target, /obj/machinery/light))
+		var/obj/machinery/light/light = target
+		if(actually_paints)
+			light.add_atom_colour(paint_color, WASHABLE_COLOUR_PRIORITY)
+			light.bulb_colour = paint_color
+			light.update()
+		. = use_charges(user, 2)
+		return
+		
 	if(isobj(target))
 		if(actually_paints)
 			target.add_atom_colour(min_value(paint_color), WASHABLE_COLOUR_PRIORITY)

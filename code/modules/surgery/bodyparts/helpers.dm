@@ -173,11 +173,13 @@
 		if(BODY_ZONE_HEAD)
 			L = new /obj/item/bodypart/head()
 		if(BODY_ZONE_L_LEG)
-			L = new /obj/item/bodypart/l_leg()
+			L = new /obj/item/bodypart/leg/left()
 		if(BODY_ZONE_R_LEG)
-			L = new /obj/item/bodypart/r_leg()
+			L = new /obj/item/bodypart/leg/right()
 		if(BODY_ZONE_CHEST)
 			L = new /obj/item/bodypart/chest()
+	if((L.body_part & LEG_LEFT|LEG_RIGHT) && (DIGITIGRADE in dna?.species?.species_traits))
+		L.set_digitigrade(TRUE)
 	if(L)
 		L.update_limb(fixed_icon, src)
 		if(robotic)
@@ -194,9 +196,9 @@
 		if(BODY_ZONE_HEAD)
 			L = new /obj/item/bodypart/head/monkey()
 		if(BODY_ZONE_L_LEG)
-			L = new /obj/item/bodypart/l_leg/monkey()
+			L = new /obj/item/bodypart/leg/left/monkey()
 		if(BODY_ZONE_R_LEG)
-			L = new /obj/item/bodypart/r_leg/monkey()
+			L = new /obj/item/bodypart/leg/right/monkey()
 		if(BODY_ZONE_CHEST)
 			L = new /obj/item/bodypart/chest/monkey()
 	if(L)
@@ -228,9 +230,9 @@
 		if(BODY_ZONE_HEAD)
 			L = new /obj/item/bodypart/head/alien()
 		if(BODY_ZONE_L_LEG)
-			L = new /obj/item/bodypart/l_leg/alien()
+			L = new /obj/item/bodypart/leg/left/alien()
 		if(BODY_ZONE_R_LEG)
-			L = new /obj/item/bodypart/r_leg/alien()
+			L = new /obj/item/bodypart/leg/right/alien()
 		if(BODY_ZONE_CHEST)
 			L = new /obj/item/bodypart/chest/alien()
 	if(L)
@@ -277,8 +279,10 @@
 			. = "#fff4e6"
 		if("orange")
 			. = "#ffc905"
+		if("green")
+			. = "#a8e61d"
 
-/mob/living/carbon/proc/Digitigrade_Leg_Swap(swap_back)
+/mob/living/carbon/proc/digitigrade_leg_swap(swap_back)
 	var/body_plan_changed = FALSE
 	for(var/X in bodyparts)
 		var/obj/item/bodypart/O = X
@@ -286,14 +290,14 @@
 		if((!O.use_digitigrade && swap_back == FALSE) || (O.use_digitigrade && swap_back == TRUE))
 			if(O.body_part & LEG_LEFT)
 				if(swap_back == TRUE)
-					N = new /obj/item/bodypart/l_leg
+					N = new /obj/item/bodypart/leg/left
 				else
-					N = new /obj/item/bodypart/l_leg/digitigrade
+					N = new /obj/item/bodypart/leg/left/digitigrade
 			else if(O.body_part & LEG_RIGHT)
 				if(swap_back == TRUE)
-					N = new /obj/item/bodypart/r_leg
+					N = new /obj/item/bodypart/leg/right
 				else
-					N = new /obj/item/bodypart/r_leg/digitigrade
+					N = new /obj/item/bodypart/leg/right/digitigrade
 		if(!N)
 			continue
 		body_plan_changed = TRUE
@@ -303,12 +307,11 @@
 	if(body_plan_changed && ishuman(src))
 		var/mob/living/carbon/human/H = src
 		if(H.w_uniform)
-			var/obj/item/clothing/under/U = H.w_uniform
-			if(U.mutantrace_variation)
-				if(swap_back)
-					U.adjusted = NORMAL_STYLE
-				else
-					U.adjusted = DIGITIGRADE_STYLE
-				H.update_inv_w_uniform()
-		if(H.shoes && !swap_back)
-			H.dropItemToGround(H.shoes)
+			H.update_inv_w_uniform()
+		if(H.wear_suit)
+			H.update_inv_wear_suit()
+		if(H.shoes)
+			if(!H.can_equip(H.shoes, ITEM_SLOT_FEET, TRUE))
+				H.dropItemToGround(H.shoes)
+			else
+				H.update_inv_shoes()

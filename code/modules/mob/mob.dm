@@ -23,6 +23,11 @@
   * Returns QDEL_HINT_HARDDEL (don't change this)
   */
 /mob/Destroy()//This makes sure that mobs with clients/keys are not just deleted from the game.
+	if(client)
+		stack_trace("Mob with client has been deleted")
+	else if(ckey)
+		stack_trace("Mob without client but with associated ckey has been deleted.")
+
 	remove_from_mob_list()
 	remove_from_dead_mob_list()
 	remove_from_alive_mob_list()
@@ -87,7 +92,7 @@
 	update_config_movespeed()
 	update_movespeed(TRUE)
 
-/mob/New()
+/mob/New(loc, ...)
 	// This needs to happen IMMEDIATELY. I'm sorry :(
 	GenerateTag()
 	return ..()
@@ -499,10 +504,6 @@
 	SEND_SIGNAL(src, COMSIG_MOB_RESET_PERSPECTIVE)
 	return TRUE
 
-/// Show the mob's inventory to another mob
-/mob/proc/show_inv(mob/user)
-	return
-
 /**
   * Examine a mob
   *
@@ -809,42 +810,6 @@
 		unset_machine()
 		src << browse(null, t1)
 
-	if(href_list["refresh"])
-		if(machine && in_range(src, usr))
-			show_inv(machine)
-
-
-	if(href_list["item"] && usr.canUseTopic(src, BE_CLOSE, NO_DEXTERY))
-		var/slot = text2num(href_list["item"])
-		var/hand_index = text2num(href_list["hand_index"])
-		var/obj/item/what
-		if(hand_index)
-			what = get_item_for_held_index(hand_index)
-			slot = list(slot,hand_index)
-		else
-			what = get_item_by_slot(slot)
-		if(what)
-			if(!(what.item_flags & ABSTRACT))
-				usr.stripPanelUnequip(what,src,slot)
-		else
-			usr.stripPanelEquip(what,src,slot)
-
-	if(usr.machine == src)
-		if(Adjacent(usr))
-			show_inv(usr)
-		else
-			usr << browse(null,"window=mob[REF(src)]")
-
-// The src mob is trying to strip an item from someone
-// Defined in living.dm
-/mob/proc/stripPanelUnequip(obj/item/what, mob/who)
-	return
-
-// The src mob is trying to place an item on someone
-// Defined in living.dm
-/mob/proc/stripPanelEquip(obj/item/what, mob/who)
-	return
-
 /**
   * Controls if a mouse drop succeeds (return null if it doesnt)
   */
@@ -858,12 +823,6 @@
 		return
 	if(isAI(M))
 		return
-
-/mob/MouseDrop_T(atom/dropping, atom/user)
-	. = ..()
-	if(ismob(dropping) && dropping != user && user == src)
-		var/mob/M = dropping
-		M.show_inv(user)
 
 /**
   * Handle the result of a click drag onto this mob
@@ -1035,7 +994,7 @@
 		is_magic_blocked = TRUE
 	if((casted_magic_flags & MAGIC_RESISTANCE_HOLY) && HAS_TRAIT(src, TRAIT_HOLY))
 		is_magic_blocked = TRUE
-	
+
 	if(is_magic_blocked && charge_cost > 0 && !HAS_TRAIT(src, TRAIT_RECENTLY_BLOCKED_MAGIC))
 		on_block_magic_effects(casted_magic_flags, antimagic_sources)
 
@@ -1138,7 +1097,7 @@
 	return IsAdminGhost(src) || Adjacent(A)
 
 ///Can the mob use Topic to interact with machines
-/mob/proc/canUseTopic(atom/movable/M, be_close=FALSE, no_dextery=FALSE, no_tk=FALSE)
+/mob/proc/canUseTopic(atom/movable/M, be_close=FALSE, no_dexterity=FALSE, no_tk=FALSE)
 	return
 
 ///Can this mob use storage
@@ -1237,14 +1196,12 @@
 					break
 				search_id = 0
 
-		else if( search_pda && istype(A, /obj/item/pda) )
-			var/obj/item/pda/PDA = A
-			if(PDA.owner == oldname)
-				PDA.owner = newname
-				PDA.update_label()
-				if(!search_id)
-					break
-				search_pda = 0
+		else if( search_pda && istype(A, /obj/item/modular_computer/tablet) )
+			var/obj/item/modular_computer/tablet/PDA_or_phone = A
+			PDA_or_phone.update_label()
+			if(!search_id)
+				break
+			search_pda = 0
 
 /mob/proc/update_stat()
 	return
@@ -1270,7 +1227,7 @@
 		return
 	for(var/atom/movable/screen/plane_master/rendering_plate/lighting/light as anything in hud_used.get_true_plane_masters(RENDER_PLANE_LIGHTING))
 		light.set_light_cutoff(lighting_cutoff, lighting_color_cutoffs)
-		
+
 ///Update the mouse pointer of the attached client in this mob
 /mob/proc/update_mouse_pointer()
 	if (!client)

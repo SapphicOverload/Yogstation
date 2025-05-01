@@ -13,12 +13,23 @@
 
 	outfit = /datum/outfit/job/network_admin
 
-	added_access = list(ACCESS_ENGINE, ACCESS_ENGINE_EQUIP, ACCESS_MAINT_TUNNELS)
-	base_access = list(ACCESS_TCOMSAT, ACCESS_TCOM_ADMIN, ACCESS_TECH_STORAGE, ACCESS_RC_ANNOUNCE, ACCESS_CONSTRUCTION, ACCESS_MECH_ENGINE, ACCESS_NETWORK, ACCESS_RESEARCH, ACCESS_MINISAT, ACCESS_RND, ACCESS_TOX)
+	added_access = list(ACCESS_ENGINEERING, ACCESS_ENGINE_EQUIP, ACCESS_MAINT_TUNNELS)
+	base_access = list(ACCESS_SCIENCE, ACCESS_TCOMMS, ACCESS_TCOMMS_ADMIN, ACCESS_TECH_STORAGE, ACCESS_RC_ANNOUNCE,
+					ACCESS_CONSTRUCTION, ACCESS_MECH_ENGINE, ACCESS_RESEARCH, ACCESS_AI_SAT)
+
 	paycheck = PAYCHECK_MEDIUM
 	paycheck_department = ACCOUNT_SCI
 	display_order = JOB_DISPLAY_ORDER_NETWORK_ADMIN
 	minimal_character_age = 22 //Feasibly same level as engineer, mostly a data engineer instead of a mechanical or construction-based one, though is still capable of making certain machines
+
+	base_skills = list(
+		SKILL_PHYSIOLOGY = EXP_NONE,
+		SKILL_MECHANICAL = EXP_NONE,
+		SKILL_TECHNICAL = EXP_MID,
+		SKILL_SCIENCE = EXP_MID,
+		SKILL_FITNESS = EXP_NONE,
+	)
+	skill_points = 2
 
 	departments_list = list(
 		/datum/job_department/engineering,

@@ -219,8 +219,8 @@
 
 /obj/item/stack/tile/carpet/blue
 	name = "exotic blue carpet"
-	icon_state = "tile-carpet-blue"
-	item_state = "tile-carpet-blue"
+	icon_state = "tile-carpet-exoticblue"
+	item_state = "tile-carpet-exoticblue"
 	turf_type = /turf/open/floor/carpet/blue
 	tableVariant = /obj/structure/table/wood/fancy/blue
 
@@ -233,8 +233,8 @@
 
 /obj/item/stack/tile/carpet/green
 	name = "exotic green carpet"
-	icon_state = "tile-carpet-green"
-	item_state = "tile-carpet-green"
+	icon_state = "tile-carpet-exoticgreen"
+	item_state = "tile-carpet-exoticgreen"
 	turf_type = /turf/open/floor/carpet/green
 	tableVariant = /obj/structure/table/wood/fancy/green
 
@@ -247,8 +247,8 @@
 
 /obj/item/stack/tile/carpet/purple
 	name = "exotic purple carpet"
-	icon_state = "tile-carpet-purple"
-	item_state = "tile-carpet-purple"
+	icon_state = "tile-carpet-exoticpurple"
+	item_state = "tile-carpet-exoticpurple"
 	turf_type = /turf/open/floor/carpet/purple
 	tableVariant = /obj/structure/table/wood/fancy/purple
 
@@ -294,6 +294,23 @@
 	turf_type = /turf/open/floor/carpet/donk
 	merge_type = /obj/item/stack/tile/carpet/donk
 
+/obj/item/stack/tile/carpet/plainblue
+	name = "blue carpet"
+	icon_state = "tile-carpet-blue"
+	item_state = "tile-carpet-blue"
+	turf_type = /turf/open/floor/carpet/plainblue
+
+/obj/item/stack/tile/carpet/plaingreen
+	name = "green carpet"
+	icon_state = "tile-carpet-green"
+	item_state = "tile-carpet-green"
+	turf_type = /turf/open/floor/carpet/plaingreen
+
+/obj/item/stack/tile/carpet/plainpurple
+	name = "purple carpet"
+	icon_state = "tile-carpet-purple"
+	item_state = "tile-carpet-purple"
+	turf_type = /turf/open/floor/carpet/plainpurple
 
 /obj/item/stack/tile/carpet/fifty
 	amount = 50
@@ -323,6 +340,15 @@
 	amount = 50
 
 /obj/item/stack/tile/carpet/royalblue/fifty
+	amount = 50
+
+/obj/item/stack/tile/carpet/plainblue/fifty
+	amount = 50
+
+/obj/item/stack/tile/carpet/plaingreen/fifty
+	amount = 50
+
+/obj/item/stack/tile/carpet/plainpurple/fifty
 	amount = 50
 
 
@@ -441,14 +467,14 @@
 	materials = list() // All other Borg versions of items have no Metal or Glass - RR
 	is_cyborg = 1
 	cost = 125
-	
+
 /obj/item/stack/tile/eighties
 	name = "retro tile"
 	singular_name = "retro floor tile"
 	desc = "A stack of floor tiles that remind you of an age of funk."
 	icon_state = "tile_eighties"
 	turf_type = /turf/open/floor/eighties
-	
+
 /obj/item/stack/tile/eighties/loaded
 	amount = 15
 
@@ -500,3 +526,50 @@
 	singular_name = "smooth iron catwalk floor tile"
 	icon_state = "smoothiron_catwalk"
 	turf_type = /turf/open/floor/catwalk_floor/iron_smooth
+
+// Glass floors
+/obj/item/stack/tile/glass
+	name = "glass floor"
+	singular_name = "glass floor tile"
+	desc = "Glass window floors, to let you see... Whatever that is down there."
+	icon_state = "tile_glass"
+	turf_type = /turf/open/floor/glass
+	item_state = "tile-glass"
+	merge_type = /obj/item/stack/tile/glass
+	mats_per_unit = list(/datum/material/glass=SHEET_MATERIAL_AMOUNT * 0.25) // 4 tiles per sheet
+	replace_plating = TRUE
+
+/obj/item/stack/tile/glass/sixty
+	amount = 60
+
+/obj/item/stack/tile/rglass
+	name = "reinforced glass floor"
+	singular_name = "reinforced glass floor tile"
+	desc = "Reinforced glass window floors. These bad boys are 50% stronger than their predecessors!"
+	icon_state = "tile_rglass"
+	item_state = "tile-rglass"
+	turf_type = /turf/open/floor/glass/reinforced
+	merge_type = /obj/item/stack/tile/rglass
+	mats_per_unit = list(/datum/material/iron=SHEET_MATERIAL_AMOUNT * 0.125, /datum/material/glass=SHEET_MATERIAL_AMOUNT * 0.25) // 4 tiles per sheet
+	replace_plating = TRUE
+
+/obj/item/stack/tile/rglass/sixty
+	amount = 60
+
+/obj/item/stack/tile/glass/plasma
+	name = "plasma glass floor"
+	singular_name = "plasma glass floor tile"
+	desc = "Plasma glass window floors, for when... Whatever is down there is too scary for normal glass."
+	icon_state = "tile_pglass"
+	turf_type = /turf/open/floor/glass/plasma
+	merge_type = /obj/item/stack/tile/glass/plasma
+	mats_per_unit = list(/datum/material/plasma=SHEET_MATERIAL_AMOUNT * 0.125, /datum/material/glass=SHEET_MATERIAL_AMOUNT * 0.25)
+
+/obj/item/stack/tile/rglass/plasma
+	name = "reinforced plasma glass floor"
+	singular_name = "reinforced plasma glass floor tile"
+	desc = "Reinforced plasma glass window floors, because whatever's downstairs should really stay down there."
+	icon_state = "tile_rpglass"
+	turf_type = /turf/open/floor/glass/reinforced/plasma
+	merge_type = /obj/item/stack/tile/rglass/plasma
+	mats_per_unit = list(/datum/material/iron=SHEET_MATERIAL_AMOUNT * 0.125, /datum/material/plasma=SHEET_MATERIAL_AMOUNT * 0.125, /datum/material/glass=SHEET_MATERIAL_AMOUNT * 0.25)

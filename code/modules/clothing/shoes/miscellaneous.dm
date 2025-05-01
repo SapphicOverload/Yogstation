@@ -100,16 +100,17 @@
 
 /obj/item/clothing/shoes/clown_shoes/CtrlClick(mob/living/user)
 	if(!isliving(user))
-		return
+		return FALSE
 	if(user.get_active_held_item() != src)
 		to_chat(user, "You must hold the [src] in your hand to do this.")
-		return
+		return TRUE
 	if (!enabled_waddle)
 		to_chat(user, span_notice("You switch off the waddle dampeners!"))
 		enabled_waddle = TRUE
 	else
 		to_chat(user, span_notice("You switch on the waddle dampeners!"))
 		enabled_waddle = FALSE
+	return TRUE
 
 /obj/item/clothing/shoes/clown_shoes/jester
 	name = "jester shoes"
@@ -556,6 +557,12 @@
 	item_state = "footwraps_ca"
 	xenoshoe = YES_DIGIT
 	mutantrace_variation = DIGITIGRADE_VARIATION
+
+/obj/item/clothing/shoes/xeno_wraps/cargo/cleated
+	name = "cleated footwraps"
+	desc = "Standard issue Nanotrasen cloth footwraps, with steel cleats riveted every few inches to help cross ice."
+	clothing_flags = NOSLIP_ICE
+
 
 /datum/action/item_action/dash
 	name = "Dash"

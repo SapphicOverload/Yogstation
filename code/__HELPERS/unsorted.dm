@@ -321,6 +321,15 @@
 		if(istype(checked_atom, type))
 			. += checked_atom
 
+///Checks if an atom is inside another atom. Significantly faster than iterating through all the mob's contents.
+/atom/proc/contains_atom(atom/contained_atom)
+	var/atom/location_checked = contained_atom.loc
+	while(location_checked != src)
+		if(isnull(location_checked))
+			return FALSE // end of the line
+		location_checked = location_checked.loc
+	return TRUE // success!
+
 ///Returns a list of all locations (except the area) the movable is within.
 /proc/get_nested_locs(atom/movable/atom_on_location, include_turf = FALSE)
 	. = list()
@@ -781,22 +790,36 @@ B --><-- A
 	sleep(duration)
 	A.cut_overlay(O)
 
+/// Returns the closest atom of a given type to the source atom.
 /proc/get_closest_atom(type, list, source)
 	var/list/closest_atoms = list()
-	var/closest_distance
+	var/closest_distance = INFINITY
 	for(var/A in list)
 		if(!istype(A, type))
 			continue
 		var/distance = get_dist(source, A)
-		if(!closest_atoms.len)
+		if(closest_distance > distance)
 			closest_distance = distance
 			closest_atoms = list(A)
-		else
-			if(closest_distance > distance)
-				closest_distance = distance
-				closest_atoms = list(A)
-			else if(closest_distance == distance)
-				closest_atoms += A
+		else if(closest_distance == distance)
+			closest_atoms += A
+	return pick(closest_atoms) //if there are multiple atoms with the same distance, picks randomly from a list of them
+
+/// Returns the closest atom of a given type to the center of a list of atoms. Can be very expensive with large lists.
+/proc/get_closest_atom_to_group(type, list, list/sources)
+	var/list/closest_atoms = list()
+	var/closest_distance = INFINITY
+	for(var/A in list)
+		if(!istype(A, type))
+			continue
+		var/distance = 0
+		for(var/atom/source as anything in sources)
+			distance += get_dist(source, A)
+		if(closest_distance > distance)
+			closest_distance = distance
+			closest_atoms = list(A)
+		else if(closest_distance == distance)
+			closest_atoms += A
 	return pick(closest_atoms) //if there are multiple atoms with the same distance, picks randomly from a list of them
 
 proc/pick_closest_path(value, list/matches = get_fancy_list_of_atom_types())
@@ -1084,7 +1107,8 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 		D.vars[var_name] = var_value
 
 /proc/get_random_food()
-	var/list/blocked = list(/obj/item/reagent_containers/food/snacks/store/bread,
+	var/list/blocked = list(
+		/obj/item/reagent_containers/food/snacks/store/bread,
 		/obj/item/reagent_containers/food/snacks/breadslice,
 		/obj/item/reagent_containers/food/snacks/store/cake,
 		/obj/item/reagent_containers/food/snacks/cakeslice,
@@ -1104,7 +1128,20 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 		/obj/item/reagent_containers/food/snacks/grown/shell, //base types
 		/obj/item/reagent_containers/food/snacks/store/bread,
 		/obj/item/reagent_containers/food/snacks/grown/nettle,
-		/obj/item/reagent_containers/food/snacks/fish // debug fish
+		/obj/item/reagent_containers/food/snacks/burger/cluwneburger, //permanent cluwnification
+		/obj/item/reagent_containers/food/snacks/burger/roburger, //permanent borgification
+		/obj/item/reagent_containers/food/snacks/burger/roburgerbig, //same thing
+		/obj/item/reagent_containers/food/snacks/pizza/margherita/robo, //same thing again
+		/obj/item/reagent_containers/food/snacks/meat/slab/gondola, //permanent gondolaification
+		/obj/item/reagent_containers/food/snacks/donkpocket/gondola, //same thing
+		/obj/item/reagent_containers/food/snacks/meat/raw_cutlet/gondola, //same thing
+		/obj/item/reagent_containers/food/snacks/meat/cutlet/gondola, //same thing
+		/obj/item/reagent_containers/food/snacks/donkpocket/warm/gondola, //same thing
+		/obj/item/reagent_containers/food/snacks/fish, // debug fish
+		/obj/item/reagent_containers/food/snacks/powercrepe, //obscenely strong for a food item and shouldn't just be randomly spawned
+		/obj/item/reagent_containers/food/snacks/grown/banana/bombanana, //They were made in a factory. A bomb factory. They're bombs.
+		/obj/item/reagent_containers/food/snacks/ice_cream_cone, //base cone
+		/obj/item/reagent_containers/food/snacks/raw_cone //base raw cone
 		)
 	blocked |= typesof(/obj/item/reagent_containers/food/snacks/customizable)
 

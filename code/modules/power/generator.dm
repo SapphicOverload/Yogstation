@@ -58,7 +58,7 @@
 
 	var/L = min(round(lastgenlev/100000), 11)
 	if(L != 0)
-		SSvis_overlays.add_vis_overlay(src, icon, "teg-op[L]", ABOVE_LIGHTING_PLANE, dir)
+		SSvis_overlays.add_vis_overlay(src, icon, "teg-op[L]", LIGHTING_PRIMARY_LAYER, ABOVE_LIGHTING_PLANE, dir)
 
 #define GENRATE 800		// generator output coefficient from Q
 
@@ -157,7 +157,7 @@
 	else
 		t += span_bad("Unable to locate any parts!")
 	if(include_link)
-		t += "<BR><A href='?src=[REF(src)];close=1'>Close</A>"
+		t += "<BR><A href='byond://?src=[REF(src)];close=1'>Close</A>"
 
 	return t
 

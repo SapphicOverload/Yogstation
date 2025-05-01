@@ -138,12 +138,12 @@
 
 /obj/item/gun/energy/plasmacutter/proc/modify_projectile(obj/projectile/plasma/K)
 	K.gun = src //do something special on-hit, easy!
-	for(var/obj/item/upgrade/plasmacutter/A in installed_upgrades)
+	for(var/obj/item/borg/upgrade/plasmacutter/A in installed_upgrades)
 		A.modify_projectile(K)
 
 /obj/item/gun/energy/plasmacutter/proc/get_remaining_mod_capacity()
 	. = mod_capacity
-	for(var/obj/item/upgrade/plasmacutter/a in installed_upgrades)
+	for(var/obj/item/borg/upgrade/plasmacutter/a in installed_upgrades)
 		. -= a.cost
 	return .
 
@@ -154,7 +154,7 @@
 
 /obj/item/gun/energy/plasmacutter/Destroy()
 	. = ..()
-	for(var/obj/item/upgrade/plasmacutter/a in installed_upgrades)
+	for(var/obj/item/borg/upgrade/plasmacutter/a in installed_upgrades)
 		qdel(a)
 	QDEL_NULL(installed_upgrades)
 
@@ -163,7 +163,7 @@
 	if(cell)
 		. += span_notice("[src] is [round(cell.percent())]% charged.")
 	. += span_boldnotice("[get_remaining_mod_capacity()]%</b> mod capacity remaining.")
-	for(var/obj/item/upgrade/plasmacutter/a in installed_upgrades)
+	for(var/obj/item/borg/upgrade/plasmacutter/a in installed_upgrades)
 		. += span_notice("There is \a [a] installed, using [span_bold("[a.cost]%")] capacity.")
 
 /obj/item/gun/energy/plasmacutter/attackby(obj/item/I, mob/user)
@@ -222,7 +222,7 @@
 		else
 			progress_flash_divisor--
 
-/obj/item/gun/energy/plasmacutter/use_tool(atom/target, mob/living/user, delay, amount=1, volume=0, datum/callback/extra_checks, robo_check)
+/obj/item/gun/energy/plasmacutter/use_tool(atom/target, mob/living/user, delay, amount=1, volume=0, datum/callback/extra_checks, skill_check)
 	if(amount)
 		var/mutable_appearance/sparks = mutable_appearance('icons/effects/welding_effect.dmi', "welding_sparks", GASFIRE_LAYER, src, ABOVE_LIGHTING_PLANE)
 		target.add_overlay(sparks)
@@ -233,34 +233,26 @@
 
 /obj/item/gun/energy/plasmacutter/attackby(obj/item/I, mob/user)
 	. = ..()
-	if(istype(I, /obj/item/upgrade/plasmacutter))
-		var/obj/item/upgrade/plasmacutter/PC = I
-		if(get_remaining_mod_capacity() < PC.cost)
-			to_chat(user, span_warning("There is no more room for this upgrade."))
-			return
-		if(!PC.stackable && is_type_in_list(PC, installed_upgrades))
-			to_chat(user, span_notice("[I] has already been installed in [src]"))
-			return
-		to_chat(user, span_notice("You install [I] into [src]"))
-		playsound(loc, 'sound/items/screwdriver.ogg', 100, 1)
-		installed_upgrades += I
-		PC.install(src)
-		I.forceMove(src)
+	if(istype(I, /obj/item/borg/upgrade/plasmacutter))
+		var/obj/item/borg/upgrade/plasmacutter/PC = I
+		PC.install(src, user)
 
 /obj/item/gun/energy/plasmacutter/crowbar_act(mob/living/user, obj/item/I)
 	. = TRUE
 	if(installed_upgrades.len)
 		to_chat(user, span_notice("You pry the modifications out."))
 		I.play_tool_sound(src, 100)
-		for(var/obj/item/upgrade/plasmacutter/M in installed_upgrades)
+		for(var/obj/item/borg/upgrade/plasmacutter/M in installed_upgrades)
 			M.forceMove(drop_location()) // Uninstallation handled in Exited().
 	else
 		to_chat(user, span_notice("There are no modifications currently installed."))
 
 /obj/item/gun/energy/plasmacutter/Exited(atom/movable/gone, direction)
 	..()
+	if(istype(src, /obj/item/gun/energy/plasmacutter/adv/cyborg))
+		return // Cyborg should be handling their own thing: /mob/living/silicon/robot/remove_from_upgrades().
 	if(gone in installed_upgrades)
-		var/obj/item/upgrade/plasmacutter/MK = gone
+		var/obj/item/borg/upgrade/plasmacutter/MK = gone
 		MK.uninstall(src)
 
 /obj/item/gun/energy/plasmacutter/mini
@@ -288,6 +280,12 @@
 	ammo_type = list(/obj/item/ammo_casing/energy/plasma/adv/mega)
 	mod_capacity = 120
 
+/obj/item/gun/energy/plasmacutter/adv/mega/glacite
+	name = "mega plasma cutter"
+	icon_state = "adv_plasmacutter_g"
+	item_state = "plasmacutter_glacite"
+	desc = "A mining tool capable of expelling concentrated plasma bursts. You could use it to cut limbs off xenos! Or, you know, mine stuff. This one has been enhanced with plasma glacite."
+
 /obj/item/gun/energy/plasmacutter/scatter
 	name = "plasma cutter shotgun"
 	icon_state = "miningshotgun"
@@ -304,6 +302,11 @@
 	desc = "An industrial-grade, heavy-duty mining shotgun. This one seems... mega!"
 	ammo_type = list(/obj/item/ammo_casing/energy/plasma/scatter/adv/mega)
 	mod_capacity = 120
+
+/obj/item/gun/energy/plasmacutter/scatter/mega/glacite
+	name = "mega plasma cutter shotgun"
+	icon_state = "miningshotgun_glacite"
+	item_state = "miningshotgun_glacite"
 
 /obj/item/gun/energy/plasmacutter/adv/cyborg
 	name = "cyborg advanced plasma cutter"
@@ -323,7 +326,7 @@
 	mod_capacity = 100
 
 // Upgrades for plasma cutters
-/obj/item/upgrade/plasmacutter
+/obj/item/borg/upgrade/plasmacutter
 	name = "generic upgrade kit"
 	desc = "An upgrade for plasma cutters."
 	icon = 'icons/obj/objects.dmi'
@@ -333,7 +336,7 @@
 	var/cost = 10
 	var/stackable = FALSE
 
-/obj/item/upgrade/plasmacutter/examine(mob/user)
+/obj/item/borg/upgrade/plasmacutter/examine(mob/user)
 	. = ..()
 	. += span_notice("This mod takes up [cost] mod capacity.")
 
@@ -342,60 +345,91 @@
 	else
 		. += span_notice("This mod is not stackable.")
 
-/obj/item/upgrade/plasmacutter/proc/modify_projectile(obj/projectile/plasma/K)
+/obj/item/borg/upgrade/plasmacutter/action(mob/living/silicon/robot/R)
+	. = ..()
+	if(!.)
+		return FALSE
+	for(var/obj/item/gun/energy/plasmacutter/P in R.module.modules)
+		return install(P, usr)
 
-/obj/item/upgrade/plasmacutter/proc/install(obj/item/gun/energy/plasmacutter/P)
+/obj/item/borg/upgrade/plasmacutter/deactivate(mob/living/silicon/robot/R, user = usr)
+	. = ..()
+	if(!.)
+		return FALSE
 
-/obj/item/upgrade/plasmacutter/proc/uninstall(obj/item/gun/energy/plasmacutter/P)
+	for(var/obj/item/gun/energy/plasmacutter/P in R.module.modules)
+		uninstall(P)
+
+/obj/item/borg/upgrade/plasmacutter/proc/modify_projectile(obj/projectile/plasma/K)
+	return
+
+/obj/item/borg/upgrade/plasmacutter/proc/install(obj/item/gun/energy/plasmacutter/P, mob/user)
+	if(P.get_remaining_mod_capacity() < cost)
+		to_chat(user, span_warning("There is no more room for this upgrade."))
+		return FALSE
+	if(!stackable && is_type_in_list(src, P.installed_upgrades))
+		to_chat(user, span_notice("[src] has already been installed in [P]"))
+		return FALSE
+	to_chat(user, span_notice("You install [src] into [P]"))
+	playsound(loc, 'sound/items/screwdriver.ogg', 100, 1)
+	P.installed_upgrades += src
+	forceMove(P)
+	return TRUE
+
+/obj/item/borg/upgrade/plasmacutter/proc/uninstall(obj/item/gun/energy/plasmacutter/P)
 	P.installed_upgrades -= src // Allows you to put the mod back in
 
-/obj/item/upgrade/plasmacutter/defuser
+/obj/item/borg/upgrade/plasmacutter/defuser
 	name = "plasma cutter defusal kit"
 	desc = "An upgrade for plasma cutters that allows it to automatically defuse gibtonite."
 
-/obj/item/upgrade/plasmacutter/defuser/modify_projectile(obj/projectile/plasma/K)
+/obj/item/borg/upgrade/plasmacutter/defuser/modify_projectile(obj/projectile/plasma/K)
 	K.defuse = TRUE
 
-/obj/item/upgrade/plasmacutter/capacity
+/obj/item/borg/upgrade/plasmacutter/capacity
 	name = "plasma cutter capacity kit"
 	desc = "An upgrade for plasma cutters that doubles the tank capacity."
 	cost = 20
 
-/obj/item/upgrade/plasmacutter/capacity/install(obj/item/gun/energy/plasmacutter/P)
-	P.cell.maxcharge = initial(P.cell.maxcharge)*2
-
-/obj/item/upgrade/plasmacutter/capacity/uninstall(obj/item/gun/energy/plasmacutter/P)
+/obj/item/borg/upgrade/plasmacutter/capacity/install(obj/item/gun/energy/plasmacutter/P)
 	. = ..()
+	if(.)
+		P.cell.maxcharge = initial(P.cell.maxcharge)*2
+
+/obj/item/borg/upgrade/plasmacutter/capacity/uninstall(obj/item/gun/energy/plasmacutter/P)
 	P.cell.maxcharge = initial(P.cell.maxcharge)
 	P.cell.charge = min(P.cell.charge, P.cell.maxcharge)
+	..()
 
-/obj/item/upgrade/plasmacutter/cooldown
+/obj/item/borg/upgrade/plasmacutter/cooldown
 	name = "plasma cutter cooldown kit"
 	desc = "An upgrade for plasma cutters that reduces the cooldown."
 	cost = 40
 	stackable = TRUE
 
-/obj/item/upgrade/plasmacutter/cooldown/install(obj/item/gun/energy/plasmacutter/P)
-	P.fire_delay *= 0.5
-
-/obj/item/upgrade/plasmacutter/cooldown/uninstall(obj/item/gun/energy/plasmacutter/P)
+/obj/item/borg/upgrade/plasmacutter/cooldown/install(obj/item/gun/energy/plasmacutter/P)
 	. = ..()
-	P.fire_delay *= 2
+	if(.)
+		P.fire_delay *= 0.5
 
-/obj/item/upgrade/plasmacutter/range
+/obj/item/borg/upgrade/plasmacutter/cooldown/uninstall(obj/item/gun/energy/plasmacutter/P)
+	P.fire_delay *= 2
+	..()
+
+/obj/item/borg/upgrade/plasmacutter/range
 	name = "plasma cutter range kit"
 	desc = "An upgrade for plasma cutters that increases the range."
 	cost = 30
 
-/obj/item/upgrade/plasmacutter/range/modify_projectile(obj/projectile/plasma/K)
+/obj/item/borg/upgrade/plasmacutter/range/modify_projectile(obj/projectile/plasma/K)
 	K.range += 4
 
-/obj/item/upgrade/plasmacutter/ore
+/obj/item/borg/upgrade/plasmacutter/ore
 	name = "plasma cutter ore kit"
 	desc = "An upgrade for plasma cutters that doubles ore output."
 	cost = 30
 
-/obj/item/upgrade/plasmacutter/ore/modify_projectile(obj/projectile/plasma/K)
+/obj/item/borg/upgrade/plasmacutter/ore/modify_projectile(obj/projectile/plasma/K)
 	K.explosive = TRUE
 
 /obj/item/gun/energy/wormhole_projector

@@ -110,7 +110,7 @@
 	autoclose = FALSE
 	frequency = FREQ_AIRLOCK_CONTROL
 	heat_proof = TRUE
-	req_access = list(ACCESS_TOX)
+	req_access = list(ACCESS_TOXINS)
 
 /obj/machinery/door/airlock/research/glass/incinerator/toxmix_interior
 	name = "Mixing Room Interior Airlock"
@@ -304,7 +304,7 @@
 	autoclose = FALSE
 	frequency = FREQ_AIRLOCK_CONTROL
 	heat_proof = TRUE
-	req_one_access = list(ACCESS_ATMOSPHERICS, ACCESS_MAINT_TUNNELS)
+	req_access = list(ACCESS_ATMOSPHERICS)
 
 /obj/machinery/door/airlock/public/glass/incinerator/atmos_interior
 	name = "Turbine Interior Airlock"
@@ -366,7 +366,7 @@
 	normal_integrity = 400 // reverse engieneerd: 400 * 1.5 (sec lvl 6) = 600 = original
 	security_level = 6
 	rad_insulation = RAD_FULL_INSULATION
-	armor = list(MELEE = 30, BULLET = 30, LASER = 20, ENERGY = 100, BOMB = 10, BIO = 100, RAD = 100, FIRE = 80, ACID = 70) //only changed energy to 100
+	armor = list(MELEE = 30, BULLET = 30, LASER = 20, ENERGY = 20, BOMB = 10, BIO = 100, RAD = 100, FIRE = 80, ACID = 70, ELECTRIC = 100) //only changed energy to 100
 
 //////////////////////////////////
 /*
@@ -411,7 +411,7 @@
 	security_level = 1
 	damage_deflection = 30
 	rad_insulation = RAD_FULL_INSULATION
-	armor = list(MELEE = 30, BULLET = 30, LASER = 20, ENERGY = 100, BOMB = 10, BIO = 100, RAD = 100, FIRE = 80, ACID = 70) //only changed energy to 100
+	armor = list(MELEE = 30, BULLET = 30, LASER = 20, ENERGY = 20, BOMB = 10, BIO = 100, RAD = 100, FIRE = 80, ACID = 70, ELECTRIC = 100) //only changed energy to 100
 
 //////////////////////////////////
 /*

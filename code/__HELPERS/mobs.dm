@@ -61,8 +61,6 @@
 		init_sprite_accessory_subtypes(/datum/sprite_accessory/frills, GLOB.frills_list)
 	if(!GLOB.spines_list.len)
 		init_sprite_accessory_subtypes(/datum/sprite_accessory/spines, GLOB.spines_list)
-	if(!GLOB.legs_list.len)
-		init_sprite_accessory_subtypes(/datum/sprite_accessory/legs, GLOB.legs_list)
 	if(!GLOB.body_markings_list.len)
 		init_sprite_accessory_subtypes(/datum/sprite_accessory/body_markings, GLOB.body_markings_list)
 	if(!GLOB.wings_list.len)
@@ -95,10 +93,21 @@
 		init_sprite_accessory_subtypes(/datum/sprite_accessory/ipc_antennas, GLOB.ipc_antennas_list)
 	if(!GLOB.ipc_chassis_list.len)
 		init_sprite_accessory_subtypes(/datum/sprite_accessory/ipc_chassis, GLOB.ipc_chassis_list)
+	if(!GLOB.vox_quills_list.len)
+		init_sprite_accessory_subtypes(/datum/sprite_accessory/vox_quills, GLOB.vox_quills_list)
+	if(!GLOB.vox_facial_quills_list.len)
+		init_sprite_accessory_subtypes(/datum/sprite_accessory/vox_facial_quills, GLOB.vox_facial_quills_list)
+	if(!GLOB.vox_tails_list.len)
+		init_sprite_accessory_subtypes(/datum/sprite_accessory/vox_tails, GLOB.vox_tails_list)
+	if(!GLOB.vox_body_markings_list.len)
+		init_sprite_accessory_subtypes(/datum/sprite_accessory/vox_body_markings, GLOB.vox_body_markings_list)
+	if(!GLOB.vox_tail_markings_list.len)
+		init_sprite_accessory_subtypes(/datum/sprite_accessory/vox_tail_markings, GLOB.vox_tail_markings_list)
 
 	//For now we will always return none for tail_human and ears.		this shit was unreadable if you do somethign like this make it at least readable
 	return(list(
 		"mcolor" = "#[pick("7F","FF")][pick("7F","FF")][pick("7F","FF")]",
+		"mcolor_secondary" = "#[pick("7F","FF")][pick("7F","FF")][pick("7F","FF")]",
 		"gradientstyle" = random_hair_gradient_style(10),
 		"gradientcolor" = "#[pick("FFFFFF","7F7F7F", "7FFF7F", "7F7FFF", "FF7F7F", "7FFFFF", "FF7FFF", "FFFF7F")]",
 		"tail_lizard" = pick(GLOB.tails_list_lizard),
@@ -110,7 +119,6 @@
 		"frills" = pick(GLOB.frills_list),
 		"spines" = pick(GLOB.spines_list),
 		"body_markings" = pick(GLOB.body_markings_list),
-		"legs" = "Normal Legs",
 		"caps" = pick(GLOB.caps_list),
 		"moth_wings" = pick(GLOB.moth_wings_list),
 		"tail_polysmorph" = pick(GLOB.tails_list_polysmorph),
@@ -126,7 +134,12 @@
 		"pod_hair" = pick(GLOB.pod_hair_list),
 		"ipc_screen" = pick(GLOB.ipc_screens_list),
 		"ipc_antenna" = pick(GLOB.ipc_antennas_list),
-		"ipc_chassis" = pick(GLOB.ipc_chassis_list)
+		"ipc_chassis" = pick(GLOB.ipc_chassis_list),
+		"vox_skin_tone" = pick(GLOB.vox_skin_tones),
+		"vox_quills" = pick(GLOB.vox_quills_list),
+		"vox_facial_quills" = pick(GLOB.vox_facial_quills_list),
+		"vox_body_markings" = pick(GLOB.vox_body_markings_list),
+		"vox_tail_markings" = pick(GLOB.vox_tail_markings_list)
 	))
 
 /proc/random_hair_style(gender)
@@ -306,7 +319,7 @@ GLOBAL_LIST_EMPTY(species_list)
  * given `delay`. Returns `TRUE` on success or `FALSE` on failure.
  * Interaction_key is the assoc key under which the do_after is capped, with max_interact_count being the cap. Interaction key will default to target if not set.
  */
-/proc/do_after(mob/user, delay, atom/target, timed_action_flags = NONE, progress = TRUE, datum/callback/extra_checks, interaction_key, max_interact_count = 1)
+/proc/do_after(mob/user, delay, atom/target, timed_action_flags = NONE, progress = TRUE, datum/callback/extra_checks, interaction_key, max_interact_count = 1, skill_check = null)
 	if(!user)
 		return FALSE
 	if(!isnum(delay))
@@ -320,21 +333,15 @@ GLOBAL_LIST_EMPTY(species_list)
 			return
 		LAZYSET(user.do_afters, interaction_key, current_interaction_count + 1)
 
-	var/atom/user_loc = user.loc
-	var/atom/target_loc = target?.loc
-
-	var/drifting = FALSE
-	if(!user.Process_Spacemove() && user.inertia_dir)
-		drifting = TRUE
-
-	var/holding = user.get_active_held_item()
-
 	if(!(timed_action_flags & IGNORE_SLOWDOWNS))
 		delay *= user.action_speed_modifier * user.do_after_coefficent() //yogs: darkspawn
+	
+	if(skill_check && user.mind && !(timed_action_flags & IGNORE_SKILL_DELAY))
+		delay *= (12 - user.get_skill(skill_check)) / 10
 
 	var/datum/progressbar/progbar
 	if(progress)
-		progbar = new(user, delay, target || user)
+		progbar = new(user, delay, target || user, timed_action_flags, extra_checks, skill_check)
 
 	SEND_SIGNAL(user, COMSIG_DO_AFTER_BEGAN)
 
@@ -344,24 +351,7 @@ GLOBAL_LIST_EMPTY(species_list)
 	while (world.time < endtime)
 		stoplag(1)
 
-		if(!QDELETED(progbar))
-			progbar.update(world.time - starttime)
-
-		if(drifting && !user.inertia_dir)
-			drifting = FALSE
-			user_loc = user.loc
-
-		if(QDELETED(user) \
-			|| (!(timed_action_flags & IGNORE_USER_LOC_CHANGE) && !drifting && user.loc != user_loc) \
-			|| (!(timed_action_flags & IGNORE_HELD_ITEM) && user.get_active_held_item() != holding) \
-			|| (!(timed_action_flags & IGNORE_INCAPACITATED) && HAS_TRAIT(user, TRAIT_INCAPACITATED)) \
-			|| (extra_checks && !extra_checks.Invoke()))
-			. = FALSE
-			break
-
-		if(target && (user != target) && \
-			(QDELETED(target) \
-			|| (!(timed_action_flags & IGNORE_TARGET_LOC_CHANGE) && target.loc != target_loc)))
+		if(QDELETED(progbar) || !progbar.update(world.time - starttime))
 			. = FALSE
 			break
 
@@ -461,6 +451,9 @@ GLOBAL_LIST_EMPTY(species_list)
 					continue
 			if(DEADCHAT_ARRIVALRATTLE)
 				if(prefs.toggles & DISABLE_ARRIVALRATTLE)
+					continue
+			if(DEADCHAT_PDA)
+				if(!(prefs.chat_toggles & CHAT_GHOSTPDA))
 					continue
 
 		if(isobserver(M))

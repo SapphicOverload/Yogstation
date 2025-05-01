@@ -57,7 +57,10 @@ GLOBAL_LIST_INIT(disposal_pipe_recipes, list(
 		new /datum/pipe_info/disposal("Junction",		/obj/structure/disposalpipe/junction, PIPE_TRIN_M),
 		new /datum/pipe_info/disposal("Y-Junction",		/obj/structure/disposalpipe/junction/yjunction),
 		new /datum/pipe_info/disposal("Sort Junction",	/obj/structure/disposalpipe/sorting/mail, PIPE_TRIN_M),
+		new /datum/pipe_info/disposal("Rotator", 		/obj/structure/disposalpipe/rotator, PIPE_ONEDIR_FLIPPABLE),
 		new /datum/pipe_info/disposal("Trunk",			/obj/structure/disposalpipe/trunk),
+		new /datum/pipe_info/disposal("Deck Up",		/obj/structure/disposalpipe/trunk/multiz),
+		new /datum/pipe_info/disposal("Deck Down",		/obj/structure/disposalpipe/trunk/multiz/down),
 		new /datum/pipe_info/disposal("Bin",			/obj/machinery/disposal/bin, PIPE_ONEDIR),
 		new /datum/pipe_info/disposal("Outlet",			/obj/structure/disposaloutlet),
 		new /datum/pipe_info/disposal("Chute",			/obj/machinery/disposal/deliveryChute),
@@ -98,13 +101,13 @@ GLOBAL_LIST_INIT(fluid_duct_recipes, list(
 	var/all_layers
 
 /datum/pipe_info/proc/Render(dispenser)
-	var/dat = "<li><a href='?src=[REF(dispenser)]&[Params()]'>[name]</a></li>"
+	var/dat = "<li><a href='byond://?src=[REF(dispenser)]&[Params()]'>[name]</a></li>"
 
 	// Stationary pipe dispensers don't allow you to pre-select pipe directions.
 	// This makes it impossble to spawn bent versions of bendable pipes.
 	// We add a "Bent" pipe type with a preset diagonal direction to work around it.
 	if(istype(dispenser, /obj/machinery/pipedispenser) && (dirtype == PIPE_BENDABLE || dirtype == /obj/item/pipe/binary/bendable))
-		dat += "<li><a href='?src=[REF(dispenser)]&[Params()]&dir=[NORTHEAST]'>Bent [name]</a></li>"
+		dat += "<li><a href='byond://?src=[REF(dispenser)]&[Params()]&dir=[NORTHEAST]'>Bent [name]</a></li>"
 
 	return dat
 
@@ -134,6 +137,8 @@ GLOBAL_LIST_INIT(fluid_duct_recipes, list(
 		if(PIPE_UNARY_FLIPPABLE)
 			dirs = list("[NORTH]" = "North", "[NORTHEAST]" = "North Flipped", "[EAST]" = "East", "[SOUTHEAST]" = "East Flipped",
 						"[SOUTH]" = "South", "[SOUTHWEST]" = "South Flipped", "[WEST]" = "West", "[NORTHWEST]" = "West Flipped")
+		if(PIPE_ONEDIR_FLIPPABLE)
+			dirs = list("[SOUTH]" = name, "[SOUTHEAST]" = "[name] Flipped")
 
 
 	var/list/rows = list()
@@ -141,7 +146,7 @@ GLOBAL_LIST_INIT(fluid_duct_recipes, list(
 	var/i = 0
 	for(var/dir in dirs)
 		var/numdir = text2num(dir)
-		var/flipped = ((dirtype == PIPE_TRIN_M) || (dirtype == PIPE_UNARY_FLIPPABLE)) && (numdir in GLOB.diagonals)
+		var/flipped = ((dirtype == PIPE_TRIN_M) || (dirtype == PIPE_UNARY_FLIPPABLE) || (dirtype == PIPE_ONEDIR_FLIPPABLE)) && (ISDIAGONALDIR(numdir))
 		row["previews"] += list(list("selected" = (numdir == selected_dir), "dir" = dir2text(numdir), "dir_name" = dirs[dir], "icon_state" = icon_state, "flipped" = flipped))
 		if(i++ || dirtype == PIPE_ONEDIR)
 			rows += list(row)

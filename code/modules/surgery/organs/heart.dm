@@ -108,7 +108,7 @@
 		failed = TRUE
 
 /obj/item/organ/heart/get_availability(datum/species/species)
-	return !(NOBLOOD in species.species_traits)
+	return !((NOBLOOD in species.species_traits) || (STABLEBLOOD in species.species_traits))
 
 /obj/item/organ/heart/cursed
 	name = "cursed heart"
@@ -253,6 +253,7 @@
 	var/rid = /datum/reagent/medicine/epinephrine
 	var/ramount = 10
 	restartTimer = 5 SECONDS //restarts faster
+	cybernetic_quality = 1
 
 /obj/item/organ/heart/cybernetic/upgraded/on_life()
 	. = ..()

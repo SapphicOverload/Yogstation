@@ -44,7 +44,7 @@
 /datum/status_effect/vanguard_shield
 	id = "vanguard"
 	duration = 200
-	tick_interval = 0 //tick as fast as possible
+	tick_interval = 1 //tick as fast as possible
 	status_type = STATUS_EFFECT_REPLACE
 	alert_type = /atom/movable/screen/alert/status_effect/vanguard
 	var/datum/progressbar/progbar
@@ -247,7 +247,7 @@
 	if(!QDELETED(GLOB.cult_narsie))
 		return //if Nar'sie is alive, don't even worry about it
 	var/area/A = get_area(owner)
-	for(var/datum/mind/B in SSticker.mode.cult)
+	for(var/datum/mind/B in SSgamemode.cult)
 		if(isliving(B.current))
 			var/mob/living/M = B.current
 			SEND_SOUND(M, sound('sound/hallucinations/veryfar_noise.ogg'))
@@ -268,7 +268,6 @@
 /datum/status_effect/blooddrunk
 	id = "blooddrunk"
 	duration = 10
-	tick_interval = 0
 	alert_type = /atom/movable/screen/alert/status_effect/blooddrunk
 
 /atom/movable/screen/alert/status_effect/blooddrunk
@@ -422,6 +421,8 @@
 			var/mob/living/simple_animal/hostile/retaliate/poison/snake/healSnake = new(owner.loc)
 			healSnake.poison_type = /datum/reagent/medicine/omnizine/godblood
 			healSnake.poison_per_bite = 5
+			healSnake.melee_damage_upper = 2
+			healSnake.melee_damage_lower = 1	//It's not supposed to hurt that much
 			healSnake.name = "Asclepius's Snake"
 			healSnake.real_name = "Asclepius's Snake"
 			healSnake.desc = "A mystical snake previously trapped upon the Rod of Asclepius, now freed of its burden. Unlike the average snake, its bites contain chemicals with minor healing properties."
@@ -553,7 +554,6 @@
 /datum/status_effect/doubledown
 	id = "doubledown"
 	duration = 20
-	tick_interval = 0
 	status_type = STATUS_EFFECT_REFRESH
 	alert_type = /atom/movable/screen/alert/status_effect/doubledown
 	var/obj/effect/temp_visual/decoy/tensecond/s_such_strength //surely a combo wont go on for more than 10 seconds
@@ -625,7 +625,6 @@
 /datum/status_effect/diamondskin
 	id = "diamondskin"
 	duration = 20 SECONDS
-	tick_interval = 0
 	status_type = STATUS_EFFECT_REFRESH
 	alert_type = /atom/movable/screen/alert/status_effect/diamondskin
 

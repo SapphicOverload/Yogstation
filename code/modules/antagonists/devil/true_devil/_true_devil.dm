@@ -20,7 +20,7 @@
 	mob_size = MOB_SIZE_LARGE
 	held_items = list(null, null)
 	bodyparts = list(/obj/item/bodypart/chest/devil, /obj/item/bodypart/head/devil, /obj/item/bodypart/l_arm/devil,
-					 /obj/item/bodypart/r_arm/devil, /obj/item/bodypart/r_leg/devil, /obj/item/bodypart/l_leg/devil)
+					 /obj/item/bodypart/r_arm/devil, /obj/item/bodypart/leg/right/devil, /obj/item/bodypart/leg/left/devil)
 	hud_type = /datum/hud/devil
 	var/ascended = FALSE
 	var/mob/living/oldform
@@ -93,7 +93,7 @@
 		visible_message(span_warning("[src] easily breaks out of [p_their()] handcuffs!"), \
 					span_notice("With just a thought your handcuffs fall off."))
 
-/mob/living/carbon/true_devil/canUseTopic(atom/movable/M, be_close=FALSE, no_dextery=FALSE, no_tk=FALSE)
+/mob/living/carbon/true_devil/canUseTopic(atom/movable/M, be_close=FALSE, no_dexterity=FALSE, no_tk=FALSE)
 	if(incapacitated())
 		to_chat(src, span_warning("You can't do that right now!"))
 		return FALSE

@@ -93,12 +93,12 @@ Status: []<BR>
 Behaviour controls are [locked ? "locked" : "unlocked"]<BR>
 Maintenance panel panel is [open ? "opened" : "closed"]"},
 
-"<A href='?src=[REF(src)];power=[TRUE]'>[on ? "On" : "Off"]</A>" )
+"<A href='byond://?src=[REF(src)];power=[TRUE]'>[on ? "On" : "Off"]</A>" )
 
 	if(!locked || issilicon(user) || IsAdminGhost(user))
 		dat += text({"<BR> Auto Patrol: []"},
 
-"<A href='?src=[REF(src)];operation=patrol'>[auto_patrol ? "On" : "Off"]</A>" )
+"<A href='byond://?src=[REF(src)];operation=patrol'>[auto_patrol ? "On" : "Off"]</A>" )
 	return	dat
 
 /mob/living/simple_animal/bot/honkbot/proc/judgement_criteria()
@@ -197,10 +197,10 @@ Maintenance panel panel is [open ? "opened" : "closed"]"},
 		sensor_blink()
 	if(spam_flag == 0)
 		if(ishuman(C))
-			C.adjust_stutter(20 SECONDS)
+			C.adjust_stutter_up_to(20 SECONDS, 50 SECONDS)
+			C.adjust_jitter_up_to(20 SECONDS, 50 SECONDS)
 			C.adjustEarDamage(0, 5) //far less damage than the H.O.N.K.
-			C.adjust_jitter(50 SECONDS)
-			C.Paralyze(60)
+			C.Paralyze(6 SECONDS)
 			var/mob/living/carbon/human/H = C
 			if(client) //prevent spam from players..
 				spam_flag = TRUE
@@ -218,7 +218,7 @@ Maintenance panel panel is [open ? "opened" : "closed"]"},
 			C.visible_message(span_danger("[src] has honked [C]!"),\
 					span_userdanger("[src] has honked you!"))
 		else
-			C.adjust_stutter(20 SECONDS)
+			C.adjust_stutter_up_to(20 SECONDS, 50 SECONDS)
 			C.Paralyze(8 SECONDS)
 			addtimer(CALLBACK(src, PROC_REF(spam_flag_false)), cooldowntime)
 

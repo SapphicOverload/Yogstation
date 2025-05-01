@@ -23,7 +23,11 @@ GLOBAL_PROTECT(admin_verbs_default)
 	/client/proc/clear_all_pipenets,
 	/client/proc/debugstatpanel,
 	/client/proc/clear_mfa,
-	/client/proc/show_rights
+	/client/proc/show_rights,
+	/client/proc/remove_liquid,
+	/client/proc/spawn_liquid,
+	/client/proc/forceEvent, //Move to fun verbs before full merge
+	/client/proc/forceGamemode //Move to fun verbs before full merge
 	)
 GLOBAL_LIST_INIT(admin_verbs_admin, world.AVerbsAdmin())
 GLOBAL_PROTECT(admin_verbs_admin)
@@ -114,10 +118,8 @@ GLOBAL_LIST_INIT(admin_verbs_fun, list(
 	/client/proc/one_click_antag,
 	/client/proc/cmd_admin_add_freeform_ai_law,
 	/client/proc/object_say,
-	/client/proc/toggle_random_events,
 	/client/proc/set_ooc,
 	/client/proc/reset_ooc,
-	/client/proc/forceEvent,
 	/client/proc/admin_change_sec_level,
 	/client/proc/toggle_nuke,
 	/client/proc/run_weather,
@@ -150,7 +152,6 @@ GLOBAL_PROTECT(admin_verbs_server)
 	/datum/admins/proc/toggleAI,
 	/client/proc/cmd_admin_delete,		/*delete an instance/object/mob/etc*/
 	/client/proc/cmd_debug_del_all,
-	/client/proc/toggle_random_events,
 	/client/proc/forcerandomrotate,
 	/client/proc/adminchangemap,
 	/client/proc/panicbunker,
@@ -158,7 +159,8 @@ GLOBAL_PROTECT(admin_verbs_server)
 	/client/proc/mentor_memo, // YOGS - something stupid about "Mentor memos"
 	/client/proc/release_queue, // Yogs -- Adds some queue-manipulation verbs
 	/client/proc/toggle_cdn,
-	/client/proc/set_next_minetype
+	/client/proc/set_next_minetype,
+	/client/proc/lag_switch_panel
 	)
 GLOBAL_LIST_INIT(admin_verbs_debug, world.AVerbsDebug())
 GLOBAL_PROTECT(admin_verbs_debug)
@@ -168,7 +170,6 @@ GLOBAL_PROTECT(admin_verbs_debug)
 	/client/proc/cmd_admin_delete,
 	/client/proc/cmd_debug_del_all,
 	/client/proc/SDQL2_query,
-	/client/proc/pump_random_event,
 	/client/proc/enable_debug_verbs,
 	/client/proc/callproc,
 	/client/proc/callproc_datum,
@@ -226,7 +227,6 @@ GLOBAL_LIST_INIT(admin_verbs_hideable, list(
 	/client/proc/cmd_admin_create_centcom_report,
 	/client/proc/cmd_change_command_name,
 	/client/proc/object_say,
-	/client/proc/toggle_random_events,
 	/datum/admins/proc/startnow,
 	/datum/admins/proc/restart,
 	/datum/admins/proc/delay,
@@ -628,7 +628,7 @@ GLOBAL_PROTECT(admin_verbs_hideable)
 
 	if(robeless)
 		new_spell.spell_requirements &= ~SPELL_REQUIRES_WIZARD_GARB
-		new_spell.psi_cost = 0 //breaks balance, but allows non darkspawns to use darkspawn abilities
+		new_spell.bypass_cost = TRUE //breaks balance, but allows non antags to use antag specific abilities
 
 	new_spell.Grant(spell_recipient)
 
@@ -719,7 +719,7 @@ GLOBAL_PROTECT(admin_verbs_hideable)
 	to_chat(src, span_interface("You are now a normal player."), confidential=TRUE)
 	
 	remove_mentor_verbs()
-	mentor_datum = null
+	QDEL_NULL(mentor_datum)
 	GLOB.mentors -= src
 	add_verb(src, /client/proc/rementor)
 	
@@ -851,7 +851,7 @@ GLOBAL_PROTECT(admin_verbs_hideable)
 	set name = "Debug Stat Panel"
 	set category = "Misc.Server Debug"
 
-	src << output("", "statbrowser:create_debug")
+	src.stat_panel.send_message("create_debug")
 
 /// Debug verb for seeing at a glance what all spells have as set requirements
 /client/proc/debug_spell_requirements()

@@ -3,7 +3,7 @@
 /datum/nanite_program/nervous
 	name = "Nerve Support"
 	desc = "The nanites act as a secondary nervous system, reducing the amount of time the host is stunned."
-	use_rate = 20
+	use_rate = 7
 	rogue_types = list(/datum/nanite_program/nerve_decay)
 
 /datum/nanite_program/nervous/enable_passive_effect()
@@ -11,12 +11,14 @@
 	if(ishuman(host_mob))
 		var/mob/living/carbon/human/H = host_mob
 		H.physiology.stun_mod *= 0.75
+		H.physiology.stamina_mod *= 0.75
 
 /datum/nanite_program/nervous/disable_passive_effect()
 	. = ..()
 	if(ishuman(host_mob))
 		var/mob/living/carbon/human/H = host_mob
 		H.physiology.stun_mod /= 0.75
+		H.physiology.stamina_mod /= 0.75
 
 /datum/nanite_program/hardening
 	name = "Dermal Hardening"
@@ -104,15 +106,9 @@
 	//won't work if on a rev, to avoid having implanted revs. same applies for hivemind members.
 	if(host_mob.mind.has_antag_datum(/datum/antagonist/rev, TRUE))
 		return
-	if(is_hivemember(host_mob))
-		return
-	if(host_mob.is_wokevessel())
-		return
 	if(host_mob.mind.has_antag_datum(/datum/antagonist/brainwashed))
 		return
-	if(host_mob.mind.has_antag_datum(/datum/antagonist/gang, TRUE))
-		return
-	if(is_darkspawn_or_thrall(host_mob))
+	if(is_team_darkspawn(host_mob))
 		return
 	ADD_TRAIT(host_mob, TRAIT_MINDSHIELD, "nanites")
 	host_mob.sec_hud_set_implants()

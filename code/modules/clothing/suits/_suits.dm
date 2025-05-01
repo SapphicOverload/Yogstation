@@ -13,7 +13,7 @@
 	var/togglename = null
 	var/suittoggled = FALSE
 	var/mutantrace_variation = NONE
-	var/adjusted = NORMAL_STYLE
+	var/adjusted = FALSE
 	limb_integrity = 0 // disabled for most exo-suits
 	var/obj/item/badge/attached_badge
 	var/mutable_appearance/badge_overlay
@@ -30,6 +30,10 @@
 			. += mutable_appearance('icons/effects/item_damage.dmi', "damageduniform")
 		if(HAS_BLOOD_DNA(src))
 			var/mutable_appearance/bloody_armor = mutable_appearance('icons/effects/blood.dmi', "[blood_overlay_type]blood")
+			if(species_fitted && icon_exists(bloody_armor.icon, "[bloody_armor.icon_state]_[species_fitted]")) 
+				bloody_armor.icon_state = "[bloody_armor.icon_state]_[species_fitted]"
+			else if(HAS_TRAIT(loc, TRAIT_DIGITIGRADE) && !HAS_TRAIT(loc, TRAIT_DIGI_SQUISH) && icon_exists(bloody_armor.icon, "[bloody_armor.icon_state]_digi"))
+				bloody_armor.icon_state = "[bloody_armor.icon_state]_digi"
 			bloody_armor.color = get_blood_dna_color(return_blood_DNA())
 			. += bloody_armor
 		var/mob/living/carbon/human/M = loc
@@ -51,13 +55,26 @@
 /obj/item/clothing/suit/equipped(mob/user, slot)
 	..()
 	if(adjusted)
-		adjusted = NORMAL_STYLE
+		adjusted = FALSE
 
-	if(mutantrace_variation && ishuman(user))
-		var/mob/living/carbon/human/H = user
-		if(DIGITIGRADE in H.dna.species.species_traits)
-			adjusted = DIGITIGRADE_STYLE
-		H.update_inv_w_uniform()
+	if(!(mutantrace_variation & DIGITIGRADE_VARIATION) && (flags_inv & HIDEJUMPSUIT) && ishuman(user))
+		if(slot_flags & slot)
+			ADD_TRAIT(user, TRAIT_DIGI_SQUISH, REF(src))
+		else
+			REMOVE_TRAIT(user, TRAIT_DIGI_SQUISH, REF(src))
+		var/mob/living/carbon/human/human_user = user
+		human_user.update_inv_w_uniform()
+		human_user.update_inv_shoes()
+		human_user.update_body_parts()
+
+/obj/item/clothing/suit/dropped(mob/user)
+	if(!(mutantrace_variation & DIGITIGRADE_VARIATION) && (flags_inv & HIDEJUMPSUIT) && ishuman(user))
+		REMOVE_TRAIT(user, TRAIT_DIGI_SQUISH, REF(src))
+		var/mob/living/carbon/human/human_user = user
+		human_user.update_inv_w_uniform()
+		human_user.update_inv_shoes()
+		human_user.update_body_parts()
+	return ..()
 
 /obj/item/clothing/suit/attackby(obj/item/I, mob/user, params)
 	if(!attach_badge(I, user))

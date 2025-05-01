@@ -402,8 +402,7 @@
   * We then return the protection value
   */
 /atom/proc/emp_act(severity)
-	SEND_SIGNAL(src, COMSIG_ATOM_EMP_ACT, severity)
-	var/protection = NONE
+	var/protection = SEND_SIGNAL(src, COMSIG_ATOM_EMP_ACT, severity)
 	if(HAS_TRAIT(src, TRAIT_EMPPROOF_CONTENTS))
 		protection |= EMP_PROTECT_CONTENTS
 	if(HAS_TRAIT(src, TRAIT_EMPPROOF_SELF))
@@ -425,11 +424,8 @@
 	if(uses_integrity)
 		playsound(src, P.hitsound, 50, 1)
 		visible_message(span_danger("[src] is hit by \a [P]!"), null, null, COMBAT_MESSAGE_RANGE)
-		if(!QDELETED(src)) //Bullet on_hit effect might have already destroyed this object
-			var/demolition_mult = P.demolition_mod
-			if(istype(src, /obj/mecha) && P.demolition_mod != 1)	//snowflake damage checks for mechs
-				demolition_mult = istype(src, /obj/mecha/combat) ? min(1, (1 + P.demolition_mod)/2) : (1 + P.demolition_mod)/2
-			take_damage(P.damage * demolition_mult, P.damage_type, P.armor_flag, 0, turn(P.dir, 180), P.armour_penetration)
+		if(!QDELETED(src) && !P.nodamage) //Bullet on_hit effect might have already destroyed this object
+			take_damage(P.damage * P.demolition_mod, P.damage_type, P.armor_flag, 0, turn(P.dir, 180), P.armour_penetration)
 
 ///Return true if we're inside the passed in atom
 /atom/proc/in_contents_of(container)//can take class or object instance as argument
@@ -836,7 +832,7 @@
 		to_chat(user,span_warning("You can't dump the contents of [src_object.parent] into itself!"))
 		return
 	//yogs end
-	while (do_after(user, 1 SECONDS, src, TRUE, FALSE, CALLBACK(STR, TYPE_PROC_REF(/datum/component/storage, handle_mass_item_insertion), things, src_object, user)))
+	while (do_after(user, 1 SECONDS, src, NONE, TRUE, CALLBACK(STR, TYPE_PROC_REF(/datum/component/storage, handle_mass_item_insertion), things, src_object, user)))
 		stoplag(1)
 	to_chat(user, span_notice("You dump as much of [src_object.parent]'s contents into [STR.insert_preposition]to [src] as you can."))
 	STR.orient2hud(user)
@@ -1191,7 +1187,7 @@
 	. = ..()
 	var/refid = REF(src)
 	. += "[VV_HREF_TARGETREF(refid, VV_HK_AUTO_RENAME, "<b id='name'>[src]</b>")]"
-	. += "<br><font size='1'><a href='?_src_=vars;[HrefToken()];rotatedatum=[refid];rotatedir=left'><<</a> <a href='?_src_=vars;[HrefToken()];datumedit=[refid];varnameedit=dir' id='dir'>[dir2text(dir) || dir]</a> <a href='?_src_=vars;[HrefToken()];rotatedatum=[refid];rotatedir=right'>>></a></font>"
+	. += "<br><font size='1'><a href='byond://?_src_=vars;[HrefToken()];rotatedatum=[refid];rotatedir=left'><<</a> <a href='byond://?_src_=vars;[HrefToken()];datumedit=[refid];varnameedit=dir' id='dir'>[dir2text(dir) || dir]</a> <a href='byond://?_src_=vars;[HrefToken()];rotatedatum=[refid];rotatedir=right'>>></a></font>"
 
 ///Where atoms should drop if taken from this atom
 /atom/proc/drop_location()

@@ -26,6 +26,8 @@
 		else if(bodypart_flag & cover.body_parts_partial_covered)
 			protection += cover.armor.getRating(armor_flag) * 0.5
 	protection += physiology.armor.getRating(armor_flag)
+	if(armor_flag == MELEE)
+		protection = 100 - ((100 - protection) * (50 - get_skill(SKILL_FITNESS)) / 50) // 8% multiplicative armor at EXP_MASTER
 	return protection
 
 ///Get all the clothing on a specific body part
@@ -47,28 +49,6 @@
 		var/spec_return = dna.species.bullet_act(P, src)
 		if(spec_return)
 			return spec_return
-
-	if(mind)
-		if(mind.martial_art && !incapacitated(FALSE, TRUE) && mind.martial_art.can_use(src) && (mind.martial_art.deflection_chance || ((mind.martial_art.id == "sleeping carp") && in_throw_mode))) //Some martial arts users can deflect projectiles!
-			if(prob(mind.martial_art.deflection_chance) || ((mind.martial_art.id == "sleeping carp") && in_throw_mode)) // special check if sleeping carp is our martial art and throwmode is on, deflect
-				if((mobility_flags & MOBILITY_USE) && dna && !dna.check_mutation(HULK)) //But only if they're otherwise able to use items, and hulks can't do it
-					if(!isturf(loc)) //if we're inside something and still got hit
-						P.force_hit = TRUE //The thing we're in passed the bullet to us. Pass it back, and tell it to take the damage.
-						loc.bullet_act(P)
-						return BULLET_ACT_HIT
-					if(mind.martial_art.deflection_chance >= 100) //if they can NEVER be hit, lets clue sec in ;)
-						visible_message(span_danger("[src] deflects the projectile; [p_they()] can't be hit with ranged weapons!"), span_userdanger("You deflect the projectile!"))
-					else
-						visible_message(span_danger("[src] deflects the projectile!"), span_userdanger("You deflect the projectile!"))
-					playsound(src, pick('sound/weapons/bulletflyby.ogg', 'sound/weapons/bulletflyby2.ogg', 'sound/weapons/bulletflyby3.ogg'), 75, 1)
-					if(!mind.martial_art.reroute_deflection)
-						return BULLET_ACT_BLOCK
-					else
-						P.firer = src
-						if(P.hitscan)
-							P.store_hitscan_collision(P.trajectory.copy_to())
-						P.setAngle(rand(0, 360))//SHING
-						return BULLET_ACT_FORCE_PIERCE
 
 	if(!(P.original == src && P.firer == src)) //can't block or reflect when shooting yourself
 		var/shield_check = check_shields(P, P.damage, "the [P.name]", PROJECTILE_ATTACK, P.armour_penetration, P.damage_type)
@@ -108,10 +88,14 @@
 		if(shield_check & SHIELD_BLOCK)
 			P.on_hit(src, 100, def_zone)
 			return BULLET_ACT_HIT
+		
+		if(iscarbon(P.firer) && stat == CONSCIOUS) // gain experience from shooting people, more if they were far away and less if it wasn't a real gun
+			var/mob/shooter = P.firer
+			shooter.add_exp(SKILL_FITNESS, max(initial(P.range) - P.range, 1) * ((P.nodamage || !P.damage) ? 2 : 5))
 
 	return ..(P, def_zone)
 
-/mob/living/carbon/human/proc/check_shields(atom/AM, damage, attack_text = "the attack", attack_type = MELEE_ATTACK, armour_penetration = 0, damage_type = BRUTE)
+/mob/living/carbon/human/check_shields(atom/AM, damage, attack_text = "the attack", attack_type = MELEE_ATTACK, armour_penetration = 0, damage_type = BRUTE)
 	var/block_result = SEND_SIGNAL(src, COMSIG_HUMAN_CHECK_SHIELDS, AM, damage, attack_text, attack_type, armour_penetration, damage_type)
 	SEND_SIGNAL(src, COMSIG_HUMAN_AFTER_BLOCK, block_result)
 	return block_result
@@ -471,7 +455,7 @@
 
 
 //Added a safety check in case you want to shock a human mob directly through electrocute_act.
-/mob/living/carbon/human/electrocute_act(shock_damage, obj/source, siemens_coeff = 1, zone = HANDS, override = FALSE, tesla_shock = FALSE, illusion = FALSE, stun = TRUE, gib = FALSE)
+/mob/living/carbon/human/electrocute_act(shock_damage, obj/source, siemens_coeff = 1, zone = HANDS, override = FALSE, tesla_shock = FALSE, illusion = FALSE, stun = TRUE)
 	if(!override)
 		siemens_coeff *= physiology.siemens_coeff
 	. = ..()
@@ -759,7 +743,7 @@
 			to_chat(src, msg)
 
 		for(var/obj/item/I in LB.embedded_objects)
-			combined_msg += "\t <a href='?src=[REF(src)];embedded_object=[REF(I)];embedded_limb=[REF(LB)]' class='warning'>There is \a [I] embedded in your [LB.name]!</a>"
+			combined_msg += "\t <a href='byond://?src=[REF(src)];embedded_object=[REF(I)];embedded_limb=[REF(LB)]' class='warning'>There is \a [I] embedded in your [LB.name]!</a>"
 
 	for(var/t in missing)
 		combined_msg += span_boldannounce("Your [parse_zone(t)] is missing!")
@@ -833,7 +817,7 @@
 				if(0 to NUTRITION_LEVEL_STARVING)
 					combined_msg += span_danger("You're starving!")
 
-	if(dna.species.id == "skeleton")
+	if(isskeleton(src))
 		var/obj/item/clothing/under/under = w_uniform
 		if((!under || under.adjusted) && (!wear_suit))
 			play_xylophone()

@@ -123,7 +123,6 @@
 #define STATUS_EFFECT_TAMING /datum/status_effect/taming //tames the target after enough tame stacks
 
 #define STATUS_EFFECT_NECROPOLIS_CURSE /datum/status_effect/necropolis_curse
-#define STATUS_EFFECT_HIVEMIND_CURSE /datum/status_effect/necropolis_curse/hivemind
 #define CURSE_BLINDING	1 //makes the edges of the target's screen obscured
 #define CURSE_SPAWNING	2 //spawns creatures that attack the target only
 #define CURSE_WASTING	4 //causes gradual damage
@@ -145,8 +144,6 @@
 
 #define STATUS_EFFECT_BROKEN_WILL /datum/status_effect/broken_will //A 30-second sleep effect, ends instantly upon taking enough damage in a single hit. //Yogs
 
-#define STATUS_EFFECT_DEVOURED_WILL /datum/status_effect/devoured_will //A 3 minute long status effect that prevents using devour will on the owner
-
 #define STATUS_EFFECT_AMOK /datum/status_effect/amok //Makes the target automatically strike out at adjecent non-heretics.
 
 #define STATUS_EFFECT_CLOUDSTRUCK /datum/status_effect/cloudstruck //blinds and applies an overlay.
@@ -162,6 +159,8 @@
 #define STATUS_EFFECT_VOID_CHILL /datum/status_effect/void_chill
 
 #define STATUS_EFFECT_TAUNT /datum/status_effect/taunt //forced movement towards the person applying
+
+#define STATUS_EFFECT_HOLY_FIRE /datum/status_effect/holy_fire //not actually fire, more of a short duration damage over time
 
 /////////////
 // NEUTRAL //
@@ -194,6 +193,8 @@
 #define STATUS_EFFECT_PROGENITORCURSE /datum/status_effect/progenitor_curse
 
 #define STATUS_EFFECT_MASQUERADE /datum/status_effect/masquerade
+
+#define STATUS_EFFECT_EXPLOSION_PRIME /datum/status_effect/explosion_prime
 
 /////////////
 //  SLIME  //
@@ -242,10 +243,10 @@
 #define set_derpspeech(duration) set_timed_status_effect(duration, /datum/status_effect/speech/stutter/derpspeech)
 #define set_derpspeech_if_lower(duration) set_timed_status_effect(duration, /datum/status_effect/speech/stutter/derpspeech, TRUE)
 
-#define adjust_slurring(duration) adjust_timed_status_effect(duration, /datum/status_effect/speech/slurring/drunk)
-#define adjust_slurring_up_to(duration, up_to) adjust_timed_status_effect(duration, /datum/status_effect/speech/slurring/drunk, up_to)
-#define set_slurring(duration) set_timed_status_effect(duration, /datum/status_effect/speech/slurring/drunk)
-#define set_slurring_if_lower(duration) set_timed_status_effect(duration, /datum/status_effect/speech/slurring/drunk, TRUE)
+#define adjust_slurring(duration) adjust_timed_status_effect(duration, /datum/status_effect/speech/slurring/generic)
+#define adjust_slurring_up_to(duration, up_to) adjust_timed_status_effect(duration, /datum/status_effect/speech/slurring/generic, up_to)
+#define set_slurring(duration) set_timed_status_effect(duration, /datum/status_effect/speech/slurring/generic)
+#define set_slurring_if_lower(duration) set_timed_status_effect(duration, /datum/status_effect/speech/slurring/generic, TRUE)
 
 #define adjust_dizzy(duration) adjust_timed_status_effect(duration, /datum/status_effect/dizziness)
 #define adjust_dizzy_up_to(duration, up_to) adjust_timed_status_effect(duration, /datum/status_effect/dizziness, up_to)

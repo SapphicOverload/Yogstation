@@ -17,14 +17,23 @@
 
 	alt_titles = list("Forensic Analyst", "Private Eye")
 
-	added_access = list()
-	base_access = list(ACCESS_SEC_DOORS, ACCESS_FORENSICS_LOCKERS, ACCESS_MORGUE, ACCESS_MAINT_TUNNELS, ACCESS_MECH_SECURITY, ACCESS_COURT, ACCESS_BRIG, ACCESS_WEAPONS, ACCESS_MINERAL_STOREROOM)
+	added_access = list(ACCESS_EXTERNAL_AIRLOCKS)
+	base_access = list(ACCESS_SEC_BASIC, ACCESS_DETECTIVE, ACCESS_MORGUE, ACCESS_MAINT_TUNNELS, ACCESS_BRIG, ACCESS_WEAPONS_PERMIT, ACCESS_MECH_SECURITY)
 	paycheck = PAYCHECK_MEDIUM
 	paycheck_department = ACCOUNT_SEC
 	mind_traits = list(TRAIT_LAW_ENFORCEMENT_METABOLISM)
 
 	display_order = JOB_DISPLAY_ORDER_DETECTIVE
 	minimal_character_age = 22 //Understanding of forensics, crime analysis, and theory. Less of a grunt officer and more of an intellectual, theoretically, despite how this is never reflected in-game
+
+	base_skills = list(
+		SKILL_PHYSIOLOGY = EXP_MID,
+		SKILL_MECHANICAL = EXP_NONE,
+		SKILL_TECHNICAL = EXP_NONE,
+		SKILL_SCIENCE = EXP_NONE,
+		SKILL_FITNESS = EXP_MID,
+	)
+	skill_points = 2
 
 	departments_list = list(
 		/datum/job_department/security,
@@ -65,7 +74,7 @@
 	pda_type = /obj/item/modular_computer/tablet/pda/preset/security/detective
 
 	ears = /obj/item/radio/headset/headset_sec/alt
-	uniform = /obj/item/clothing/under/rank/det
+	uniform = /obj/item/clothing/under/rank/security/detective
 	uniform_skirt = /obj/item/clothing/under/rank/security/detective/skirt
 	neck = /obj/item/clothing/neck/tie/detective
 	shoes = /obj/item/clothing/shoes/sneakers/brown

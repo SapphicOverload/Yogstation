@@ -122,7 +122,7 @@
 	req_access = list(ACCESS_SYNDICATE)
 
 /obj/machinery/power/apc/away //general away mission access
-	req_access = list(ACCESS_AWAY_GENERAL)
+	req_access = list(ACCESS_RUINS_GENERAL)
 
 /obj/machinery/power/apc/highcap/five_k
 	cell_type = /obj/item/stock_parts/cell/upgraded/plus
@@ -165,7 +165,7 @@
 	//if (!req_access)
 		//req_access = list(ACCESS_ENGINE_EQUIP) // Yogs -- Commented out to allow for use of req_one_access. Also this is just generally bad and the guy who wrote this doesn't get OOP
 	if (!armor)
-		armor = list(MELEE = 20, BULLET = 20, LASER = 10, ENERGY = 100, BOMB = 30, BIO = 100, RAD = 100, FIRE = 90, ACID = 50)
+		armor = list(MELEE = 20, BULLET = 20, LASER = 10, ENERGY = 10, BOMB = 30, BIO = 100, RAD = 100, FIRE = 90, ACID = 50, ELECTRIC = 100)
 	..()
 	GLOB.apcs_list += src
 

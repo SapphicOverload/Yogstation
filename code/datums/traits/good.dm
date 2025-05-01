@@ -13,7 +13,10 @@
 
 /datum/quirk/no_taste/check_quirk(datum/preferences/prefs)
 	var/datum/species/species_type = prefs.read_preference(/datum/preference/choiced/species)
-	var/disallowed_trait = (NOMOUTH in initial(species_type.species_traits)) // Cant drink
+	species_type = new species_type()
+	var/disallowed_trait = (NOMOUTH in species_type.species_traits) // Cant eat
+	qdel(species_type)
+
 	if(disallowed_trait)
 		return "You don't have the ability to eat!"
 	return FALSE
@@ -30,7 +33,9 @@
 
 /datum/quirk/alcohol_tolerance/check_quirk(datum/preferences/prefs)
 	var/datum/species/species_type = prefs.read_preference(/datum/preference/choiced/species)
-	var/disallowed_trait = (NOMOUTH in initial(species_type.species_traits)) // Cant drink
+	species_type = new species_type()
+	var/disallowed_trait = (NOMOUTH in species_type.species_traits) // Cant eat
+	qdel(species_type)
 
 	if(disallowed_trait)
 		return "You don't have the ability to drink!"
@@ -67,7 +72,9 @@
 
 /datum/quirk/drunkhealing/check_quirk(datum/preferences/prefs)
 	var/datum/species/species_type = prefs.read_preference(/datum/preference/choiced/species)
-	var/disallowed_trait = (NOMOUTH in initial(species_type.species_traits)) // Cant drink
+	species_type = new species_type()
+	var/disallowed_trait = (NOMOUTH in species_type.species_traits) // Cant eat
+	qdel(species_type)
 
 	if(disallowed_trait) // Cant drink
 		return "You don't have the ability to drink!"
@@ -231,7 +238,9 @@
 
 /datum/quirk/toxic_tastes/check_quirk(datum/preferences/prefs)
 	var/datum/species/species_type = prefs.read_preference(/datum/preference/choiced/species)
-	var/disallowed_trait = (NOMOUTH in initial(species_type.species_traits)) // Cant drink
+	species_type = new species_type()
+	var/disallowed_trait = (NOMOUTH in species_type.species_traits) // Cant eat
+	qdel(species_type)
 
 	if(disallowed_trait) // Cant eat
 		return "You don't have the ability to eat!"
@@ -266,7 +275,9 @@
 
 /datum/quirk/voracious/check_quirk(datum/preferences/prefs)
 	var/datum/species/species_type = prefs.read_preference(/datum/preference/choiced/species)
-	var/disallowed_trait = (NOMOUTH in initial(species_type.species_traits)) // Cant drink
+	species_type = new species_type()
+	var/disallowed_trait = (NOMOUTH in species_type.species_traits) // Cant eat
+	qdel(species_type)
 
 	if(disallowed_trait) // Cant eat
 		return "You don't have the ability to eat!"
@@ -286,7 +297,7 @@
 	name = "Crafty"
 	desc = "You're very good at making stuff, and can craft faster than others."
 	icon = "wrench"
-	value = 2
+	value = 1
 	mob_trait = TRAIT_CRAFTY
 	gain_text = span_notice("You feel like crafting some stuff.")
 	lose_text = span_danger("You lose the itch to craft.")
@@ -300,8 +311,8 @@
 	medical_record_text = "During physical examination, patient was found to have an upgraded cybernetic organ."
 	var/slot_string = "organ"
 	var/list/organ_list = list(
-		ORGAN_SLOT_LUNGS = /obj/item/organ/lungs/cybernetic/upgraded, 
-		ORGAN_SLOT_HEART = /obj/item/organ/heart/cybernetic/upgraded, 
+		ORGAN_SLOT_LUNGS = /obj/item/organ/lungs/cybernetic/upgraded,
+		ORGAN_SLOT_HEART = /obj/item/organ/heart/cybernetic/upgraded,
 		ORGAN_SLOT_LIVER = /obj/item/organ/liver/cybernetic/upgraded,
 	)
 	///String to denote the quality of the organ
@@ -314,13 +325,13 @@
 		temp -= ORGAN_SLOT_LIVER
 	if(HAS_TRAIT_FROM(H, TRAIT_NOBREATH, SPECIES_TRAIT))
 		temp -= ORGAN_SLOT_LUNGS
-	if(NOBLOOD in H.dna?.species.species_traits)
+	if((NOBLOOD in H.dna?.species.species_traits) || (STABLEBLOOD in H.dna?.species.species_traits))
 		temp -= ORGAN_SLOT_HEART
 	var/organ_type = organ_list[pick(temp)]
 	var/obj/item/organ/prosthetic = new organ_type(quirk_holder)
 	var/obj/item/organ/old_part = H.getorganslot(prosthetic.slot)
 	slot_string = prosthetic.slot
-	prosthetic.Insert(H)
+	prosthetic.Insert(H, 0, TRUE)
 	qdel(old_part)
 	H.regenerate_icons()
 
@@ -332,15 +343,16 @@
 
 	if(species_type == /datum/species/ipc) // IPCs are already cybernetic
 		return "You already have cybernetic organs!"
-	
+
 	var/datum/species/species = new species_type
 	var/list/temp = organ_list.Copy()
 	if(TRAIT_TOXINLOVER in species.inherent_traits)
 		temp -= ORGAN_SLOT_LIVER
 	if(TRAIT_NOBREATH in species.inherent_traits)
 		temp -= ORGAN_SLOT_LUNGS
-	if(NOBLOOD in species.species_traits)
+	if((NOBLOOD in species.species_traits) || (STABLEBLOOD in species.species_traits))
 		temp -= ORGAN_SLOT_HEART
+	qdel(species)
 	if(temp.len <= 0)
 		return "You have no organs to replace!"
 
@@ -356,10 +368,14 @@
 
 /datum/quirk/telomeres_long/check_quirk(datum/preferences/prefs)
 	var/datum/species/species_type = prefs.read_preference(/datum/preference/choiced/species)
-	var/disallowed_trait = (NO_DNA_COPY in initial(species_type.species_traits)) //Can't pick if you have no DNA bruv.
-
-	if(disallowed_trait)
+	species_type = new species_type()
+	var/no_dna = (NO_DNA_COPY in species_type.species_traits) //Can't pick if you have no DNA bruv.
+	var/no_clone = (TRAIT_NOCLONE in species_type.inherent_traits)
+	qdel(species_type)
+	if(no_dna)
 		return "You have no DNA!"
+	else if(no_clone)
+		return "Your species cannot be cloned!"
 	return FALSE
 
 /datum/quirk/marine
@@ -370,7 +386,7 @@
 	mob_trait = TRAIT_MARINE
 	gain_text = span_notice("You've graduated top of your class and have over 300 confirmed kills.")
 	lose_text = span_danger("You've lost the fierceless spirit of a Marine, alongside your appetite for crayons.")
-	medical_record_text = ("Patient's stomach is unusually proficient at digesting wax.")
+	medical_record_text = "Patient's stomach is unusually proficient at digesting wax."
 
 /datum/quirk/multilingual
 	name = "Multilingual"
@@ -469,3 +485,10 @@
 	specific = /datum/language/bonespeak
 	gain_text = span_notice("You have learned to understand Bonespeak.")
 	lose_text = span_notice("You have forgotten how to understand Bonespeak.")
+
+/datum/quirk/multilingual/machine
+	name = "Multilingual (Encoded Audio Language)"
+	desc = "You spent a portion of your life learning to understand an Encoded Audio Language. You may or may not be able to speak it based on your anatomy."
+	specific = /datum/language/machine
+	gain_text = span_notice("You have learned to understand Encoded Audio Language.")
+	lose_text = span_notice("You have forgotten how to understand Encoded Audio Language.")

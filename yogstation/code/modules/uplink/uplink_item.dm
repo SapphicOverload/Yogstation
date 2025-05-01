@@ -39,7 +39,7 @@
 	include_objectives = list(/datum/objective/hijack)
 
 /datum/uplink_item/stealthy_tools/mulligan
-	exclude_modes = list(/datum/game_mode/nuclear, /datum/game_mode/nuclear/clown_ops, /datum/game_mode/traitor/internal_affairs)
+	exclude_antags = list(ROLE_OPERATIVE, ROLE_CLOWNOP, ROLE_INTERNAL_AFFAIRS)
 
 /datum/uplink_item/device_tools/fakenucleardisk
 	surplus_nullcrates = 0
@@ -56,7 +56,7 @@
 	item = /obj/item/doorCharge
 	cost = 2
 	surplus = 10
-	exclude_modes = list(/datum/game_mode/nuclear)
+	exclude_antags = list(ROLE_OPERATIVE)
 
 
 /datum/uplink_item/device_tools/arm
@@ -65,7 +65,7 @@
 	item = /obj/item/bodypart/l_arm //doesn't actually spawn an arm, but it needs an object to show up in the menu :^)
 	cost = 5
 	surplus = 0
-	exclude_modes = list(/datum/game_mode/nuclear)
+	exclude_antags = list(ROLE_OPERATIVE)
 	illegal_tech = FALSE // ARMS ARE NOT ILLEGAL
 
 /datum/uplink_item/device_tools/arm/spawn_item(spawn_item, mob/user)
@@ -94,7 +94,7 @@
 	desc = "A kit containing some organs that were... \"donated\" by your ancestors. Contains an autosurgeon, a plasma vessel, a resin spinner, and an acid gland."
 	cost = 15
 	item = /obj/item/storage/box/syndie_kit/xeno_organ_kit
-	restricted_species = list("polysmorph")
+	restricted_species = list(SPECIES_POLYSMORPH)
 
 /datum/uplink_item/role_restricted/gondola_meat
 	name = "Gondola meat"
@@ -124,7 +124,7 @@
 	cost = 7
 	manufacturer = /datum/corporation/traitor/cybersun
 	surplus = 20
-	exclude_modes = list(/datum/game_mode/infiltration)
+	exclude_antags = list(ROLE_INFILTRATOR)
 
 /datum/uplink_item/implants/greytide
 	name = "Greytide Implant"
@@ -146,14 +146,14 @@
 	desc = "A special scroll with a martial art, that teaches phytosians of capabilities of their body."
 	cost = 13
 	item = /obj/item/book/granter/martial/garden_warfare
-	restricted_species = list("pod")
+	restricted_species = list(SPECIES_PODPERSON)
 
 /datum/uplink_item/race_restricted/combat_modules
 	name = "Remnant liquidator information board"
 	desc = "A stolen Remnant information board, containing data pertaining to covert assassination techniques."
 	cost = 11
 	item = /obj/item/book/granter/martial/liquidator
-	restricted_species = list("preternis")
+	restricted_species = list(SPECIES_PRETERNIS)
 
 /datum/uplink_item/race_restricted/worldbreaker
 	name = "Prototype worldbreaker compound"
@@ -165,14 +165,14 @@
 	include_objectives = list(/datum/objective/hijack, /datum/objective/martyr, /datum/objective/nuclear) //too much collateral damage with it's AOEs
 	item = /obj/item/book/granter/martial/worldbreaker
 	manufacturer = /datum/corporation/traitor/vahlen
-	restricted_species = list("preternis")
+	restricted_species = list(SPECIES_PRETERNIS)
 
 /datum/uplink_item/race_restricted/explosive_fist_art
 	name = "Burned scroll"
 	desc = "An ancient scroll, containing a guide to an ancient plasmamen martial art."
 	cost = 14
 	item = /obj/item/book/granter/martial/explosive_fist
-	restricted_species = list("plasmaman")
+	restricted_species = list(SPECIES_PLASMAMAN)
 
 /datum/uplink_item/race_restricted/ultra_violence
 	name = "Version one upgrade module"
@@ -182,7 +182,7 @@
 	cost = 20
 	player_minimum = 25 //maybe we SHOULDNT be giving this to lowpop traitors when theres no sec?
 	item = /obj/item/book/granter/martial/ultra_violence
-	restricted_species = list("ipc")
+	restricted_species = list(SPECIES_IPC)
 	include_objectives = list(/datum/objective/hijack, /datum/objective/martyr, /datum/objective/nuclear) // designed around mass murder, no need to use this if you aren't allowed to do that
 
 /datum/uplink_item/race_restricted/lightning_flow
@@ -190,14 +190,14 @@
 	desc = "A scroll made of unusual paper, written for ethereals looking to defend themselves while exploring the material world."
 	cost = 12
 	item = /obj/item/book/granter/martial/lightning_flow
-	restricted_species = list("ethereal")
+	restricted_species = list(SPECIES_ETHEREAL)
 
 /datum/uplink_item/race_restricted/wirecrawl
 	name = "Modified yellow slime extract"
 	desc = "An experimental yellow slime extract that when absorbed by an Ethereal, grants control over electrical powers."
 	cost = 8
 	item = /obj/item/book/granter/action/wirecrawl
-	restricted_species = list("ethereal")
+	restricted_species = list(SPECIES_ETHEREAL)
 
 /datum/uplink_item/stealthy_weapons/camera_flash
 	name = "Camera Flash"

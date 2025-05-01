@@ -58,9 +58,7 @@
 					/obj/item/clothing/head/helmet/secconhelm = 3,
 					/obj/item/clothing/suit/armor/secconcoat = 3,
 					/obj/item/clothing/head/beret/sec/secconhat = 3,
-					/obj/item/clothing/suit/armor/secconvest = 3,
-					/obj/item/clothing/under/plasmaman/security = 3,
-					/obj/item/clothing/head/helmet/space/plasmaman/security = 3)
+					/obj/item/clothing/suit/armor/secconvest = 3)
 	premium = list(/obj/item/clothing/under/rank/security/navyblue = 3,
 					/obj/item/clothing/suit/armor/officerjacket = 3,
 					/obj/item/clothing/head/beret/sec/navyofficer = 3)
@@ -79,26 +77,30 @@
 	vend_reply = "Thank you for using the MediDrobe!"
 	products = list(/obj/item/clothing/accessory/pocketprotector = 4,
 					/obj/item/storage/backpack/duffelbag/med = 4,
-					/obj/item/storage/backpack/medic = 4,
 					/obj/item/storage/backpack/satchel/med = 4,
+					/obj/item/storage/backpack/medic = 4,
+					/obj/item/clothing/head/soft/emt = 4,
+					/obj/item/clothing/head/soft/emt/green = 4,
+					/obj/item/clothing/head/beret/emt/green = 4,
+					/obj/item/clothing/head/beret/emt= 4,
 					/obj/item/clothing/head/beret/med = 4,
+					/obj/item/clothing/head/nursehat = 4,
+					/obj/item/clothing/mask/surgical = 4,
+					/obj/item/clothing/under/yogs/nursedress = 4,
+					/obj/item/clothing/suit/toggle/labcoat/md = 4,
+					/obj/item/clothing/suit/toggle/labcoat/emt = 4,
+					/obj/item/clothing/suit/toggle/labcoat/emt/green = 4,
 					/obj/item/clothing/suit/hooded/wintercoat/medical = 4,
 					/obj/item/clothing/suit/hooded/wintercoat/medical/paramedic = 4,
-					/obj/item/clothing/under/rank/medical/nursesuit = 4,
-					/obj/item/clothing/head/nursehat = 4,
-					/obj/item/clothing/under/yogs/nursedress = 4,
+					/obj/item/clothing/suit/apron/surgical = 4,
 					/obj/item/clothing/under/rank/medical/doctor/skirt = 4,
 					/obj/item/clothing/under/rank/medical/doctor/blue = 4,
 					/obj/item/clothing/under/rank/medical/doctor/green = 4,
 					/obj/item/clothing/under/rank/medical/doctor/purple = 4,
 					/obj/item/clothing/under/rank/medical/doctor = 4,
-					/obj/item/clothing/suit/toggle/labcoat/md = 4,
-					/obj/item/clothing/suit/toggle/labcoat/emt = 4,
+					/obj/item/clothing/under/rank/medical/nursesuit = 4,
 					/obj/item/clothing/shoes/sneakers/white = 4,
 					/obj/item/clothing/shoes/xeno_wraps/medical = 4,
-					/obj/item/clothing/head/soft/emt = 4,
-					/obj/item/clothing/suit/apron/surgical = 4,
-					/obj/item/clothing/mask/surgical = 4,
 					/obj/item/clothing/accessory/armband/medblue = 2)
 	refill_canister = /obj/item/vending_refill/wardrobe/medi_wardrobe
 	payment_department = ACCOUNT_MED
@@ -187,9 +189,10 @@
 					/obj/item/clothing/under/rank/cargo/tech = 3,
 					/obj/item/clothing/under/rank/cargo/tech/skirt = 3,
 					/obj/item/clothing/under/rank/cargo/tech/turtleneck = 3,
-					/obj/item/clothing/under/rank/cargo/tech/skirt/turtleneck = 3,					
+					/obj/item/clothing/under/rank/cargo/tech/skirt/turtleneck = 3,
 					/obj/item/clothing/shoes/sneakers/black = 3,
 					/obj/item/clothing/shoes/xeno_wraps/cargo = 3,
+					/obj/item/clothing/shoes/xeno_wraps/cargo/cleated = 1,
 					/obj/item/clothing/gloves/fingerless = 3,
 					/obj/item/clothing/head/soft = 3,
 					/obj/item/radio/headset/headset_cargo = 3,
@@ -522,3 +525,28 @@
 	payment_department = ACCOUNT_MED
 /obj/item/vending_refill/wardrobe/viro_wardrobe
 	machine_name = "ViroDrobe"
+
+/obj/machinery/vending/wardrobe/hop_wardrobe
+	name = "HopDrobe"
+	desc = "A machine that will dispense clothing meant for the head of personnel."
+	icon_state = "hopdrobe"
+	product_ads = "Get your Ian approved clothing here!"
+	vend_reply = "Thank you for using the HopDrobe!"
+	products = list(/obj/item/clothing/under/rank/command/head_of_personnel = 2,
+					/obj/item/clothing/under/rank/command/head_of_personnel/skirt = 2,
+					/obj/item/clothing/under/rank/command/head_of_personnel/turtleneck = 2,
+					/obj/item/clothing/under/rank/command/head_of_personnel/skirt/turtleneck = 2,
+					/obj/item/clothing/head/hopcap = 2,
+					/obj/item/clothing/head/beret/hop = 2,
+					/obj/item/clothing/shoes/sneakers/brown = 2,
+					/obj/item/clothing/shoes/xeno_wraps/command = 2,
+					/obj/item/clothing/suit/armor/vest/rurmcoat = 1,
+					/obj/item/clothing/suit/armor/vest/sovietcoat = 1,
+					/obj/item/clothing/suit/armor/vest/hop_formal = 1,
+					/obj/item/clothing/under/yogs/hopcasual = 2,
+					/obj/item/clothing/suit/hooded/wintercoat/hop = 2)
+	refill_canister = /obj/item/vending_refill/wardrobe/hop_wardrobe
+	payment_department = ACCOUNT_SRV
+
+/obj/item/vending_refill/wardrobe/hop_wardrobe
+	machine_name = "HopDrobe"

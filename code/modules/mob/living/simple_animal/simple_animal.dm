@@ -111,7 +111,7 @@
 	var/music_component = null
 	var/music_path = null
 
-	
+
 
 /mob/living/simple_animal/Initialize(mapload)
 	. = ..()
@@ -277,7 +277,7 @@
 	if((bodytemperature < minbodytemp) || (bodytemperature > maxbodytemp))
 		adjustHealth(unsuitable_atmos_damage)
 
-/mob/living/simple_animal/gib()
+/mob/living/simple_animal/gib(no_brain, no_organs, no_bodyparts, no_items)
 	var/atom/Tsec = drop_location()
 	if(butcher_results)
 		for(var/path in butcher_results)
@@ -340,7 +340,7 @@
 		del_on_death = FALSE
 		qdel(src)
 		return
-	
+
 	health = 0
 	icon_state = icon_dead
 	if(flip_on_death)
@@ -415,29 +415,17 @@
 		if(target)
 			return new childspawn(target)
 
-/mob/living/simple_animal/canUseTopic(atom/movable/M, be_close=FALSE, no_dextery=FALSE, no_tk=FALSE)
+/mob/living/simple_animal/canUseTopic(atom/movable/M, be_close=FALSE, no_dexterity=FALSE, no_tk=FALSE)
 	if(incapacitated())
 		to_chat(src, span_warning("You can't do that right now!"))
 		return FALSE
 	if(be_close && !in_range(M, src))
 		to_chat(src, span_warning("You are too far away!"))
 		return FALSE
-	if(!(no_dextery || dextrous))
+	if(!(no_dexterity || dextrous))
 		to_chat(src, span_warning("You don't have the dexterity to do this!"))
 		return FALSE
 	return TRUE
-
-/mob/living/simple_animal/stripPanelUnequip(obj/item/what, mob/who, where)
-	if(!canUseTopic(who, BE_CLOSE))
-		return
-	else
-		..()
-
-/mob/living/simple_animal/stripPanelEquip(obj/item/what, mob/who, where)
-	if(!canUseTopic(who, BE_CLOSE))
-		return
-	else
-		..()
 
 /mob/living/simple_animal/update_mobility(value_otherwise = TRUE)
 	if(IsUnconscious() || IsParalyzed() || IsStun() || IsKnockdown() || IsParalyzed() || stat || resting)
@@ -541,7 +529,7 @@
 		if(H)
 			H.update_appearance(UPDATE_ICON)
 
-/mob/living/simple_animal/put_in_hands(obj/item/I, del_on_fail = FALSE, merge_stacks = TRUE)
+/mob/living/simple_animal/put_in_hands(obj/item/I, del_on_fail = FALSE, merge_stacks = TRUE, forced = FALSE, no_sound = FALSE)
 	. = ..(I, del_on_fail, merge_stacks)
 	update_inv_hands()
 

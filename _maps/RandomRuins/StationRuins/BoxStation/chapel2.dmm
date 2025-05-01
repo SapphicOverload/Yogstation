@@ -1,10 +1,14 @@
 //MAP CONVERTED BY dmm2tgm.py THIS HEADER COMMENT PREVENTS RECONVERSION, DO NOT REMOVE
 "an" = (
-/obj/machinery/vending/wardrobe/chap_wardrobe,
-/turf/open/floor/carpet/red,
+/obj/machinery/mass_driver{
+	dir = 1;
+	id = "chapelgun";
+	name = "Holy Driver"
+	},
+/obj/item/reagent_containers/food/snacks/grown/poppy,
+/turf/open/floor/plating,
 /area/chapel/office)
 "as" = (
-/obj/effect/turf_decal/ramp_middle,
 /obj/effect/turf_decal/siding/wideplating{
 	dir = 1
 	},
@@ -12,15 +16,14 @@
 /turf/open/floor/carpet/black,
 /area/chapel/main)
 "aH" = (
-/obj/effect/turf_decal/ramp_middle,
 /obj/effect/turf_decal/siding/wideplating{
 	dir = 1
 	},
-/obj/effect/turf_decal/ramp_middle,
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
 /obj/structure/disposalpipe/segment,
+/obj/effect/turf_decal/ramp_middle,
 /turf/open/floor/carpet/black,
 /area/chapel/main)
 "aW" = (
@@ -66,6 +69,7 @@
 	dir = 8;
 	pixel_x = 26
 	},
+/obj/machinery/vending/wardrobe/chap_wardrobe,
 /turf/open/floor/carpet/red,
 /area/chapel/office)
 "dd" = (
@@ -128,6 +132,7 @@
 /obj/structure/disposalpipe/sorting/mail{
 	sortType = 17
 	},
+/obj/effect/mapping_helpers/mail_sorting/service/chapel,
 /turf/open/floor/carpet/black,
 /area/chapel/office)
 "gr" = (
@@ -137,18 +142,16 @@
 /turf/open/floor/carpet/black,
 /area/chapel/office)
 "gB" = (
-/obj/effect/turf_decal/ramp_middle{
-	dir = 1
-	},
 /obj/structure/railing{
 	dir = 8
 	},
-/turf/open/floor/plasteel/stairs/goon/dark_stairs_wide,
+/turf/open/floor/plasteel/stairs/goon/dark_stairs_wide{
+	dir = 1
+	},
 /area/chapel/main)
 "gJ" = (
 /obj/machinery/door/airlock/maintenance{
-	name = "Chapel Maintenance";
-	req_access_txt = "12"
+	name = "Chapel Maintenance"
 	},
 /obj/machinery/door/firedoor/border_only{
 	dir = 1
@@ -159,6 +162,7 @@
 	},
 /obj/machinery/atmospherics/pipe/simple/supply/hidden/layer2,
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer4,
+/obj/effect/mapping_helpers/airlock/access/all/engineering/maintenance,
 /turf/open/floor/plating,
 /area/template_noop)
 "gL" = (
@@ -168,7 +172,6 @@
 /turf/open/floor/plasteel/dark,
 /area/chapel/main)
 "hp" = (
-/obj/effect/turf_decal/ramp_middle,
 /obj/effect/turf_decal/siding/wideplating{
 	dir = 1
 	},
@@ -191,9 +194,6 @@
 /turf/open/floor/plasteel/dark,
 /area/chapel/main)
 "iO" = (
-/obj/effect/turf_decal/ramp_middle{
-	dir = 4
-	},
 /turf/open/floor/plasteel/stairs/goon/dark_stairs_wide2{
 	dir = 4
 	},
@@ -203,9 +203,6 @@
 /turf/open/floor/plasteel/dark,
 /area/chapel/main)
 "iZ" = (
-/obj/effect/turf_decal/ramp_middle{
-	dir = 4
-	},
 /obj/effect/turf_decal/ramp_middle{
 	dir = 4
 	},
@@ -230,24 +227,23 @@
 "kK" = (
 /obj/machinery/door/window{
 	dir = 8;
-	name = "Mass Driver";
-	req_access_txt = "22"
-	},
-/obj/machinery/mass_driver{
-	dir = 4;
-	id = "chapelgun";
-	name = "Holy Driver"
+	name = "Mass Driver"
 	},
 /obj/effect/turf_decal/stripes/line{
 	dir = 8
 	},
-/obj/item/reagent_containers/food/snacks/grown/poppy,
-/turf/open/floor/plating,
+/obj/structure/sign/warning/vacuum/external{
+	pixel_y = 32
+	},
+/obj/effect/mapping_helpers/windoor/access/all/service/chapel_office{
+	dir = 8
+	},
+/turf/open/floor/plasteel/dark,
 /area/chapel/office)
 "kU" = (
 /obj/effect/turf_decal/ramp_middle,
 /obj/machinery/camera{
-	c_tag = "Chapel South";
+	c_tag = "Chapel East";
 	dir = 8
 	},
 /turf/open/floor/plasteel/dark,
@@ -272,9 +268,9 @@
 	dir = 4
 	},
 /obj/machinery/door/airlock/maintenance{
-	name = "Crematorium Maintenance";
-	req_access_txt = "27"
+	name = "Crematorium Maintenance"
 	},
+/obj/effect/mapping_helpers/airlock/access/all/service/crematorium,
 /turf/open/floor/plating,
 /area/template_noop)
 "mq" = (
@@ -312,9 +308,6 @@
 /obj/effect/turf_decal/ramp_middle{
 	dir = 8
 	},
-/obj/effect/turf_decal/ramp_middle{
-	dir = 8
-	},
 /obj/effect/turf_decal/ramp_middle,
 /turf/open/floor/plasteel/chapel{
 	dir = 1
@@ -326,9 +319,6 @@
 	},
 /area/chapel/main)
 "qZ" = (
-/obj/effect/turf_decal/ramp_middle{
-	dir = 8
-	},
 /obj/effect/turf_decal/ramp_middle{
 	dir = 8
 	},
@@ -418,10 +408,9 @@
 /obj/effect/turf_decal/ramp_middle{
 	dir = 4
 	},
-/obj/effect/turf_decal/ramp_middle{
+/turf/open/floor/plasteel/stairs/goon/dark_stairs_middle{
 	dir = 1
 	},
-/turf/open/floor/plasteel/stairs/goon/dark_stairs_middle,
 /area/chapel/main)
 "za" = (
 /obj/machinery/atmospherics/pipe/simple/supply/hidden/layer2{
@@ -432,9 +421,6 @@
 	},
 /area/chapel/main)
 "zf" = (
-/obj/effect/turf_decal/ramp_middle{
-	dir = 4
-	},
 /obj/effect/turf_decal/ramp_middle{
 	dir = 4
 	},
@@ -505,7 +491,7 @@
 "Dj" = (
 /obj/machinery/door/morgue{
 	name = "Confession Booth (Chaplain)";
-	req_access_txt = "22"
+	req_access = list("chapel_office")
 	},
 /obj/machinery/door/firedoor/border_only,
 /obj/machinery/door/firedoor/border_only{
@@ -537,9 +523,6 @@
 /turf/open/floor/plasteel/dark,
 /area/chapel/main)
 "DX" = (
-/obj/structure/sign/warning/vacuum/external{
-	pixel_y = 32
-	},
 /obj/effect/landmark/event_spawn,
 /obj/effect/turf_decal/stripes/line{
 	dir = 4
@@ -589,14 +572,12 @@
 	icon_state = "airlock_control_standby";
 	id = "chapelgun";
 	name = "Mass Driver Controller";
-	pixel_y = 30
+	pixel_y = 30;
+	req_access = list("chapel_office")
 	},
 /turf/open/floor/plasteel/dark,
 /area/chapel/office)
 "FB" = (
-/obj/effect/turf_decal/ramp_middle{
-	dir = 4
-	},
 /turf/open/floor/plasteel/stairs/goon/dark_stairs_middle{
 	dir = 4
 	},
@@ -651,10 +632,9 @@
 /obj/effect/turf_decal/ramp_middle{
 	dir = 8
 	},
-/obj/effect/turf_decal/ramp_middle{
+/turf/open/floor/plasteel/stairs/goon/dark_stairs_middle{
 	dir = 1
 	},
-/turf/open/floor/plasteel/stairs/goon/dark_stairs_middle,
 /area/chapel/main)
 "Ia" = (
 /obj/structure/table/wood/fancy/black,
@@ -664,11 +644,9 @@
 /turf/open/floor/carpet/black,
 /area/chapel/main)
 "Im" = (
-/obj/effect/turf_decal/ramp_middle{
-	dir = 4
-	},
 /obj/machinery/camera{
-	c_tag = "Chapel North"
+	c_tag = "Testing Lab East";
+	network = list("ss13","rd")
 	},
 /turf/open/floor/plasteel/stairs/goon/dark_stairs_wide{
 	dir = 4
@@ -716,9 +694,9 @@
 /obj/machinery/door/firedoor/border_only,
 /obj/structure/disposalpipe/segment,
 /obj/machinery/door/airlock/public/glass{
-	name = "Chapel Office";
-	req_access_txt = "22"
+	name = "Chapel Office"
 	},
+/obj/effect/mapping_helpers/airlock/access/all/service/chapel_office,
 /turf/open/floor/plasteel/dark,
 /area/chapel/office)
 "Kc" = (
@@ -736,8 +714,10 @@
 /obj/structure/closet/crate/coffin,
 /obj/machinery/door/window/eastleft{
 	dir = 8;
-	name = "Coffin Storage";
-	req_access_txt = "22"
+	name = "Coffin Storage"
+	},
+/obj/effect/mapping_helpers/windoor/access/all/service/chapel_office{
+	dir = 8
 	},
 /turf/open/floor/plasteel/dark,
 /area/chapel/office)
@@ -867,8 +847,10 @@
 "Sq" = (
 /obj/structure/closet/crate/coffin,
 /obj/machinery/door/window/eastleft{
-	name = "Coffin Storage";
-	req_access_txt = "22"
+	name = "Coffin Storage"
+	},
+/obj/effect/mapping_helpers/windoor/access/all/service/chapel_office{
+	dir = 4
 	},
 /turf/open/floor/plasteel/dark,
 /area/chapel/office)
@@ -881,13 +863,12 @@
 	},
 /area/chapel/main)
 "Tc" = (
-/obj/effect/turf_decal/ramp_middle{
-	dir = 1
-	},
 /obj/structure/railing{
 	dir = 4
 	},
-/turf/open/floor/plasteel/stairs/goon/dark_stairs_wide2,
+/turf/open/floor/plasteel/stairs/goon/dark_stairs_wide2{
+	dir = 1
+	},
 /area/chapel/main)
 "Te" = (
 /obj/structure/disposalpipe/segment{
@@ -926,7 +907,6 @@
 /turf/open/floor/plasteel/dark,
 /area/chapel/main)
 "UA" = (
-/obj/effect/turf_decal/ramp_middle,
 /obj/effect/turf_decal/siding/wideplating{
 	dir = 1
 	},
@@ -1074,8 +1054,7 @@
 	icon_state = "1-2"
 	},
 /obj/machinery/door/airlock{
-	name = "Crematorium";
-	req_access_txt = "27"
+	name = "Crematorium"
 	},
 /obj/structure/cable{
 	icon_state = "1-2"
@@ -1086,6 +1065,7 @@
 /obj/machinery/door/firedoor/border_only{
 	dir = 1
 	},
+/obj/effect/mapping_helpers/airlock/access/all/service/crematorium,
 /turf/open/floor/plasteel/dark,
 /area/chapel/office)
 "Zw" = (
@@ -1441,10 +1421,10 @@ Cq
 xL
 "}
 (16,1,1) = {"
-zg
+FN
 DX
-zg
 an
+zg
 cC
 Kz
 XU
@@ -1464,7 +1444,7 @@ wA
 "}
 (17,1,1) = {"
 zg
-FN
+zg
 zg
 wA
 wA

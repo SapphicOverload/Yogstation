@@ -24,11 +24,8 @@
 	set_stat(DEAD)
 	cut_overlays()
 
-	if(SSticker.mode)
-		SSticker.mode.check_win()
-
 	return ..(gibbed)
 
-/mob/living/simple_animal/slime/gib()
+/mob/living/simple_animal/slime/gib(no_brain, no_organs, no_bodyparts, no_items)
 	death(TRUE)
 	qdel(src)

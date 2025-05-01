@@ -111,7 +111,7 @@
 	create_parallax(screen_mob)
 	update_parallax(screen_mob)
 
-// This sets which way the current shuttle is moving (returns true if the shuttle has stopped moving so the caller can append their animation)
+// This sets which way the current shuttle is moving (returns true if the shuttle has stopped moving so the caller_but_not_a_byond_built_in_proc can append their animation)
 /datum/hud/proc/set_parallax_movedir(new_parallax_movedir = 0, skip_windups, mob/viewmob)
 	. = FALSE
 	var/mob/screenmob = viewmob || mymob
@@ -368,6 +368,8 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/parallax_layer)
 /atom/movable/screen/parallax_layer/planet/proc/on_z_change(mob/source)
 	SIGNAL_HANDLER
 	var/client/boss = source.client
+	if(!boss) //since we call this when the mob logs out, we might not have an actually source.client to use.
+		boss = source.canon_client 
 	var/turf/posobj = get_turf(boss?.eye)
 	if(!posobj)
 		return

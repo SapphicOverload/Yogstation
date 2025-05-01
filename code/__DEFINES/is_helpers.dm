@@ -79,7 +79,7 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 #define isslimeperson(A) (is_species(A, /datum/species/jelly/slime))
 #define isluminescent(A) (is_species(A, /datum/species/jelly/luminescent))
 #define iszombie(A) (is_species(A, /datum/species/zombie))
-#define isinfectedzombie(A) (is_species(A, /datum/species/zombie/infectious/gamemode))
+#define IS_INFECTEDzombie(A) (is_species(A, /datum/species/zombie/infectious/gamemode))
 #define isspitter(A) (is_species(A, /datum/species/zombie/infectious/gamemode/spitter))
 #define isskeleton(A) (is_species(A, /datum/species/skeleton))
 #define ismoth(A) (is_species(A, /datum/species/moth))
@@ -92,7 +92,6 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 #define isipc(A) (is_species(A, /datum/species/ipc))
 #define isinsurgent(A) (is_species(A, /datum/species/ipc/self/insurgent))
 #define issnail(A) (is_species(A, /datum/species/snail))
-#define isandroid(A) (is_species(A, /datum/species/android))
 #define isshadowperson(A) (is_species(A, /datum/species/shadow))
 #define is_synth(A) (is_species(A,/datum/species/wy_synth))
 #define isdummy(A) (istype(A, /mob/living/carbon/human/dummy))
@@ -165,6 +164,8 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 #define isfauna(A) (istype(A, /mob/living/simple_animal/hostile/asteroid))
 
 #define ismegafauna(A) (istype(A, /mob/living/simple_animal/hostile/megafauna))
+
+#define isjunglealpha(A) (istype(A, /mob/living/simple_animal/hostile/megafauna))
 
 #define isclown(A) (istype(A, /mob/living/simple_animal/hostile/retaliate/clown))
 

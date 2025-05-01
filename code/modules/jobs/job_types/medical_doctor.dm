@@ -14,8 +14,10 @@
 
 	outfit = /datum/outfit/job/doctor
 
-	added_access = list(ACCESS_CHEMISTRY, ACCESS_GENETICS)
-	base_access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_SURGERY, ACCESS_CLONING, ACCESS_MECH_MEDICAL, ACCESS_MINERAL_STOREROOM)
+	added_access = list(ACCESS_CHEMISTRY, ACCESS_GENETICS, ACCESS_VIROLOGY)
+	base_access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_SURGERY, ACCESS_CLONING,
+					ACCESS_MECH_MEDICAL)
+
 	paycheck = PAYCHECK_MEDIUM
 	paycheck_department = ACCOUNT_MED
 
@@ -25,6 +27,15 @@
 	departments_list = list(
 		/datum/job_department/medical,
 	)
+
+	base_skills = list(
+		SKILL_PHYSIOLOGY = EXP_HIGH,
+		SKILL_MECHANICAL = EXP_NONE,
+		SKILL_TECHNICAL = EXP_NONE,
+		SKILL_SCIENCE = EXP_NONE,
+		SKILL_FITNESS = EXP_NONE,
+	)
+	skill_points = 3
 
 	mail_goodies = list(
 		/obj/item/healthanalyzer/advanced = 15,
@@ -75,4 +86,3 @@
 	l_hand = /obj/item/storage/firstaid/medical
 	suit_store = /obj/item/flashlight/pen
 	gloves = /obj/item/clothing/gloves/color/latex/nitrile
-	pda_type = /obj/item/pda/medical

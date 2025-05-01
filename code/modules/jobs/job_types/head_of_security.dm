@@ -20,23 +20,36 @@
 	outfit = /datum/outfit/job/hos
 	mind_traits = list(TRAIT_LAW_ENFORCEMENT_METABOLISM)
 
-	added_access = list(ACCESS_CAPTAIN)
-	base_access = list(ACCESS_SECURITY, ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_ARMORY, ACCESS_COURT, ACCESS_WEAPONS, ACCESS_MECH_SECURITY,
-			            ACCESS_FORENSICS_LOCKERS, ACCESS_MORGUE, ACCESS_MAINT_TUNNELS, ACCESS_ALL_PERSONAL_LOCKERS, ACCESS_ATMOSPHERICS, // yogs - HoS needs same access as engineering armband
-			            ACCESS_RESEARCH, ACCESS_ROBOTICS, ACCESS_XENOBIOLOGY, ACCESS_ENGINE, ACCESS_MINING, ACCESS_MEDICAL, ACCESS_CONSTRUCTION, ACCESS_MAILSORTING,
-			            ACCESS_HEADS, ACCESS_HOS, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_GATEWAY, ACCESS_MAINT_TUNNELS, ACCESS_MINERAL_STOREROOM, ACCESS_BRIG_PHYS) //Yogs: Gives HoS access to the brig physicians locker
+	added_access = list(ACCESS_CAPTAIN, ACCESS_AI_MASTER)
+	base_access = list(ACCESS_COMMAND, ACCESS_SECURITY, ACCESS_HOS, ACCESS_SEC_BASIC,
+					ACCESS_BRIG, ACCESS_ARMORY, ACCESS_DETECTIVE, ACCESS_BRIG_PHYS,
+					ACCESS_WEAPONS_PERMIT, ACCESS_LAWYER, ACCESS_MECH_SECURITY,
+					ACCESS_MORGUE, ACCESS_MEDICAL, ACCESS_SURGERY, ACCESS_PARAMEDIC,
+					ACCESS_ENGINEERING, ACCESS_ATMOSPHERICS, ACCESS_CONSTRUCTION, ACCESS_AUX_BASE,
+					ACCESS_EXTERNAL_AIRLOCKS, ACCESS_SCIENCE, ACCESS_TOXINS, ACCESS_EXPERIMENTATION,
+					ACCESS_XENOBIOLOGY, ACCESS_ROBOTICS, ACCESS_AI_SAT, ACCESS_CARGO,
+					ACCESS_CARGO_BAY, ACCESS_MINING, ACCESS_MINING_STATION, ACCESS_MAINT_TUNNELS,
+					ACCESS_EVA, ACCESS_PERSONAL_LOCKERS, ACCESS_VAULT, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH)
+
 	paycheck = PAYCHECK_COMMAND
 	paycheck_department = ACCOUNT_SEC
 
 	display_order = JOB_DISPLAY_ORDER_HEAD_OF_SECURITY
 	minimal_character_age = 28 //You need some experience on your belt and a little gruffiness; you're still a foot soldier, not quite a tactician commander back at base
 
+	base_skills = list(
+		SKILL_PHYSIOLOGY = EXP_NONE,
+		SKILL_MECHANICAL = EXP_NONE,
+		SKILL_TECHNICAL = EXP_NONE,
+		SKILL_SCIENCE = EXP_NONE,
+		SKILL_FITNESS = EXP_HIGH,
+	)
+	skill_points = 3
+
 	departments_list = list(
 		/datum/job_department/security,
 		/datum/job_department/command,
 	)
-
-	changed_maps = list("YogsPubby")
 
 	mail_goodies = list(
 		/obj/item/stack/sheet/plastic/five = 20, //need that plastic chair
@@ -69,9 +82,6 @@
 		badge.owner_string = H.real_name
 		var/obj/item/clothing/suit/my_suit = H.wear_suit
 		my_suit.attach_badge(badge)
-
-/datum/job/hos/proc/YogsPubbyChanges()
-	base_access |= ACCESS_CREMATORIUM
 
 /datum/outfit/job/hos
 	name = "Head of Security"

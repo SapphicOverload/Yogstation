@@ -462,13 +462,14 @@ By design, d1 is the smallest direction and d2 is the highest
 	name = "cable coil"
 	custom_price = 15
 	gender = NEUTER //That's a cable coil sounds better than that's some cable coils
-	icon = 'icons/obj/power.dmi'
+	icon = 'icons/obj/stack_objects.dmi'
 	icon_state = "coil"
 	item_state = "coil"
 	lefthand_file = 'icons/mob/inhands/equipment/tools_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/equipment/tools_righthand.dmi'
 	max_amount = MAXCOIL
 	amount = MAXCOIL
+	tool_behaviour = TOOL_WIRING
 	merge_type = /obj/item/stack/cable_coil // This is here to let its children merge between themselves
 	color = CABLE_HEX_COLOR_YELLOW
 	desc = "A coil of insulated power cable."
@@ -526,7 +527,8 @@ By design, d1 is the smallest direction and d2 is the highest
 	restraints_icon.color = color
 
 	var/list/radial_menu = list(
-	"Cable restraints" = restraints_icon
+		"Multi-deck power adapter" = image(icon = 'icons/obj/power.dmi', icon_state = "cablerelay-broken-cable"),
+		"Cable restraints" = restraints_icon
 	)
 
 	var/layer_result = show_radial_menu(user, src, radial_menu, custom_check = CALLBACK(src, PROC_REF(check_menu), user), require_near = TRUE, tooltips = TRUE)
@@ -538,6 +540,13 @@ By design, d1 is the smallest direction and d2 is the highest
 				if(use(CABLE_RESTRAINTS_COST))
 					var/obj/item/restraints/handcuffs/cable/restraints = new(null, cable_color)
 					user.put_in_hands(restraints)
+		if("Multi-deck power adapter")
+			if(locate(/obj/machinery/power/deck_relay) in user.loc)
+				to_chat(user, span_danger("You can't place another relay here!"))
+				return
+			if(use(1))
+				new /obj/machinery/power/deck_relay(user.loc)
+				user.visible_message("[user] constructs a deck relay.")
 	update_appearance()
 
 ///////////////////////////////////
@@ -676,7 +685,7 @@ By design, d1 is the smallest direction and d2 is the highest
 	if(!isturf(T) || T.underfloor_accessibility < UNDERFLOOR_INTERACTABLE || !T.can_have_cabling())
 		to_chat(user, span_warning("You can only lay cables on top of exterior catwalks and plating!"))
 		return
-	
+
 	if(get_amount() < 1) // Out of cable
 		to_chat(user, span_warning("There is no cable left!"))
 		return

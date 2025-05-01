@@ -12,13 +12,24 @@
 
 	outfit = /datum/outfit/job/miner
 
-	added_access = list(ACCESS_MAINT_TUNNELS, ACCESS_CARGO, ACCESS_QM, ACCESS_RESEARCH, ACCESS_RND)
-	base_access = list(ACCESS_MINING, ACCESS_MECH_MINING, ACCESS_MINING_STATION, ACCESS_MAILSORTING, ACCESS_MINERAL_STOREROOM)
+	added_access = list(ACCESS_MAINT_TUNNELS, ACCESS_CARGO_BAY, ACCESS_QM, ACCESS_SCIENCE,
+					ACCESS_RESEARCH, ACCESS_AUX_BASE)
+	base_access = list(ACCESS_CARGO, ACCESS_MINING, ACCESS_MINING_STATION, ACCESS_MECH_MINING)
+
 	paycheck = PAYCHECK_HARD
 	paycheck_department = ACCOUNT_CAR
 
 	display_order = JOB_DISPLAY_ORDER_SHAFT_MINER
 	minimal_character_age = 18 //Young and fresh bodies for a high mortality job, what more could you ask for
+
+	base_skills = list(
+		SKILL_PHYSIOLOGY = EXP_NONE,
+		SKILL_MECHANICAL = EXP_NONE,
+		SKILL_TECHNICAL = EXP_NONE,
+		SKILL_SCIENCE = EXP_NONE,
+		SKILL_FITNESS = EXP_HIGH,
+	)
+	skill_points = 2 // "unskilled" labor
 
 	departments_list = list(
 		/datum/job_department/cargo,
@@ -48,7 +59,7 @@
 
 	ears = /obj/item/radio/headset/headset_cargo/mining
 	shoes = /obj/item/clothing/shoes/workboots/mining
-	digitigrade_shoes = /obj/item/clothing/shoes/xeno_wraps/cargo
+	digitigrade_shoes = /obj/item/clothing/shoes/xeno_wraps/cargo/cleated
 	gloves = /obj/item/clothing/gloves/color/black
 	uniform = /obj/item/clothing/under/rank/cargo/miner/lavaland
 	neck = /obj/item/clothing/neck/bodycam/miner

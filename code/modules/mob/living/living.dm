@@ -37,14 +37,25 @@
 	QDEL_LIST(surgeries)
 	return ..()
 
-/mob/living/onZImpact(turf/T, levels)
-	ZImpactDamage(T, levels)
-	return ..()
+/mob/living/onZImpact(turf/impacted_turf, levels, impact_flags = NONE)
+	impact_flags |= SEND_SIGNAL(impacted_turf, COMSIG_TURF_MOB_FALL, src, levels, impact_flags)
+	if(!isgroundlessturf(impacted_turf))
+		impact_flags |= ZImpactDamage(impacted_turf, levels, impact_flags)
 
-/mob/living/proc/ZImpactDamage(turf/T, levels)
-	visible_message(span_danger("[src] crashes into [T] with a sickening noise!"))
+	return ..(impacted_turf, levels, impact_flags)
+
+/mob/living/proc/ZImpactDamage(turf/impacted_turf, levels, impact_flags)
+	impact_flags |= SEND_SIGNAL(src, COMSIG_LIVING_Z_IMPACT, levels, impacted_turf)
+	if(impact_flags & ZIMPACT_CANCEL_DAMAGE)
+		return impact_flags
+	if(!(impact_flags & ZIMPACT_NO_MESSAGE))
+		visible_message(
+			span_danger("[src] crashes into [impacted_turf] with a sickening noise!"),
+			span_userdanger("You crash into [impacted_turf] with a sickening noise!"),
+		)
 	adjustBruteLoss((levels * 5) ** 1.5)
-	Knockdown(levels * 50)
+	Knockdown(levels * 3 SECONDS)
+	return impact_flags
 
 /mob/living/proc/OpenCraftingMenu()
 	return
@@ -177,7 +188,6 @@
 			return TRUE
 
 /mob/living/get_photo_description(obj/item/camera/camera)
-	var/list/mob_details = list()
 	var/list/holding = list()
 	var/len = length(held_items)
 	if(len)
@@ -185,12 +195,10 @@
 			if(!holding.len)
 				holding += "They are holding \a [I]"
 			else if(held_items.Find(I) == len)
-				holding += ", and \a [I]."
+				holding += ", and \a [I]"
 			else
 				holding += ", \a [I]"
-	holding += "."
-	mob_details += "You can also see [src] on the photo[health < (maxHealth * 0.75) ? ", looking a bit hurt":""][holding ? ". [holding.Join("")]":"."]."
-	return mob_details.Join("")
+	return "You can also see [src] on the photo[health < (maxHealth * 0.75) ? ", looking a bit hurt":""][holding.len ? ". [holding.Join("")].":"."]"
 
 //Called when we bump onto an obj
 /mob/living/proc/ObjBump(obj/O)
@@ -344,14 +352,23 @@
 
 //mob verbs are a lot faster than object verbs
 //for more info on why this is not atom/pull, see examinate() in mob.dm
-/mob/living/verb/pulled(atom/movable/AM as mob|obj in oview(1))
+/mob/verb/pulled(atom/movable/AM as mob|obj in oview(1))
+	set name = "Pull"
+	set category = "Object"
+	return FALSE
+
+/mob/living/pulled(atom/movable/AM as mob|obj in oview(1))
 	set name = "Pull"
 	set category = "Object"
 
+	if(contains_atom(AM)) // don't pull stuff in your inventory
+		return FALSE
+
 	if(istype(AM) && Adjacent(AM))
 		start_pulling(AM)
-	else if(!combat_mode)
+	else if(!in_throw_mode)
 		stop_pulling()
+	return TRUE
 
 /mob/living/stop_pulling()
 	if(ismob(pulling))
@@ -633,6 +650,21 @@
 		cure_fakedeath()
 	SEND_SIGNAL(src, COMSIG_LIVING_POST_FULLY_HEAL)
 
+/mob/living/proc/do_strange_reagent_revival()
+	if(iscarbon(src))
+		var/mob/living/carbon/C = src
+		for(var/organ in C.internal_organs)
+			var/obj/item/organ/O = organ
+			O.setOrganDamage(0)
+	adjustBruteLoss(-100)
+	adjustFireLoss(-100)
+	adjustOxyLoss(-200, 0)
+	adjustToxLoss(-200, 0, TRUE)
+	updatehealth()
+	if(revive())
+		emote("gasp")
+		log_combat(src, src, "revived", src)
+
 //proc called by revive(), to check if we can actually ressuscitate the mob (we don't want to revive him and have him instantly die again)
 /mob/living/proc/can_be_revived()
 	. = 1
@@ -864,68 +896,6 @@
 		animate(src, pixel_y = get_standard_pixel_y_offset(lying), time = 1 SECONDS)
 		setMovetype(movement_type & ~FLOATING)
 
-// The src mob is trying to strip an item from someone
-// Override if a certain type of mob should be behave differently when stripping items (can't, for example)
-/mob/living/stripPanelUnequip(obj/item/what, mob/who, where)
-	if(!what.canStrip(who))
-		to_chat(src, span_warning("You can't remove \the [what.name], it appears to be stuck!"))
-		return
-	who.visible_message(span_danger("[src] tries to remove [who]'s [what.name]."), \
-					span_userdanger("[src] tries to remove [who]'s [what.name]."))
-	what.add_fingerprint(src)
-	SEND_SIGNAL(what, COMSIG_ITEM_PRESTRIP)
-	if(do_after(src, what.strip_delay, who, interaction_key = REF(what)))
-		if(what && Adjacent(who))
-			if(islist(where))
-				var/list/L = where
-				if(what == who.get_item_for_held_index(L[2]))
-					if(what.doStrip(src, who))
-						log_combat(src, who, "stripped [what] off")
-			if(what == who.get_item_by_slot(where))
-				if(what.doStrip(src, who))
-					log_combat(src, who, "stripped [what] off")
-
-	if(Adjacent(who)) //update inventory window
-		who.show_inv(src)
-	else
-		src << browse(null,"window=mob[REF(who)]")
-
-// The src mob is trying to place an item on someone
-// Override if a certain mob should be behave differently when placing items (can't, for example)
-/mob/living/stripPanelEquip(obj/item/what, mob/who, where)
-	what = src.get_active_held_item()
-	if(what && (HAS_TRAIT(what, TRAIT_NODROP)))
-		to_chat(src, span_warning("You can't put \the [what.name] on [who], it's stuck to your hand!"))
-		return
-	if(what)
-		var/list/where_list
-		var/final_where
-
-		if(islist(where))
-			where_list = where
-			final_where = where[1]
-		else
-			final_where = where
-
-		if(!what.mob_can_equip(who, src, final_where, TRUE, TRUE))
-			to_chat(src, span_warning("\The [what.name] doesn't fit in that place!"))
-			return
-
-		visible_message(span_notice("[src] tries to put [what] on [who]."))
-		if(do_after(src, what.equip_delay_other, who))
-			if(what && Adjacent(who) && what.mob_can_equip(who, src, final_where, TRUE, TRUE))
-				if(temporarilyRemoveItemFromInventory(what))
-					if(where_list)
-						if(!who.put_in_hand(what, where_list[2]))
-							what.forceMove(get_turf(who))
-					else
-						who.equip_to_slot(what, where, TRUE)
-
-		if(Adjacent(who)) //update inventory window
-			who.show_inv(src)
-		else
-			src << browse(null,"window=mob[REF(who)]")
-
 /mob/living/singularity_pull(S, current_size)
 	..()
 	if(current_size >= STAGE_SIX) //your puny magboots/wings/whatever will not save you against supermatter singularity
@@ -1041,14 +1011,14 @@
 /mob/living/proc/give()
 	return
 
-/mob/living/canUseTopic(atom/movable/M, be_close=FALSE, no_dextery=FALSE, no_tk=FALSE)
+/mob/living/canUseTopic(atom/movable/M, be_close=FALSE, no_dexterity=FALSE, no_tk=FALSE)
 	if(incapacitated())
 		to_chat(src, span_warning("You can't do that right now!"))
 		return FALSE
 	if(be_close && !in_range(M, src))
 		to_chat(src, span_warning("You are too far away!"))
 		return FALSE
-	if(!no_dextery)
+	if(!no_dexterity)
 		to_chat(src, span_warning("You don't have the dexterity to do this!"))
 		return FALSE
 	return TRUE
@@ -1079,7 +1049,7 @@
 		mind.soulOwner = mind
 
 /mob/living/proc/has_bane(banetype)
-	var/datum/antagonist/devil/devilInfo = is_devil(src)
+	var/datum/antagonist/devil/devilInfo = IS_DEVIL(src)
 	return devilInfo && banetype == devilInfo.bane
 
 /mob/living/proc/check_weakness(obj/item/weapon, mob/living/attacker)
@@ -1207,7 +1177,7 @@ GLOBAL_LIST_EMPTY(fire_appearances)
 	var/datum/status_effect/fire_handler/fire_handler = has_status_effect(/datum/status_effect/fire_handler)
 	if(fire_handler)
 		fire_handler.update_overlay()
-		
+
 /**
  * Extinguish all fire on the mob
  *
@@ -1388,10 +1358,15 @@ GLOBAL_LIST_EMPTY(fire_appearances)
 		mobility_flags |= MOBILITY_STAND
 		lying = 0
 
-	if(should_be_lying || restrained || incapacitated())
-		mobility_flags &= ~(MOBILITY_UI|MOBILITY_PULL)
+	if(restrained || incapacitated())
+		mobility_flags &= ~MOBILITY_UI
 	else
-		mobility_flags |= MOBILITY_UI|MOBILITY_PULL
+		mobility_flags |= MOBILITY_UI
+
+	if(should_be_lying || restrained || incapacitated())
+		mobility_flags &= ~MOBILITY_PULL
+	else
+		mobility_flags |= MOBILITY_PULL
 
 	SEND_SIGNAL(src, COMSIG_LIVING_SET_BODY_POSITION, mobility_flags, .) //REMOVE THIS WHEN LAYING DOWN GETS PORTED
 
@@ -1572,15 +1547,15 @@ GLOBAL_LIST_EMPTY(fire_appearances)
 	. = ..()
 	var/refid = REF(src)
 	. += {"
-		<br><font size='1'><a href='?_src_=vars;[HrefToken()];datumedit=[refid];varnameedit=ckey' id='ckey'>[ckey || "No ckey"]</a> / [VV_HREF_TARGETREF_1V(refid, VV_HK_BASIC_EDIT, "[real_name || "no real name"]", NAMEOF(src, real_name))]</font>
+		<br><font size='1'><a href='byond://?_src_=vars;[HrefToken()];datumedit=[refid];varnameedit=ckey' id='ckey'>[ckey || "No ckey"]</a> / [VV_HREF_TARGETREF_1V(refid, VV_HK_BASIC_EDIT, "[real_name || "no real name"]", NAMEOF(src, real_name))]</font>
 		<br><font size='1'>
-			BRUTE:<font size='1'><a href='?_src_=vars;[HrefToken()];mobToDamage=[refid];adjustDamage=[BRUTE]' id='brute'>[getBruteLoss()]</a>
-			BURN:<font size='1'><a href='?_src_=vars;[HrefToken()];mobToDamage=[refid];adjustDamage=[BURN]' id='burn'>[getFireLoss()]</a>
-			TOXIN:<font size='1'><a href='?_src_=vars;[HrefToken()];mobToDamage=[refid];adjustDamage=[TOX]' id='toxin'>[getToxLoss()]</a>
-			OXY:<font size='1'><a href='?_src_=vars;[HrefToken()];mobToDamage=[refid];adjustDamage=[OXY]' id='oxygen'>[getOxyLoss()]</a>
-			CLONE:<font size='1'><a href='?_src_=vars;[HrefToken()];mobToDamage=[refid];adjustDamage=[CLONE]' id='clone'>[getCloneLoss()]</a>
-			BRAIN:<font size='1'><a href='?_src_=vars;[HrefToken()];mobToDamage=[refid];adjustDamage=[BRAIN]' id='brain'>[getOrganLoss(ORGAN_SLOT_BRAIN)]</a>
-			STAMINA:<font size='1'><a href='?_src_=vars;[HrefToken()];mobToDamage=[refid];adjustDamage=[STAMINA]' id='stamina'>[getStaminaLoss()]</a>
+			BRUTE:<font size='1'><a href='byond://?_src_=vars;[HrefToken()];mobToDamage=[refid];adjustDamage=[BRUTE]' id='brute'>[getBruteLoss()]</a>
+			BURN:<font size='1'><a href='byond://?_src_=vars;[HrefToken()];mobToDamage=[refid];adjustDamage=[BURN]' id='burn'>[getFireLoss()]</a>
+			TOXIN:<font size='1'><a href='byond://?_src_=vars;[HrefToken()];mobToDamage=[refid];adjustDamage=[TOX]' id='toxin'>[getToxLoss()]</a>
+			OXY:<font size='1'><a href='byond://?_src_=vars;[HrefToken()];mobToDamage=[refid];adjustDamage=[OXY]' id='oxygen'>[getOxyLoss()]</a>
+			CLONE:<font size='1'><a href='byond://?_src_=vars;[HrefToken()];mobToDamage=[refid];adjustDamage=[CLONE]' id='clone'>[getCloneLoss()]</a>
+			BRAIN:<font size='1'><a href='byond://?_src_=vars;[HrefToken()];mobToDamage=[refid];adjustDamage=[BRAIN]' id='brain'>[getOrganLoss(ORGAN_SLOT_BRAIN)]</a>
+			STAMINA:<font size='1'><a href='byond://?_src_=vars;[HrefToken()];mobToDamage=[refid];adjustDamage=[STAMINA]' id='stamina'>[getStaminaLoss()]</a>
 		</font>
 	"}
 
@@ -1700,7 +1675,7 @@ GLOBAL_LIST_EMPTY(fire_appearances)
 //	if(!resting)
 //		get_up()
 	set_resting(FALSE)
-	
+
 /mob/living/proc/move_to_error_room()
 	var/obj/effect/landmark/error/error_landmark = locate(/obj/effect/landmark/error) in GLOB.landmarks_list
 	if(error_landmark)

@@ -38,10 +38,11 @@ GLOBAL_LIST_EMPTY(gravity_generators) // We will keep track of this by adding ne
 	if(prob(20))
 		set_broken()
 
-/obj/machinery/gravity_generator/tesla_act(power, tesla_flags, shocked_targets, zap_gib = FALSE)
-	..()
+/obj/machinery/gravity_generator/tesla_act(source, power, zap_range, tesla_flags, list/shocked_targets)
+	. = ..()
 	if(tesla_flags & TESLA_MACHINE_EXPLOSIVE)
-		qdel(src)//like the singulo, tesla deletes it. stops it from exploding over and over
+		set_broken()
+		ADD_TRAIT(src, TRAIT_TESLA_IGNORE, INNATE_TRAIT) // stops it from exploding over and over
 
 /obj/machinery/gravity_generator/update_icon_state()
 	. = ..()
@@ -462,10 +463,19 @@ GLOBAL_LIST_EMPTY(gravity_generators) // We will keep track of this by adding ne
 
 /obj/machinery/gravity_generator/main/CtrlClick(mob/user)
 	if(!user.canUseTopic(src, !issilicon(user)))
-		return
+		return FALSE
 	breaker = !breaker
 	investigate_log("was toggled [breaker ? "<font color='green'>ON</font>" : "<font color='red'>OFF</font>"] by [key_name(usr)].", INVESTIGATE_GRAVITY)
 	set_power()
+	return TRUE
+
+
+/obj/machinery/gravity_generator/main/proc/blackout()
+	charge_count = 0
+	breaker = FALSE
+	set_power()
+	disable()
+	investigate_log("was turned off by blackout event or a gravity anomaly detonation.", INVESTIGATE_GRAVITY)
 
 // Misc
 

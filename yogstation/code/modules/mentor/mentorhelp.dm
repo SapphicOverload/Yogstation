@@ -46,6 +46,14 @@
 	if(!mt)
 		mt = new(src)
 	mt.log += "<b>[src.key]:</b> [msg]"
+	
+	var/datum/DBQuery/add_mhelp_query = SSdbcore.NewQuery(
+		"INSERT INTO `[format_table_name("mentor_interactions")]` (round_id, ckey, ckey_mentor, target_mentor, message) VALUES (:round, :send, :smentor, :rmentor, :msg);",
+		list("round" = GLOB.round_id, "send" = ckey, "smentor" = is_mentor(), "rmentor" = 1, "msg" = msg)
+	)
+	if(!add_mhelp_query.Execute())
+		message_admins("Failed insert mhelp into mhelp DB. Check the SQL error logs for more details.")
+	qdel(add_mhelp_query)
 
 /proc/get_mentor_counts()
 	. = list("total" = 0, "afk" = 0, "present" = 0)
@@ -91,9 +99,9 @@
 	if(key)
 		if(include_link)
 			if(CONFIG_GET(flag/mentors_mobname_only))
-				. += "<a href='?_src_=mentor;mentor_msg=[REF(M)];[MentorHrefToken(TRUE)]'>"
+				. += "<a href='byond://?_src_=mentor;mentor_msg=[REF(M)];[MentorHrefToken(TRUE)]'>"
 			else
-				. += "<a href='?_src_=mentor;mentor_msg=[ckey];[MentorHrefToken(TRUE)]'>"
+				. += "<a href='byond://?_src_=mentor;mentor_msg=[ckey];[MentorHrefToken(TRUE)]'>"
 
 		if(C && C.holder && C.holder.fakekey)
 			. += "Administrator"
@@ -115,9 +123,9 @@
 		. += "*no key*"
 
 	if(include_follow)
-		. += " (<a href='?_src_=mentor;mentor_follow=[REF(M)];[MentorHrefToken(TRUE)]'>F</a>)"
+		. += " (<a href='byond://?_src_=mentor;mentor_follow=[REF(M)];[MentorHrefToken(TRUE)]'>F</a>)"
 
 	return .
 
 /proc/discord_mentor_link(display_name, id)
-	return "<a href='?_src_=mentor;mentor_msg=[list2params(list(display_name))];mentor_discord_id=[id];[MentorHrefToken(TRUE)]'>[display_name]</a>"
+	return "<a href='byond://?_src_=mentor;mentor_msg=[list2params(list(display_name))];mentor_discord_id=[id];[MentorHrefToken(TRUE)]'>[display_name]</a>"

@@ -13,6 +13,7 @@
 #define MOTH (1<<9)
 #define CAT (1<<10)
 #define ENGLISH (1<<11)
+#define VOXPIDGIN (1<<12)
 
 ///Span classes that players are allowed to set in a radio transmission.
 GLOBAL_LIST_INIT(allowed_custom_spans, list(
@@ -71,7 +72,7 @@ GLOBAL_LIST_INIT(allowed_translations, list(
 	returnerrors += scanner.errors
 	returnerrors += parser.errors
 
-	if(returnerrors.len)
+	if(length(returnerrors))
 		return returnerrors
 
 	interpreter = new(program)
@@ -146,6 +147,8 @@ GLOBAL_LIST_INIT(allowed_translations, list(
 		"mothian" = MOTH,
 		"cat" = CAT,
 		"english" = ENGLISH,
+		"voxpidgin" = VOXPIDGIN,
+
 	)))
 
 	interpreter.Run() // run the thing
@@ -194,6 +197,8 @@ GLOBAL_LIST_INIT(allowed_translations, list(
 			oldlangbits = CAT
 		if(/datum/language/english)
 			oldlangbits = ENGLISH
+		if(/datum/language/vox)
+			oldlangbits = VOXPIDGIN
 
 	// Signal data
 	var/datum/n_struct/signal/script_signal = new(list(
@@ -291,13 +296,13 @@ GLOBAL_LIST_INIT(allowed_translations, list(
 
 /datum/n_function/default/signal/execute(this_obj, list/params)
 	var/datum/n_struct/signal/S = new
-	if(params.len >= 1)
+	if(length(params) >= 1)
 		S.properties["content"] = params[1]
-	if(params.len >= 2)
+	if(length(params) >= 2)
 		S.properties["freq"] = params[2]
-	if(params.len >= 3)
+	if(length(params) >= 3)
 		S.properties["source"] = params[3]
-	if(params.len >= 4)
+	if(length(params) >= 4)
 		S.properties["job"] = params[4]
 	return S
 
@@ -336,14 +341,16 @@ GLOBAL_LIST_INIT(allowed_translations, list(
 			return /datum/language/felinid
 		if(ENGLISH)
 			return /datum/language/english
+		if(VOXPIDGIN)
+			return /datum/language/vox
 
 /datum/n_function/default/mem
 	name = "mem"
 	interp_type = /datum/n_Interpreter/TCS_Interpreter
 
 /datum/n_function/default/mem/execute(this_obj, list/params, datum/scope/scope, datum/n_Interpreter/TCS_Interpreter/interp)
-	var/address = params.len >= 1 ? params[1] : null
-	var/value = params.len >= 2 ? params[2] : null
+	var/address = length(params) >= 1 ? params[1] : null
+	var/value = length(params) >= 2 ? params[2] : null
 	if(istext(address))
 		var/obj/machinery/telecomms/server/S = interp.Compiler.Holder
 
@@ -353,7 +360,7 @@ GLOBAL_LIST_INIT(allowed_translations, list(
 			S.memory -= address
 			return TRUE
 		else // Setting the value
-			if(S.memory.len >= MAX_MEM_VARS)
+			if(length(S.memory) >= MAX_MEM_VARS)
 				if(!(address in S.memory))
 					return FALSE
 			S.memory[address] = value
@@ -373,8 +380,8 @@ GLOBAL_LIST_INIT(allowed_translations, list(
 	interp_type = /datum/n_Interpreter/TCS_Interpreter
 
 /datum/n_function/default/remote_signal/execute(this_obj, list/params, datum/scope/scope, datum/n_Interpreter/TCS_Interpreter/interp)
-	var/freq = params.len >= 1 ? params[1] : 1459
-	var/code = params.len >= 2 ? params[2] : 30
+	var/freq = length(params) >= 1 ? params[1] : 1459
+	var/code = length(params) >= 2 ? params[2] : 30
 
 	if(isnum(freq) && isnum(code))
 
@@ -411,7 +418,7 @@ GLOBAL_LIST_INIT(allowed_translations, list(
 	interp_type = /datum/n_Interpreter/TCS_Interpreter
 
 /datum/n_function/default/broadcast/execute(this_obj, list/params, datum/scope/scope, datum/n_Interpreter/TCS_Interpreter/interp)
-	if(params.len < 1)
+	if(length(params) < 1)
 		return
 	var/datum/n_struct/signal/script_signal = params[1]
 	if(!istype(script_signal))
@@ -516,3 +523,4 @@ GLOBAL_LIST_INIT(allowed_translations, list(
 #undef MOTH
 #undef CAT
 #undef ENGLISH
+#undef VOXPIDGIN

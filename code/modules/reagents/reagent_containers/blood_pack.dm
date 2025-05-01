@@ -40,7 +40,7 @@
 			span_notice("[user] puts the [src] up to their mouth."),
 			span_notice("You take a sip from the [src]."),
 		)
-		if(is_vampire(user))
+		if(IS_VAMPIRE(user))
 			var/datum/antagonist/vampire/V = user.mind.has_antag_datum(/datum/antagonist/vampire)
 			V.usable_blood += BLOODBAG_GULP_SIZE / 4 //they should really be drinking from people, yknow, be antagonistic?
 
@@ -102,7 +102,7 @@
 
 /obj/item/reagent_containers/blood/random/Initialize(mapload)
 	icon_state = "bloodpack"
-	blood_type = pick("A+", "A-", "B+", "B-", "O+", "O-", "L")
+	blood_type = pick("A+", "A-", "B+", "B-", "O+", "O-", "L", "V")
 	return ..()
 
 /obj/item/reagent_containers/blood/APlus

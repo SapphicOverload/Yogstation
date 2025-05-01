@@ -1,16 +1,3 @@
-#define ICECREAM_VANILLA 1
-#define ICECREAM_CHOCOLATE 2
-#define ICECREAM_STRAWBERRY 3
-#define ICECREAM_BLUE 4
-#define ICECREAM_LEMON 5
-#define ICECREAM_CARAMEL 6
-#define ICECREAM_BANANA 7
-#define ICECREAM_ORANGE 8
-#define ICECREAM_PEACH 9
-#define ICECREAM_CHERRY_CHOCOLATE 10
-#define CONE_WAFFLE 11
-#define CONE_CHOC 12
-
 /obj/machinery/icecream_vat
 	name = "ice cream vat"
 	desc = "Ding-aling ding dong. Get your Nanotrasen-approved ice cream!"
@@ -21,290 +8,585 @@
 	use_power = NO_POWER_USE
 	layer = BELOW_OBJ_LAYER
 	max_integrity = 300
-	var/list/product_types = list()
-	var/dispense_flavour = ICECREAM_VANILLA
-	var/flavour_name = "vanilla"
-	var/static/list/icecream_vat_reagents = list(
-		/datum/reagent/consumable/milk = 6,
-		/datum/reagent/consumable/flour = 6,
-		/datum/reagent/consumable/sugar = 6,
-		/datum/reagent/consumable/ice = 6,
-		/datum/reagent/consumable/coco = 6,
-		/datum/reagent/consumable/vanilla = 5,
-		/datum/reagent/consumable/berryjuice = 5,
-		/datum/reagent/consumable/ethanol/singulo = 5,
-		/datum/reagent/consumable/lemonjuice = 5,
-		/datum/reagent/consumable/caramel = 5,
-		/datum/reagent/consumable/banana = 5,
-		/datum/reagent/consumable/orangejuice = 5,
-		/datum/reagent/consumable/cream = 5,
-		/datum/reagent/consumable/peachjuice = 5,
-		/datum/reagent/consumable/cherryjelly = 5)
+	component_parts = list( new /obj/item/stock_parts/matter_bin,
+							new /obj/item/circuitboard/machine/icecream_vat)
+	circuit = /obj/item/circuitboard/machine/icecream_vat
+	//Ice cream to be dispensed into cone on attackby
+	var/obj/item/reagent_containers/food/snacks/ice_cream_scoop/selected_scoop_type
+	//Cone to be dispensed with alt click
+	var/obj/item/reagent_containers/food/snacks/selected_cone_type
+	//Max amount of items that can be in vat's storage
+	var/storage_capacity = 80
+	//If it starts empty or not
+	var/start_empty = FALSE
+	//If the vat will perform scooping_failure proc
+	var/scoop_fail = TRUE
+	//Sound made when an item is dispensed
+	var/dispense_sound = 'sound/machines/click.ogg'
+	//Sound made when selecting/deselecting an item
+	var/select_sound = 'sound/machines/doorclick.ogg'
+	//Items to be added upon creation to the vat and what is shown in the UI
+	var/list/ui_list = list(
+		/obj/item/reagent_containers/food/snacks/ice_cream_scoop,
+		/obj/item/reagent_containers/food/snacks/ice_cream_scoop/vanilla,
+		/obj/item/reagent_containers/food/snacks/ice_cream_scoop/chocolate,
+		/obj/item/reagent_containers/food/snacks/ice_cream_scoop/strawberry,
+		/obj/item/reagent_containers/food/snacks/ice_cream_scoop/blue,
+		/obj/item/reagent_containers/food/snacks/ice_cream_scoop/lemon_sorbet,
+		/obj/item/reagent_containers/food/snacks/ice_cream_scoop/caramel,
+		/obj/item/reagent_containers/food/snacks/ice_cream_scoop/banana,
+		/obj/item/reagent_containers/food/snacks/ice_cream_scoop/orange_creamsicle,
+		/obj/item/reagent_containers/food/snacks/ice_cream_scoop/peach,
+		/obj/item/reagent_containers/food/snacks/ice_cream_scoop/cherry_chocolate,
+		/obj/item/reagent_containers/food/snacks/ice_cream_scoop/meat,
+		/obj/item/reagent_containers/food/snacks/ice_cream_cone/cake,
+		/obj/item/reagent_containers/food/snacks/ice_cream_cone/chocolate)
+	//Please don't add anything other than scoops or cones to the list or it could/maybe/possibly/definitely break it	
+	//If adding new items to the list: INCREASE STORAGE_CAPACITY TO ACCOUNT FOR ITEM!!
+	
+/obj/machinery/icecream_vat/ui_interact(mob/user, datum/tgui/ui) //Thanks bug eating lizard for helping me with the UI
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "IceCreamVat", name)
+		ui.open()
+		ui.set_autoupdate(TRUE)
 
-/obj/machinery/icecream_vat/proc/get_ingredient_list(type)
-	switch(type)
-		if(ICECREAM_CHOCOLATE)
-			return list(/datum/reagent/consumable/milk, /datum/reagent/consumable/ice, /datum/reagent/consumable/coco)
-		if(ICECREAM_STRAWBERRY)
-			return list(/datum/reagent/consumable/milk, /datum/reagent/consumable/ice, /datum/reagent/consumable/berryjuice)
-		if(ICECREAM_BLUE)
-			return list(/datum/reagent/consumable/milk, /datum/reagent/consumable/ice, /datum/reagent/consumable/ethanol/singulo)
-		if(ICECREAM_LEMON)
-			return list(/datum/reagent/consumable/ice, /datum/reagent/consumable/lemonjuice)
-		if(ICECREAM_CARAMEL)
-			return list(/datum/reagent/consumable/milk, /datum/reagent/consumable/ice, /datum/reagent/consumable/caramel)
-		if(ICECREAM_BANANA)
-			return list(/datum/reagent/consumable/milk, /datum/reagent/consumable/ice, /datum/reagent/consumable/banana)
-		if(ICECREAM_ORANGE)
-			return list(/datum/reagent/consumable/cream, /datum/reagent/consumable/ice, /datum/reagent/consumable/orangejuice)
-		if(ICECREAM_PEACH)
-			return list(/datum/reagent/consumable/milk, /datum/reagent/consumable/ice, /datum/reagent/consumable/peachjuice)
-		if(ICECREAM_CHERRY_CHOCOLATE)
-			return list(/datum/reagent/consumable/milk, /datum/reagent/consumable/ice, /datum/reagent/consumable/coco, /datum/reagent/consumable/cherryjelly)
-		if(CONE_WAFFLE)
-			return list(/datum/reagent/consumable/flour, /datum/reagent/consumable/sugar)
-		if(CONE_CHOC)
-			return list(/datum/reagent/consumable/flour, /datum/reagent/consumable/sugar, /datum/reagent/consumable/coco)
-		else //ICECREAM_VANILLA
-			return list(/datum/reagent/consumable/milk, /datum/reagent/consumable/ice, /datum/reagent/consumable/vanilla)
+/obj/machinery/icecream_vat/ui_data(mob/user)
+	//Define variables from UI
+	var/list/data = list()
+	data["cones"] = list()
+	data["ice_cream"] = list()
+	data["tabs"] = list()
+	data["storage"] = list()
+
+	//Loop through starting list for data to send to main tab
+	for(var/obj/item/reagent_containers/food/snacks/item_path as anything in ui_list)
+
+		//Create needed list and variable for geting data for UI
+		var/list/details = list()
+
+		//Get information for UI
+		details["item_name"] = item_path::name
+		details["item_quantity"] = find_amount(item_path)
+		details["item_type_path"] = item_path
 
 
-/obj/machinery/icecream_vat/proc/get_flavour_name(flavour_type)
-	switch(flavour_type)
-		if(ICECREAM_CHOCOLATE)
-			return "chocolate"
-		if(ICECREAM_STRAWBERRY)
-			return "strawberry"
-		if(ICECREAM_BLUE)
-			return "blue"
-		if(ICECREAM_LEMON)
-			return "lemon sorbet"
-		if(ICECREAM_CARAMEL)
-			return "caramel"
-		if(ICECREAM_BANANA)
-			return "banana"
-		if(ICECREAM_ORANGE)
-			return "orangesicle"
-		if(ICECREAM_PEACH)
-			return "peach"
-		if(ICECREAM_CHERRY_CHOCOLATE)
-			return "cherry chocolate"
-		if(CONE_WAFFLE)
-			return "waffle"
-		if(CONE_CHOC)
-			return "chocolate"
-		else //ICECREAM_VANILLA
-			return "vanilla"
+		var/obj/item/reagent_containers/food/snacks/initialized_item = new item_path
+		//Get an image for the UI
+		var/icon/item_pic = getFlatIcon(initialized_item)
+		var/md5 = md5(fcopy_rsc(item_pic))
+		if(!SSassets.cache["photo_[md5]_[initialized_item.name]_icon.png"])
+			SSassets.transport.register_asset("photo_[md5]_[initialized_item.name]_icon.png", item_pic)
+		SSassets.transport.send_assets(user, list("photo_[md5]_[initialized_item.name]_icon.png" = item_pic))
+		details["item_image"] = SSassets.transport.get_asset_url("photo_[md5]_[initialized_item.name]_icon.png")
 
+		//Sort into different data lists depending on what the item is
+		if(ispath(item_path, /obj/item/reagent_containers/food/snacks/ice_cream_scoop))
+			details["selected_item"] = selected_scoop_type
+			data["ice_cream"] += list(details)
+		else
+			details["selected_item"] = selected_cone_type
+			data["cones"] += list(details)
+		qdel(initialized_item)
+
+	//Loop through children of /datum/info_tab/icecream_vat for data to send to info tab
+	for(var/datum/info_tab/icecream_vat/info_detail_path as anything in subtypesof(/datum/info_tab/icecream_vat))
+		
+		//Create needed list and variable for geting data for UI
+		var/list/details = list()
+
+		//Get info from children
+		details["section_title"] = info_detail_path::section
+		details["section_text"] = info_detail_path::section_text
+
+		//Add info to data
+		data["info_tab"] += list(details)
+
+	//Get content and capacity data
+	data["contents_length"] = contents.len
+	data["storage_capacity"] = storage_capacity
+
+	//Send stored information to UI	
+	return data
+
+/obj/machinery/icecream_vat/ui_act(action, list/params)
+	. = ..()
+	if(.)
+
+		return
+
+	switch(action)
+		if("select")
+			var/itemPath = text2path(params["itemPath"])
+			select_item(itemPath)
+		if("dispense")
+			var/itemPath = text2path(params["itemPath"])
+			dispense_item(itemPath)
 
 /obj/machinery/icecream_vat/Initialize(mapload)
 	. = ..()
-	while(product_types.len < 12)
-		product_types.Add(5)
-	create_reagents(100, NO_REACT | OPENCONTAINER)
-	for(var/reagent in icecream_vat_reagents)
-		reagents.add_reagent(reagent, icecream_vat_reagents[reagent])
+	
+	if(!start_empty)
 
-/obj/machinery/icecream_vat/ui_interact(mob/user)
+		//Loop through and add items from ui_list into content
+		for(var/item in ui_list)
+			
+			var/loop_cycles = 5
+			var/obj/item/reagent_containers/food/snacks/check_item = new item
+			
+			//5 of every scoop; 10 of every cone
+			if(istype(check_item, /obj/item/reagent_containers/food/snacks/ice_cream_cone))
+				loop_cycles = 10
+
+			//Add amount of items to the list depending on type
+			for(var/i in 1 to loop_cycles)
+				new item(src)
+
+/obj/machinery/icecream_vat/RefreshParts()
+	for(var/obj/item/stock_parts/matter_bin/B in component_parts)
+		//Capacity increases by 25 per item rating above T1
+		storage_capacity = initial(storage_capacity) + ( 25 * (B.rating - 1))
+
+/obj/machinery/icecream_vat/examine(mob/user)
 	. = ..()
-	var/dat
-	dat += "<b>ICE CREAM</b><br><div class='statusDisplay'>"
-	dat += "<b>Dispensing: [flavour_name] icecream </b> <br><br>"
-	dat += "<b>Vanilla ice cream:</b> <a href='?src=[REF(src)];select=[ICECREAM_VANILLA]'><b>Select</b></a> <a href='?src=[REF(src)];make=[ICECREAM_VANILLA];amount=1'><b>Make</b></a> <a href='?src=[REF(src)];make=[ICECREAM_VANILLA];amount=5'><b>x5</b></a> [product_types[ICECREAM_VANILLA]] scoops left. (Ingredients: milk, ice, vanilla powder)<br>"
-	dat += "<b>Strawberry ice cream:</b> <a href='?src=[REF(src)];select=[ICECREAM_STRAWBERRY]'><b>Select</b></a> <a href='?src=[REF(src)];make=[ICECREAM_STRAWBERRY];amount=1'><b>Make</b></a> <a href='?src=[REF(src)];make=[ICECREAM_STRAWBERRY];amount=5'><b>x5</b></a> [product_types[ICECREAM_STRAWBERRY]] dollops left. (Ingredients: milk, ice, berry juice)<br>"
-	dat += "<b>Chocolate ice cream:</b> <a href='?src=[REF(src)];select=[ICECREAM_CHOCOLATE]'><b>Select</b></a> <a href='?src=[REF(src)];make=[ICECREAM_CHOCOLATE];amount=1'><b>Make</b></a> <a href='?src=[REF(src)];make=[ICECREAM_CHOCOLATE];amount=5'><b>x5</b></a> [product_types[ICECREAM_CHOCOLATE]] dollops left. (Ingredients: milk, ice, coco powder)<br>"
-	dat += "<b>Blue ice cream:</b> <a href='?src=[REF(src)];select=[ICECREAM_BLUE]'><b>Select</b></a> <a href='?src=[REF(src)];make=[ICECREAM_BLUE];amount=1'><b>Make</b></a> <a href='?src=[REF(src)];make=[ICECREAM_BLUE];amount=5'><b>x5</b></a> [product_types[ICECREAM_BLUE]] dollops left. (Ingredients: milk, ice, singulo)<br>"
-	dat += "<b>Lemon sorbet ice cream:</b> <a href='?src=[REF(src)];select=[ICECREAM_LEMON]'><b>Select</b></a> <a href='?src=[REF(src)];make=[ICECREAM_LEMON];amount=1'><b>Make</b></a> <a href='?src=[REF(src)];make=[ICECREAM_LEMON];amount=5'><b>x5</b></a> [product_types[ICECREAM_LEMON]] dollops left. (Ingredients: ice, lemon juice)<br>"
-	dat += "<b>Caramel ice cream:</b> <a href='?src=[REF(src)];select=[ICECREAM_CARAMEL]'><b>Select</b></a> <a href='?src=[REF(src)];make=[ICECREAM_CARAMEL];amount=1'><b>Make</b></a> <a href='?src=[REF(src)];make=[ICECREAM_CARAMEL];amount=5'><b>x5</b></a> [product_types[ICECREAM_CARAMEL]] dollops left. (Ingredients: milk, ice, caramel)<br>"
-	dat += "<b>Banana ice cream:</b> <a href='?src=[REF(src)];select=[ICECREAM_BANANA]'><b>Select</b></a> <a href='?src=[REF(src)];make=[ICECREAM_BANANA];amount=1'><b>Make</b></a> <a href='?src=[REF(src)];make=[ICECREAM_BANANA];amount=5'><b>x5</b></a> [product_types[ICECREAM_BANANA]] dollops left. (Ingredients: milk, ice, banana juice)<br>"
-	dat += "<b>Orangesicle ice cream:</b> <a href='?src=[REF(src)];select=[ICECREAM_ORANGE]'><b>Select</b></a> <a href='?src=[REF(src)];make=[ICECREAM_ORANGE];amount=1'><b>Make</b></a> <a href='?src=[REF(src)];make=[ICECREAM_ORANGE];amount=5'><b>x5</b></a> [product_types[ICECREAM_ORANGE]] dollops left. (Ingredients: cream, ice, orange juice)<br>"
-	dat += "<b>Peach ice cream:</b> <a href='?src=[REF(src)];select=[ICECREAM_PEACH]'><b>Select</b></a> <a href='?src=[REF(src)];make=[ICECREAM_PEACH];amount=1'><b>Make</b></a> <a href='?src=[REF(src)];make=[ICECREAM_PEACH];amount=5'><b>x5</b></a> [product_types[ICECREAM_PEACH]] dollops left. (Ingredients: milk, ice, peach juice)<br>"
-	dat += "<b>Cherry chocolate ice cream:</b> <a href='?src=[REF(src)];select=[ICECREAM_CHERRY_CHOCOLATE]'><b>Select</b></a> <a href='?src=[REF(src)];make=[ICECREAM_CHERRY_CHOCOLATE];amount=1'><b>Make</b></a> <a href='?src=[REF(src)];make=[ICECREAM_CHERRY_CHOCOLATE];amount=5'><b>x5</b></a> [product_types[ICECREAM_CHERRY_CHOCOLATE]] dollops left. (Ingredients: milk, ice, coco powder, cherry jelly)<br></div>"
-	dat += "<br><b>CONES</b><br><div class='statusDisplay'>"
-	dat += "<b>Waffle cones:</b> <a href='?src=[REF(src)];cone=[CONE_WAFFLE]'><b>Dispense</b></a> <a href='?src=[REF(src)];make=[CONE_WAFFLE];amount=1'><b>Make</b></a> <a href='?src=[REF(src)];make=[CONE_WAFFLE];amount=5'><b>x5</b></a> [product_types[CONE_WAFFLE]] cones left. (Ingredients: flour, sugar)<br>"
-	dat += "<b>Chocolate cones:</b> <a href='?src=[REF(src)];cone=[CONE_CHOC]'><b>Dispense</b></a> <a href='?src=[REF(src)];make=[CONE_CHOC];amount=1'><b>Make</b></a> <a href='?src=[REF(src)];make=[CONE_CHOC];amount=5'><b>x5</b></a> [product_types[CONE_CHOC]] cones left. (Ingredients: flour, sugar, coco powder)<br></div>"
-	dat += "<br>"
-	dat += "<b>VAT CONTENT</b><br>"
-	for(var/datum/reagent/R in reagents.reagent_list)
-		dat += "[R.name]: [R.volume]"
-		dat += "<A href='?src=[REF(src)];disposeI=[R.type]'>Purge</A><BR>"
-	dat += "<a href='?src=[REF(src)];refresh=1'>Refresh</a> <a href='?src=[REF(src)];close=1'>Close</a>"
 
-	var/datum/browser/popup = new(user, "icecreamvat","Icecream Vat", 700, 500, src)
-	popup.set_content(dat)
-	popup.open()
+	//Selected cones
+	if(selected_cone_type == null)
+		. += span_notice("You can <b>Alt Click</b> to dispense a cone once one is selected.")
+	else
+		. += span_notice("<b>Alt Click</b> to dispense [selected_cone_type::name].")
 
-/obj/machinery/icecream_vat/attackby(obj/item/O, mob/user, params)
-	if(istype(O, /obj/item/reagent_containers/food/snacks/icecream))
-		var/obj/item/reagent_containers/food/snacks/icecream/I = O
-		if(!I.ice_creamed)
-			if(product_types[dispense_flavour] > 0)
-				visible_message("[icon2html(src, viewers(src))] [span_info("[user] scoops delicious [flavour_name] ice cream into [I].")]")
-				product_types[dispense_flavour] -= 1
-				I.add_ice_cream(flavour_name)
-				if(I.reagents.total_volume < 10)
-					I.reagents.add_reagent(/datum/reagent/consumable/sugar, 10 - I.reagents.total_volume)
+	//Selected scoops
+	if(selected_scoop_type == null)
+		. += span_notice("No ice cream scoop currently selected.")
+	else
+		. += span_notice("[selected_scoop_type::name] is currently selected.")
+
+	//Scooping cone instruction
+	. += span_notice("<b>Right Click</b> to add a scoop to a cone.")
+
+//For dispensing selected cone
+/obj/machinery/icecream_vat/AltClick(mob/living/carbon/user)
+	if(selected_cone_type != null)
+		dispense_item(selected_cone_type)
+	else
+		user.balloon_alert(user, "None selected!")
+
+
+/obj/machinery/icecream_vat/attackby_secondary(obj/item/A, mob/user, params)
+	//For scooping cones
+	scoop_cone(A)
+
+	return SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN
+
+//For adding items to storage
+/obj/machinery/icecream_vat/attackby(obj/item/A, mob/user, params)
+
+	//For adding individual items
+	if(istype(A, /obj/item/reagent_containers/food/snacks/ice_cream_cone) || istype(A, /obj/item/reagent_containers/food/snacks/ice_cream_scoop))	
+		storage_single(A)
+
+	//Adding carton contents to storage
+	else if(istype(A, /obj/item/storage/box/ice_cream_carton))
+		storage_container(A)
+
+	if(default_deconstruction_screwdriver(user, icon_state, icon_state, A))
+		if(panel_open)
+			add_overlay("[initial(icon_state)]_panel")
+		else
+			cut_overlay("[initial(icon_state)]_panel")
+		updateUsrDialog()
+		return
+
+	if(default_deconstruction_crowbar(A))
+		updateUsrDialog()
+		return
+
+	..()
+
+/obj/machinery/icecream_vat/proc/find_amount(obj/item/counting_item, target_name = null, list/target_list = null)
+	var/amount = 0
+
+	//If target_list is null, search contents for type paths
+	if(!target_list)
+		//Loop through contents, counting every instance of the given target
+		for(var/obj/item/list_item in contents)
+			if(list_item.type == counting_item.type)
+				amount += 1
+	//Else, search target_list
+	else
+		for(var/list_item in target_list)
+			if(list_item == target_name)
+				amount += 1
+
+	return amount
+
+/obj/machinery/icecream_vat/proc/dispense_item(obj/item/reagent_containers/food/snacks/received_item_type, mob/user = usr)
+	//If the vat has some of the desired item, dispense it
+	if(find_amount(received_item_type) > 0)
+		//Select the last(most recent) of desired item
+		var/obj/item/reagent_containers/food/snacks/dispensed_item = LAZYACCESS(contents, last_index(received_item_type))
+		//Drop it on the floor and then move it into the user's hands
+		dispensed_item.forceMove(loc)
+		user.put_in_hands(dispensed_item)
+		user.visible_message(span_notice("[user] dispenses [received_item_type::name] from [src]."), span_notice("You dispense [received_item_type::name] from [src]."))
+		playsound(src, dispense_sound, 25, TRUE, extrarange = -3)
+	else
+		//For Alt click and because UI buttons are slow to disable themselves
+		user.balloon_alert(user, "All out!")
+
+/obj/machinery/icecream_vat/proc/select_item(obj/item/reagent_containers/food/snacks/received_item_type, mob/user = usr)
+	//Deselecting
+	if(ispath(received_item_type, /obj/item/reagent_containers/food/snacks/ice_cream_cone))
+		if(selected_cone_type == received_item_type)
+			user.visible_message(span_notice("[user] deselects [received_item_type::name] from [src]."), span_notice("You deselect [received_item_type::name] from [src]."))
+			selected_cone_type = null
+			playsound(src, select_sound, 25, TRUE, extrarange = -3)
+			return
+
+	else if(selected_scoop_type == received_item_type)
+		user.visible_message(span_notice("[user] deselects [received_item_type::name] from [src]."), span_notice("You deselect [received_item_type::name] from [src]."))
+		selected_scoop_type = null
+		playsound(src, select_sound, 25, TRUE, extrarange = -3)
+		return
+
+	//Selecting
+	if(find_amount(received_item_type) > 0)
+		//Set item to selected based on its type
+		if(ispath(received_item_type, /obj/item/reagent_containers/food/snacks/ice_cream_cone))
+			selected_cone_type = received_item_type
+		else
+			selected_scoop_type = received_item_type
+		playsound(src, select_sound, 25, TRUE, extrarange = -3)
+		user.visible_message(span_notice("[user] sets [src] to dispense [received_item_type::name]s."), span_notice("You set [src] to dispense [received_item_type::name]s."))
+	//Prevent them from selecting items that the vat does not have
+	else
+		user.balloon_alert(user, "All out!")
+
+/obj/machinery/icecream_vat/proc/last_index(obj/item/search_item)
+
+	var/obj/item/reagent_containers/food/snacks/item_index
+
+	//Search for the same item path in storage
+	for(var/i in 1 to LAZYLEN(contents))
+		//Loop through entire list to get last/most recent item
+		if(contents[i].type == search_item.type)
+			item_index = i
+	
+	return item_index
+
+/obj/machinery/icecream_vat/proc/storage_single(obj/item/target_item, mob/user = usr)
+	//Check if there is room
+	if(contents.len < storage_capacity)
+		//If a cone, check if it has already been scooped. If it has, do not store it
+		if(istype(target_item, /obj/item/reagent_containers/food/snacks/ice_cream_cone))
+			var/obj/item/reagent_containers/food/snacks/ice_cream_cone/cone = target_item
+			if(cone.scoops > 0)
+				user.balloon_alert(user, "Cannot store scooped cones!")
+
+				return
+		//Move item to content
+		target_item.forceMove(src)
+		user.visible_message(span_notice("[user] inserts [target_item] into [src]."), span_notice("You insert [target_item] into [src]."))
+		playsound(src, 'sound/effects/rustle2.ogg', 50, TRUE, extrarange = -3)
+
+		return
+	else
+		//Warn about full capacity
+		user.balloon_alert(user, "No space!")
+
+/obj/machinery/icecream_vat/proc/storage_container(obj/item/storage/box/ice_cream_carton/target_container, mob/user = usr)
+	var/end_message = "[user] empties the [target_container] into [src]."
+	var/end_self_message = "You empty the [target_container] into [src]."
+	//Check to see if it is empty
+	if(target_container.contents.len > 0 && contents.len < storage_capacity)
+		//Hide container's storage UI to prevent ghost scoop bug
+		SEND_SIGNAL(target_container, COMSIG_TRY_STORAGE_HIDE_FROM, user)
+		//Loop through all contents
+		for(var/obj/item/reagent_containers/food/snacks/carton_item in target_container)
+			//Transfer items one at a time
+			carton_item.forceMove(src)
+			if(contents.len >= storage_capacity)
+				//Unique message depending on carton and vat contents
+				if(target_container.contents.len == 0)
+					end_message = "[user] empties the [target_container] into [src], filling it to its capacity."
+					end_self_message = "You empty the [target_container] into [src], filling it to its capacity."
+				else
+					end_message = "[user] fills [src] to its capacity, with some [target_container.contents_type] still in the [target_container]."
+					end_self_message = "You fill [src] to its capacity, with some [target_container.contents_type] still in the [target_container]."
+				break
+
+		user.visible_message(span_notice(end_message), span_notice(end_self_message))
+		playsound(src, 'sound/effects/rustle2.ogg', 50, TRUE, extrarange = -3)
+
+		return
+	else
+		if(target_container.contents.len == 0)
+			user.balloon_alert(user, "[target_container.contents_type] empty!")
+		else
+			user.balloon_alert(user, "Vat full!")
+		return
+
+/obj/machinery/icecream_vat/proc/scoop_cone(obj/item/target_cone, mob/user = usr)
+	//Check if item is a cone
+	if(istype(target_cone, /obj/item/reagent_containers/food/snacks/ice_cream_cone))
+		var/obj/item/reagent_containers/food/snacks/ice_cream_cone/cone = target_cone
+		//Check if a scoop has been selected
+		if(selected_scoop_type != null)
+			//Check if there are any of selected scoop in contents
+			if(find_amount(selected_scoop_type) > 0)
+				//Increase scooped variable
+				cone.scoops += 1
+				//Select last of selected scoop in contents
+				var/obj/item/reagent_containers/food/snacks/cone_scoop = LAZYACCESS(contents, last_index(selected_scoop_type))
+				//Remove scoop from contents
+				cone_scoop.forceMove(loc)
+				//Increase maximum volume to make room for scoop's chems
+				cone.reagents.maximum_volume += 15
+				//Add scoop's reagents to cone
+				cone_scoop.reagents.trans_to(cone, cone_scoop.reagents.total_volume, transfered_by = user)
+				//Change cone's foodtype to scoop's
+				cone.foodtype = cone_scoop.foodtype
+				//Add scoop to scoop_names list
+				LAZYADD(cone.scoop_names, cone_scoop.name)
+				//Determine how to add the overlay and change description and name depending on scoops value
+				if(cone.scoops == 1)
+					//Add overlay of scoop to cone
+					cone.add_overlay(cone_scoop.icon_state)
+					//Change name and desc
+					name_cone(cone)
+				else
+					//Add overlay but with y-axis position depending on amount of scoops
+					var/mutable_appearance/TOP_SCOOP = mutable_appearance(cone_scoop.icon, "[cone_scoop.icon_state]")
+					TOP_SCOOP.pixel_y = 2 * (cone.scoops - 1)
+					cone.add_overlay(TOP_SCOOP)
+					//Change name and desc based on scoop amount
+					name_cone(cone)
+				//Alert that the cone has been scooped
+				user.visible_message(span_notice("[user] scoops a [cone_scoop.name] into the [cone.name]"), span_notice("You scoop a [cone_scoop.name] into the [cone.name]"))
+				//Delete scoop
+				qdel(cone_scoop)
+				//Dispencing sound
+				playsound(src, 'sound/effects/rustle2.ogg', 50, TRUE, extrarange = -3)
+
+				//If there are more than four scoops and scoop_fail is true, check for scooping failure
+				if(cone.scoops > 4 && scoop_fail)
+					scooping_failure(cone, usr)
+
+			//Warn user that there are no selected scoops left
 			else
-				to_chat(user, span_warning("There is not enough ice cream left!"))
+				user.balloon_alert(user, "No selected scoops in storage!")
+
+		//Warn user about no selected scoop
 		else
-			to_chat(user, span_notice("[O] already has ice cream in it."))
-		return 1
-	else if(O.is_drainable())
-		return
+			user.balloon_alert(user, "No scoop selected!")
+
+	//Warn user about invalid item
 	else
-		return ..()
+		user.balloon_alert(user, "Invalid item!")
 
-/obj/machinery/icecream_vat/proc/make(mob/user, make_type, amount)
-	for(var/R in get_ingredient_list(make_type))
-		if(reagents.has_reagent(R, amount))
-			continue
-		amount = 0
-		break
-	if(amount)
-		for(var/R in get_ingredient_list(make_type))
-			reagents.remove_reagent(R, amount)
-		product_types[make_type] += amount
-		var/flavour = get_flavour_name(make_type)
-		if(make_type > 4)
-			src.visible_message(span_info("[user] cooks up some [flavour] cones."))
+/obj/machinery/icecream_vat/proc/name_cone(obj/item/reagent_containers/food/snacks/ice_cream_cone/target_cone)
+	//Change name and desc based on amount of scoops
+	switch(target_cone.scoops)
+		if(1)
+			target_cone.name = "Scooped [target_cone.base_name]"
+			target_cone.desc = "A delicious [target_cone.name] with a [target_cone.scoop_names[1]]."
+		if(2)
+			target_cone.name = "Double scooped [target_cone.base_name]"
+			target_cone.desc = "A delicious [target_cone.name] with[list_scoops(target_cone.scoop_names)]."
+		if(3)
+			target_cone.name = "Thrice cream [target_cone.base_name]"
+			target_cone.desc = "A delicious [target_cone.name] with[list_scoops(target_cone.scoop_names)]."
+		if(4)
+			target_cone.name = "Quadruple scooped [target_cone.base_name]"
+			target_cone.desc = "A delicious [target_cone.name] with[list_scoops(target_cone.scoop_names)]."
+		if(5)
+			target_cone.name = "Quintuple scooped [target_cone.base_name]"
+			target_cone.desc = "A delicious [target_cone.name] with[list_scoops(target_cone.scoop_names)]."
+		if(6 to 9)
+			target_cone.name = "Tower scooped [target_cone.base_name]"
+			target_cone.desc = "A tall [target_cone.name] with[list_scoops(target_cone.scoop_names)]."
+		if(10 to 14)
+			target_cone.name = "Scoopimanjaro [target_cone.base_name]"
+			target_cone.desc = "A towering [target_cone.name] with[list_scoops(target_cone.scoop_names)]."
+		if(15 to 19)
+			target_cone.name = "Scooperest [target_cone.base_name]"
+			target_cone.desc = "A mountainous [target_cone.name] with[list_scoops(target_cone.scoop_names)]."
+		if(20 to INFINITY)
+			target_cone.name = "Scoopageddon [target_cone.base_name]"
+			target_cone.desc = "A [target_cone.name] of apocalyptic proportions with[list_scoops(target_cone.scoop_names)]."
+
+//Create properly formated string for showing a cone's scoops in its desc
+/obj/machinery/icecream_vat/proc/list_scoops(list/scoops)
+	//List used for searching through list
+	var/list/unique_scoops = null
+	//What to return for the desc
+	var/final_string = ""
+
+	//Populate unique_scoops based on given list
+	for(var/search_item in scoops)
+		if(!unique_scoops)
+			LAZYADD(unique_scoops, search_item)
+		else if(!LAZYFIND(unique_scoops, search_item))
+			LAZYADD(unique_scoops, search_item)
+	
+	//Use populated unique_scoops to make final_string
+	for(var/search_name in unique_scoops)
+		//If search_name is the only name in the list
+		if(find_amount(target_name = search_name, target_list = scoops) == LAZYLEN(scoops))
+			final_string = " [LAZYLEN(scoops)] [unique_scoops[1]]s"
+			break
 		else
-			src.visible_message(span_info("[user] whips up some [flavour] icecream."))
-	else
-		to_chat(user, span_warning("You don't have the ingredients to make this!"))
+			//Check if it is not the last name in the list
+			if(LAZYFIND(unique_scoops, search_name) != LAZYLEN(unique_scoops))
+				//Check if it is the only instance in the list
+				if(find_amount(target_name = search_name, target_list = scoops) == 1)
+					final_string += " 1 [search_name],"
+				else
+					final_string += " [find_amount(target_name = search_name, target_list = scoops)] [search_name]s,"
+			else
+				//Check if it is the only instance in the list
+				if(find_amount(target_name = search_name, target_list = scoops) == 1)
+					final_string += " and 1 [search_name]"
+				else
+					final_string += " and [find_amount(target_name = search_name, target_list = scoops)] [search_name]s"
 
-/obj/machinery/icecream_vat/Topic(href, href_list)
-	if(..())
-		return
-	if(href_list["select"])
-		dispense_flavour = text2num(href_list["select"])
-		flavour_name = get_flavour_name(dispense_flavour)
-		src.visible_message(span_notice("[usr] sets [src] to dispense [flavour_name] flavoured ice cream."))
+	return final_string
 
-	if(href_list["cone"])
-		var/dispense_cone = text2num(href_list["cone"])
-		var/cone_name = get_flavour_name(dispense_cone)
-		if(product_types[dispense_cone] >= 1)
-			product_types[dispense_cone] -= 1
-			var/obj/item/reagent_containers/food/snacks/icecream/I = new(src.loc)
-			I.set_cone_type(cone_name)
-			src.visible_message(span_info("[usr] dispenses a crunchy [cone_name] cone from [src]."))
-		else
-			to_chat(usr, span_warning("There are no [cone_name] cones left!"))
+/obj/machinery/icecream_vat/proc/scooping_failure(obj/item/reagent_containers/food/snacks/ice_cream_cone/target_cone, mob/living/carbon/human/user = usr)
+	//Base chance of failure
+	var/base_chance = 15
+	//Chance of failure that is multiplied by scoop count minus 4
+	var/added_chance = 5
+	//Total chance of failure
+	var/failure_chance = base_chance + (added_chance * (target_cone.scoops - 4))
 
-	if(href_list["make"])
-		var/amount = (text2num(href_list["amount"]))
-		var/C = text2num(href_list["make"])
-		make(usr, C, amount)
+	if(prob(failure_chance))
+		switch(target_cone.scoops)
+			//Alert user
+			if(5 to 9)
+				user.visible_message(span_alert("[user] accidently crushes their [target_cone.name] while trying to add another scoop!"), span_alert("You accidently crush your [target_cone.name] while trying to add another scoop!"))
+			//Alert user and damage them based on amount of scoops
+			if(10 to 20)
+				user.visible_message(span_alert("[user] accidently tips their [target_cone.name] over and is hit in the ensuing avalanche!"), span_alert("You accidently tip your [target_cone.name] over and are hit by the ensuing avalanche!"))
+				//Maximum of 20 brute damage from failure
+				user.adjustBruteLoss(target_cone.scoops)
+				//Cool them down
+				user.adjust_bodytemperature((-6 * target_cone.scoops) * TEMPERATURE_DAMAGE_COEFFICIENT, target_cone.scoops)
+			//Punish them for their hubris
+			if(21 to INFINITY)
+				user.visible_message(span_alert("[user] is minced in a flash of light!"), span_alert("Within nanoseconds, your [target_cone.name] colapses into itself. The ensuing micro singularity rips you to shreads!"))
+				//Regret
+				user.say(pick("Oh no...", "Mein gott...", "Uh oh...", "Fuuuuu...", "Shiiii...", "Not yoggers..."), forced="scoop fail")
+				//Explode their spessmen
+				explosion(user.loc,1,1,1,flash_range = 15)
+		//Delete cone after failure
+		qdel(target_cone)
 
-	if(href_list["disposeI"])
-		reagents.del_reagent(href_list["disposeI"])
+/obj/machinery/icecream_vat/empty
+	start_empty = TRUE
 
-	updateDialog()
+///////////////////
+//ICE CREAM CONES//
+///////////////////
 
-	if(href_list["refresh"])
-		updateDialog()
-
-	if(href_list["close"])
-		usr.unset_machine()
-		usr << browse(null,"window=icecreamvat")
-	return
-
-/obj/item/reagent_containers/food/snacks/icecream
-	name = "ice cream cone"
-	desc = "Delicious waffle cone, but no ice cream."
+/obj/item/reagent_containers/food/snacks/ice_cream_cone
+	name = "ice cream cone base"
+	desc = "Please report this, as this should not be seen."
 	icon = 'icons/obj/kitchen.dmi'
-	icon_state = "icecream_cone_waffle" //default for admin-spawned cones, href_list["cone"] should overwrite this all the time
-	var/ice_creamed = 0
-	var/cone_type
 	bitesize = 3
 	foodtype = GRAIN
-	tastes = list("cold" = 6, "creamy" = 4)
+	//Used for changing the description after being scooped
+	var/base_name = null
+	//How many scoops it has
+	var/scoops = 0
+	//Variables for cone's scoops
+	var/list/scoop_names = null
+	//For adding chems to specific cones
+	var/extra_reagent = null
+	//Amount of extra_reagent to add to cone
+	var/extra_reagent_amount = 1
 
-/obj/item/reagent_containers/food/snacks/icecream/Initialize(mapload)
+/obj/item/reagent_containers/food/snacks/ice_cream_cone/Initialize(mapload)
 	. = ..()
 	create_reagents(20)
 	reagents.add_reagent(/datum/reagent/consumable/nutriment, 4)
+	if(extra_reagent != null)
+		reagents.add_reagent(extra_reagent, extra_reagent_amount)
 
-/obj/item/reagent_containers/food/snacks/icecream/proc/set_cone_type(cone_name)
-	cone_type = cone_name
-	icon_state = "icecream_cone_[cone_name]"
-	switch (cone_type)
-		if ("waffle")
-			reagents.add_reagent(/datum/reagent/consumable/nutriment, 1)
-		if ("chocolate")
-			reagents.add_reagent(/datum/reagent/consumable/coco, 1) // chocolate ain't as nutritious kids
+//Hand scooping only allows one scoop. Vat needed for multi-scooping
+/obj/item/reagent_containers/food/snacks/ice_cream_cone/attackby(obj/item/A, mob/user, params)
+	//Check if item is a scoop
+	if(istype(A, /obj/item/reagent_containers/food/snacks/ice_cream_scoop))
+		//Check if not already scooped
+		if(src.scoops == 0)
+			//Make variables for scoop and cone for readability
+			var/obj/item/reagent_containers/food/snacks/ice_cream_cone/cone = src
+			var/obj/item/reagent_containers/food/snacks/cone_scoop = A
+			//Increase maximum volume to make room for scoop's chems
+			cone.reagents.maximum_volume += 15
+			//Add scoop's reagents to cone
+			cone_scoop.reagents.trans_to(cone, cone_scoop.reagents.total_volume, transfered_by = user)
+			//Change cone's foodtype to scoop's
+			cone.foodtype = cone_scoop.foodtype
+			//Add scoop to scoop_names list
+			LAZYADD(cone.scoop_names, cone_scoop.name)
+			//Change description of cone
+			cone.desc = "A hand scooped [cone.base_name] with a [cone_scoop.name]. Kinda gross."
+			//Add overlay of scoop to cone
+			cone.add_overlay(cone_scoop.icon_state)
+			//Alert that the cone has been scooped
+			user.visible_message(span_notice("[user] hand scoops a [cone_scoop.name] into the [cone.name]"), span_notice("You hand scoop a [cone_scoop.name] into the [cone.name]"))
+			//Change the name
+			cone.name = "Hand scooped [cone.base_name]"
+			//Increase scooped variable
+			cone.scoops += 1
+			//Delete scoop
+			qdel(cone_scoop)
 
-	desc = "Delicious [cone_name] cone, but no ice cream."
+			playsound(src, 'sound/effects/rustle2.ogg', 50, TRUE, extrarange = -3)
+		
+		//Warn about no multi-scooping with hands
+		else
+			user.balloon_alert(user, "Cannot multi-scoop with hands!")
 
+	..()
 
-/obj/item/reagent_containers/food/snacks/icecream/proc/add_ice_cream(flavour_name)
-	name = "[flavour_name] icecream"
-	src.add_overlay("icecream_[flavour_name]")
-	switch (flavour_name) // adding the actual reagents advertised in the ingredient list
-		if ("vanilla")
-			desc = "A delicious [cone_type] cone filled with vanilla ice cream. All the other ice creams take content from it."
-			foodtype = DAIRY | SUGAR
-		if ("chocolate")
-			desc = "A delicious [cone_type] cone filled with chocolate ice cream. Surprisingly, made with real cocoa."
-			foodtype = DAIRY | CHOCOLATE | SUGAR
-			reagents.add_reagent(/datum/reagent/consumable/coco, 2)
-		if ("strawberry")
-			desc = "A delicious [cone_type] cone filled with strawberry ice cream. Definitely not made with real strawberries."
-			foodtype = DAIRY | FRUIT | SUGAR
-			reagents.add_reagent(/datum/reagent/consumable/berryjuice, 2)
-		if ("blue")
-			desc = "A delicious [cone_type] cone filled with blue ice cream. Made with real... blue?"
-			foodtype = DAIRY | SUGAR | ALCOHOL
-			reagents.add_reagent(/datum/reagent/consumable/ethanol/singulo, 2)
-		if ("lemon sorbet")
-			desc = "A delicious [cone_type] cone filled with lemon sorbet. Like frozen lemonade in a cone."
-			foodtype = SUGAR | FRUIT
-			reagents.add_reagent(/datum/reagent/consumable/lemonjuice, 2)
-		if ("caramel")
-			desc = "A delicious [cone_type] cone filled with caramel ice cream. It is deliciously sweet."
-			foodtype = DAIRY | SUGAR | CHOCOLATE
-			reagents.add_reagent(/datum/reagent/consumable/caramel, 2)
-		if ("banana")
-			desc = "A delicious [cone_type] cone filled with banana ice cream. Honk!"
-			foodtype = DAIRY | FRUIT | SUGAR
-			reagents.add_reagent(/datum/reagent/consumable/banana, 2)
-		if ("orangesicle")
-			desc = "A delicious [cone_type] cone filled with orange creamsicle. Not quite the same off the stick..."
-			foodtype = DAIRY | FRUIT | SUGAR
-			reagents.add_reagent(/datum/reagent/consumable/orangejuice, 2)
-		if ("peach")
-			desc = "A delicious [cone_type] cone filled with limited edition peach flavour. Enjoy it while it lasts!"
-			foodtype = DAIRY | FRUIT | SUGAR
-			reagents.add_reagent(/datum/reagent/consumable/peachjuice, 2)
-		if ("cherry chocolate")
-			desc = "A delicious [cone_type] cone filled with cherry chocolate ice cream. It is wonderfully tangy and sweet."
-			foodtype = DAIRY | FRUIT | SUGAR | CHOCOLATE
-			reagents.add_reagent(/datum/reagent/consumable/cherryjelly, 2)
-		if ("mob")
-			desc = "A suspicious [cone_type] cone filled with bright red ice cream. That's probably not strawberry..."
-			foodtype = DAIRY | MICE | SUGAR
-			reagents.add_reagent(/datum/reagent/liquidgibs, 2)
-	ice_creamed = 1
+/obj/item/reagent_containers/food/snacks/ice_cream_cone/cake
+	name = "cake ice cream cone"
+	desc = "A delicious cake cone, but with no ice cream."
+	icon_state = "icecream_cone_waffle"
+	tastes = list("bland" = 6)
+	base_name = "cake ice cream cone"
+	extra_reagent = /datum/reagent/consumable/sugar
+	
+/obj/item/reagent_containers/food/snacks/ice_cream_cone/chocolate
+	name = "chocolate ice cream cone"
+	desc = "A delicious chocolate cone, but with no ice cream."
+	icon_state = "icecream_cone_chocolate"
+	tastes = list("bland" = 4, "chocolate" = 6)
+	base_name = "chocolate ice cream cone"
+	extra_reagent = /datum/reagent/consumable/coco
 
-/obj/item/reagent_containers/food/snacks/icecream/proc/add_mob_flavor(mob/M)
-	add_ice_cream("mob")
-	name = "[M.name] icecream"
+///////////////////////////
+//ICE CREAM CONE CRAFTING//
+///////////////////////////
 
-/obj/machinery/icecream_vat/deconstruct(disassembled = TRUE)
-	if(!(flags_1 & NODECONSTRUCT_1))
-		new /obj/item/stack/sheet/metal(loc, 4)
-	qdel(src)
+/obj/item/reagent_containers/food/snacks/raw_cone
+	name = "base raw cone"
+	desc = "Please report this, as this should not be seen."
+	icon = 'icons/obj/food/food_ingredients.dmi'
+	bonus_reagents = list(/datum/reagent/consumable/nutriment = 2)
+	list_reagents = list(/datum/reagent/consumable/nutriment = 4)
+	tastes = list("bland" = 6)
+	foodtype = GRAIN | DAIRY
 
+/obj/item/reagent_containers/food/snacks/raw_cone/cake
+	name = "raw cake cone"
+	desc = "A raw cake cone that needs to be processed."
+	icon_state = "raw_cake_cone"
 
-#undef ICECREAM_VANILLA
-#undef ICECREAM_CHOCOLATE
-#undef ICECREAM_STRAWBERRY
-#undef ICECREAM_BLUE
-#undef ICECREAM_LEMON
-#undef ICECREAM_CARAMEL
-#undef ICECREAM_BANANA
-#undef ICECREAM_ORANGE
-#undef ICECREAM_PEACH
-#undef ICECREAM_CHERRY_CHOCOLATE
-#undef CONE_WAFFLE
-#undef CONE_CHOC
+/obj/item/reagent_containers/food/snacks/raw_cone/chocolate
+	name = "raw chocolate cone"
+	desc = "A raw chocolate cone that needs to be processed."
+	icon_state = "raw_chocolate_cone"

@@ -76,7 +76,7 @@
 
 /mob/living/simple_animal/hostile/swarmer/Initialize(mapload)
 	. = ..()
-	remove_verb(src, /mob/living/verb/pulled)
+	remove_verb(src, /mob/verb/pulled)
 	for(var/datum/atom_hud/data/diagnostic/diag_hud in GLOB.huds)
 		diag_hud.add_atom_to_hud(src)
 
@@ -137,6 +137,7 @@
 		drone.Goto(clicked_turf, drone.move_to_delay)
 
 /mob/living/simple_animal/hostile/swarmer/CtrlClickOn(atom/A)
+	. = TRUE
 	face_atom(A)
 	if(!isturf(loc))
 		return
@@ -299,7 +300,7 @@
 	playsound(src, 'sound/effects/sparks4.ogg', 50, TRUE)
 	do_teleport(target, safe_turf , 0, channel = TELEPORT_CHANNEL_BLUESPACE)
 
-/mob/living/simple_animal/hostile/swarmer/electrocute_act(shock_damage, obj/source, siemens_coeff = 1, zone = null, override = FALSE, tesla_shock = FALSE, illusion = FALSE, stun = TRUE, gib = FALSE)
+/mob/living/simple_animal/hostile/swarmer/electrocute_act(shock_damage, obj/source, siemens_coeff = 1, zone = null, override = FALSE, tesla_shock = FALSE, illusion = FALSE, stun = TRUE)
 	if(!tesla_shock)
 		return FALSE
 	return ..()

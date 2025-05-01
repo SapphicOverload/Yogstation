@@ -111,6 +111,17 @@
 	else
 		playsound_local(src, 'sound/misc/ui_toggleoffcombat.ogg', 25, FALSE, pressure_affected = FALSE) //Slightly modified version of the above
 
+/mob/living/proc/set_grab_mode(new_mode)
+	if(grab_mode == new_mode)
+		return
+	. = grab_mode
+	grab_mode = new_mode
+	if(hud_used?.action_intent)
+		hud_used.action_intent.update_appearance()
+
+/mob/living/proc/check_shields(atom/AM, damage, attack_text = "the attack", attack_type = MELEE_ATTACK, armour_penetration = 0, damage_type = BRUTE)
+	return
+
 /mob/living/hitby(atom/movable/AM, skipcatch, hitpush = TRUE, blocked = FALSE, datum/thrownthing/throwingdatum)
 	if(istype(AM, /obj/item))
 		var/obj/item/I = AM
@@ -369,8 +380,21 @@
 	take_bodypart_damage(acidpwr * min(1, acid_volume * 0.1))
 	return 1
 
-/mob/living/proc/electrocute_act(shock_damage, obj/source, siemens_coeff = 1, zone = null, override = FALSE, tesla_shock = FALSE, illusion = FALSE, stun = TRUE, gib = FALSE)
-	if(tesla_shock && (flags_1 & TESLA_IGNORE_1))
+/mob/living/tesla_act(source, power, zap_range, tesla_flags, list/shocked_targets)
+	var/shock_damage = (tesla_flags & TESLA_MOB_DAMAGE) ? (min(round(power/600), 90) + rand(-5, 5)) : 0
+	shock_damage = electrocute_act(shock_damage, source, zone=null, tesla_shock = 1, stun = (tesla_flags & TESLA_MOB_STUN))
+	if(shock_damage && (tesla_flags & TESLA_MOB_GIB) && health < crit_threshold && stat)
+		visible_message(
+			span_danger("[src] vaporizes from the sheer energy!"), \
+			span_userdanger("The sheer energy vaporizes you!"), \
+			span_italics("You hear a deafening electric shock, followed by a loud splatter!"), \
+		)
+		tesla_zap()
+		addtimer(CALLBACK(src, PROC_REF(gib)), 1)
+	return ..()
+
+/mob/living/proc/electrocute_act(shock_damage, obj/source, siemens_coeff = 1, zone = null, override = FALSE, tesla_shock = FALSE, illusion = FALSE, stun = TRUE)
+	if(tesla_shock && HAS_TRAIT(src, TRAIT_TESLA_IGNORE))
 		return FALSE
 	if(HAS_TRAIT(src, TRAIT_SHOCKIMMUNE))
 		return FALSE
@@ -420,7 +444,7 @@
 	if(GLOB.cult_narsie && GLOB.cult_narsie.souls_needed[src])
 		GLOB.cult_narsie.souls_needed -= src
 		GLOB.cult_narsie.souls += 1
-		if((GLOB.cult_narsie.souls == GLOB.cult_narsie.soul_goal) && (GLOB.cult_narsie.resolved == FALSE))
+		if((GLOB.cult_narsie.souls >= GLOB.cult_narsie.soul_goal) && (GLOB.cult_narsie.resolved == FALSE))
 			GLOB.cult_narsie.resolved = TRUE
 			sound_to_playing_players('sound/machines/alarm.ogg')
 			addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(cult_ending_helper), 1), 120)

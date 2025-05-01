@@ -40,8 +40,16 @@
  * Remember that LAZYLEN (and by extension, length) will return 0 if the list is null.
  */
 
+// Generic listoflist safe add and removal macros:
+///If value is a list, wrap it in a list so it can be used with list add/remove operations
+#define LIST_VALUE_WRAP_LISTS(value) (islist(value) ? list(value) : value)
+///Add an untyped item to a list, taking care to handle list items by wrapping them in a list to remove the footgun
+#define UNTYPED_LIST_ADD(list, item) (list += LIST_VALUE_WRAP_LISTS(item))
+///Remove an untyped item to a list, taking care to handle list items by wrapping them in a list to remove the footgun
+#define UNTYPED_LIST_REMOVE(list, item) (list -= LIST_VALUE_WRAP_LISTS(item))
+
 ///Initialize the lazylist
-#define LAZYINITLIST(L) if (!L) L = list()
+#define LAZYINITLIST(L) if (!L) { L = list(); }
 ///If the provided list is empty, set it to null
 #define UNSETEMPTY(L) if (L && !length(L)) L = null
 ///Remove an item from the list, set the list to null if empty
@@ -76,6 +84,11 @@
 ///Returns the list if it's actually a valid list, otherwise will initialize it
 #define SANITIZE_LIST(L) ( islist(L) ? L : list() )
 #define reverseList(L) reverseRange(L.Copy())
+/// Performs an insertion on the given lazy list with the given key and value. If the value already exists, a new one will not be made.
+#define LAZYORASSOCLIST(lazy_list, key, value) \
+	LAZYINITLIST(lazy_list); \
+	LAZYINITLIST(lazy_list[key]); \
+	lazy_list[key] |= value;
 ///Adds to the item K the value V, if the list is null it will initialize it
 #define LAZYADDASSOC(L, K, V) if(!L) { L = list(); } L[K] += V;
 ///Removes the value V from the item K, if the item K is empty will remove it from the list, if the list is empty will set the list to null
@@ -341,10 +354,7 @@
 //Removes any null entries from the list
 //Returns TRUE if the list had nulls, FALSE otherwise
 /proc/listclearnulls(list/L)
-	var/start_len = L.len
-	var/list/N = new(start_len)
-	L -= N
-	return L.len < start_len
+	return (L.RemoveAll(null) > 0)
 
 /*
  * Returns list containing all the entries from first list that are not present in second.
@@ -417,6 +427,26 @@
 
 	return null
 
+
+/**
+ * Given a list, return a copy where values without defined weights are given weight 1.
+ * For example, fill_with_ones(list(A, B=2, C)) = list(A=1, B=2, C=1)
+ * Useful for weighted random choices (loot tables, syllables in languages, etc.)
+ */
+/proc/fill_with_ones(list/list_to_pad)
+	if (!islist(list_to_pad))
+		return list_to_pad
+
+	var/list/final_list = list()
+
+	for (var/key in list_to_pad)
+		if (list_to_pad[key])
+			final_list[key] = list_to_pad[key]
+		else
+			final_list[key] = 1
+
+	return final_list
+
 /// Takes a weighted list (see above) and expands it into raw entries
 /// This eats more memory, but saves time when actually picking from it
 /proc/expand_weights(list/list_to_pick)
@@ -466,6 +496,13 @@
 		var/picked = rand(1,L.len)
 		. = L[picked]
 		L.Cut(picked,picked+1)			//Cut is far more efficient that Remove()
+
+/// Pick a random element from the list and remove it from the list.
+/proc/pick_n_take_weighted(list/list_to_pick)
+	if(length(list_to_pick))
+		var/picked = pick_weight(list_to_pick)
+		list_to_pick -= picked
+		return picked
 
 /// Returns the top(last) element from the list and removes it from the list (typical stack function)
 /proc/pop(list/L)

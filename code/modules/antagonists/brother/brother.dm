@@ -7,6 +7,7 @@
 	var/datum/team/brother_team/team
 	antag_moodlet = /datum/mood_event/focused
 	can_hijack = HIJACK_HIJACKER
+	count_towards_antag_cap = TRUE
 
 /datum/antagonist/brother/create_team(datum/team/brother_team/new_team)
 	if(!new_team)
@@ -19,7 +20,7 @@
 	return team
 
 /datum/antagonist/brother/on_gain()
-	SSticker.mode.brothers += owner
+	SSgamemode.brothers += owner
 	owner.special_role = special_role
 	if(owner.current)
 		give_pinpointer()
@@ -28,12 +29,25 @@
 	return ..()
 
 /datum/antagonist/brother/proc/equip_brother()
+	var/mob/living/carbon/brother = owner.current
 	var/obj/item/book/granter/crafting_recipe/weapons/W = new
-	W.on_reading_finished(owner.current)
+	W.on_reading_finished(brother)
 	qdel(W)
 
+	brother.add_skill_points(EXP_HIGH) // extra skills
+	ADD_TRAIT(owner, TRAIT_EXCEPTIONAL_SKILL, type)
+
+	if(istype(brother))
+		var/obj/item/storage/box/bloodbrother/T = new()
+		if(brother.equip_to_slot_or_del(T, ITEM_SLOT_BACKPACK))
+			SEND_SIGNAL(brother.back, COMSIG_TRY_STORAGE_SHOW, brother)
+			return
+	
+	//this only prints if it fails to give the box
+	to_chat(brother, span_userdanger("Unfortunately, you weren't able to get a keepsake box. This is bad and you should adminhelp (press F1)."))
+
 /datum/antagonist/brother/on_removal()
-	SSticker.mode.brothers -= owner
+	SSgamemode.brothers -= owner
 	if(owner.current)
 		to_chat(owner.current,span_userdanger("You are no longer the [special_role]!"))
 		owner.current.remove_status_effect(/datum/status_effect/agent_pinpointer/brother)
@@ -230,3 +244,36 @@
 
 /datum/team/brother_team/antag_listing_name()
 	return "[name] blood brothers"
+
+
+//box given to every bloodbrother
+/obj/item/storage/box/bloodbrother
+	name = "keepsake box"
+	desc = "A box full of unusual items found in the maintenance hallways."
+	///total tc cost that can be inside the box
+	var/total_box_value = 5
+	///maximum amount of tc any individual item can be
+	var/item_value_cap = 2
+	///list of categories that items are allowed to come from
+	var/list/allowed_categories = list(UPLINK_CATEGORY_STEALTH_GADGETS, UPLINK_CATEGORY_MISC, UPLINK_CATEGORY_BADASS)
+
+/obj/item/storage/box/bloodbrother/PopulateContents()
+	var/list/uplink_items = get_uplink_items(null, FALSE)
+	var/remaining_value = total_box_value
+
+	for(var/i = 50; i > 0; i--) //only iterate 50 times, so it doesn't get stuck in an infinite loop
+		if(remaining_value <= 0)
+			break
+
+		var/category = pick(allowed_categories)
+		var/item = pick(uplink_items[category])
+		var/datum/uplink_item/I = uplink_items[category][item]
+
+		if(I.cost > item_value_cap || I.cost > remaining_value)
+			uplink_items[category] -= uplink_items[category][item] //remove it so it can't keep getting picked despite being invalid
+			continue
+		remaining_value -= I.cost
+		new I.item(src)
+
+	if(remaining_value > 0)
+		message_admins("a blood brother has spawned with a keepsake box that has less than the usual value of items, please alert a coder")

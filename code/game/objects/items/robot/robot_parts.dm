@@ -14,9 +14,9 @@
 	/// Right arm part of the endoskeleton
 	var/obj/item/bodypart/r_arm/robot/r_arm = null
 	/// Left leg part of this endoskeleton
-	var/obj/item/bodypart/l_leg/robot/l_leg = null
+	var/obj/item/bodypart/leg/left/robot/l_leg = null
 	/// Right leg part of this endoskeleton
-	var/obj/item/bodypart/r_leg/robot/r_leg = null
+	var/obj/item/bodypart/leg/right/robot/r_leg = null
 	/// Chest part of this endoskeleton
 	var/obj/item/bodypart/chest/robot/chest = null
 	/// Head part of this endoskeleton
@@ -168,7 +168,7 @@
 			else
 				to_chat(user, span_warning("You need one sheet of metal to start building ED-209!"))
 				return
-	else if(istype(W, /obj/item/bodypart/l_leg/robot))
+	else if(istype(W, /obj/item/bodypart/leg/left/robot))
 		if(l_leg)
 			return
 		if(!user.transferItemToLoc(W, src))
@@ -178,9 +178,9 @@
 		l_leg = W
 		update_appearance(UPDATE_ICON)
 
-	else if(istype(W, /obj/item/bodypart/r_leg/robot))
-		var/obj/item/bodypart/r_leg/robot/L = W
-		if(L.use_digitigrade != NOT_DIGITIGRADE)
+	else if(istype(W, /obj/item/bodypart/leg/right/robot))
+		var/obj/item/bodypart/leg/right/robot/L = W
+		if(L.use_digitigrade)
 			to_chat(user, span_warning("You can only install plantigrade legs on [src]!"))
 			return
 		if(src.r_leg)
@@ -193,8 +193,8 @@
 		update_appearance(UPDATE_ICON)
 
 	else if(istype(W, /obj/item/bodypart/l_arm/robot))
-		var/obj/item/bodypart/l_leg/robot/L = W
-		if(L.use_digitigrade != NOT_DIGITIGRADE)
+		var/obj/item/bodypart/leg/left/robot/L = W
+		if(L.use_digitigrade)
 			to_chat(user, span_warning("You can only install plantigrade legs on [src]!"))
 			return
 		if(l_arm)
@@ -350,7 +350,7 @@
 					// Obvious warning that their modified laws didn't get passed on.
 					to_chat(user, span_warning("Any laws uploaded to this MMI have not been transferred!"))
 
-			SSticker.mode.remove_antag_for_borging(BM.mind)
+			SSgamemode.remove_antag_for_borging(BM.mind)
 			if(!istype(M.laws, /datum/ai_laws/ratvar))
 				remove_servant_of_ratvar(BM, TRUE)
 

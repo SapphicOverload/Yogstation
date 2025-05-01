@@ -17,13 +17,24 @@
 
 	minimal_character_age = 26 //Matches MD
 
+	base_skills = list(
+		SKILL_PHYSIOLOGY = EXP_MID,
+		SKILL_MECHANICAL = EXP_NONE,
+		SKILL_TECHNICAL = EXP_NONE,
+		SKILL_SCIENCE = EXP_NONE,
+		SKILL_FITNESS = EXP_MID,
+	)
+	skill_points = 2
+
 	departments_list = list(
 		/datum/job_department/medical,
 		/datum/job_department/security,
 	)
 
-	added_access = list(ACCESS_SURGERY, ACCESS_CLONING, ACCESS_EXTERNAL_AIRLOCKS)
-	base_access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_BRIG, ACCESS_SEC_DOORS, ACCESS_COURT, ACCESS_MAINT_TUNNELS, ACCESS_MECH_MEDICAL, ACCESS_BRIG_PHYS)
+	added_access = list(ACCESS_SURGERY, ACCESS_CLONING)
+	base_access = list(ACCESS_MEDICAL, ACCESS_SEC_BASIC, ACCESS_BRIG_PHYS, ACCESS_MORGUE,
+					ACCESS_BRIG, ACCESS_MAINT_TUNNELS, ACCESS_EXTERNAL_AIRLOCKS, ACCESS_MECH_MEDICAL)
+
 	paycheck = PAYCHECK_MEDIUM
 	paycheck_department = ACCOUNT_MED
 	display_order = JOB_DISPLAY_ORDER_BRIG_PHYSICIAN

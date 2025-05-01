@@ -337,6 +337,15 @@
 	category = list("hacked","Miscellaneous","Equipment")
 	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING | DEPARTMENTAL_FLAG_CARGO
 
+/datum/design/vox_tank
+	name = "Vox Nitrogen Tank"
+	id = "vox_tank"
+	build_type = AUTOLATHE | PROTOLATHE
+	materials = list(/datum/material/iron = 800)
+	build_path = /obj/item/tank/internals/emergency_oxygen/vox/empty
+	category = list("hacked","Miscellaneous","Equipment")
+	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING | DEPARTMENTAL_FLAG_CARGO
+
 /datum/design/metal
 	name = "Metal"
 	id = "metal"
@@ -1107,6 +1116,20 @@
 	build_path = /obj/item/ammo_box/no_direct/a357/wallstake
 	category = list ("Security")
 
+/datum/design/box_a38
+	name = "Ammo Box (.38 Special)"
+	id = "box_a38"
+	build_type = AUTOLATHE
+	materials = list(/datum/material/iron = 40000)
+	build_path = /obj/item/ammo_box/no_direct/a38
+	category = list("hacked", "Security")
+
+/datum/design/box_a38/rubber
+	name = "Ammo Box (.38 Rubber)"
+	id = "box_a38_rubber"
+	build_path = /obj/item/ammo_box/no_direct/a38/rubber
+	category = list("initial", "Security")
+
 /datum/design/cleaver
 	name = "Butcher's Cleaver"
 	id = "cleaver"
@@ -1161,7 +1184,7 @@
 	id = "conveyor_belt"
 	build_type = AUTOLATHE | MECHFAB | PROTOLATHE
 	materials = list(/datum/material/iron = 1000)
-	build_path = /obj/item/stack/conveyor/thirty
+	build_path = /obj/item/stack/conveyor
 	category = list("initial", "Construction", "Misc", "Assemblies")
 	maxstack = 30
 	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING | DEPARTMENTAL_FLAG_SCIENCE | DEPARTMENTAL_FLAG_CARGO

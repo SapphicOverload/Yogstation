@@ -18,29 +18,30 @@
 	//cycles colors
 	var/last_colour = 0
 	var/color_cycle = FALSE
+	var/fade_color
 	var/list/hsv
 
-/datum/component/after_image/Initialize(duration = 15, rest_time = 1, color_cycle = FALSE)
+/datum/component/after_image/Initialize(duration = 15, rest_time = 1, color_cycle = FALSE, fade_color)
 	if(!ismovable(parent))
 		return COMPONENT_INCOMPATIBLE
 	owner = parent
 	src.rest_time = rest_time
 	src.duration = duration
 	src.color_cycle = color_cycle
+	src.fade_color = fade_color
 	last_colour = world.time
 
 /datum/component/after_image/RegisterWithParent()
 	loop_timer = addtimer(CALLBACK(src, PROC_REF(spawn_image)), rest_time, TIMER_LOOP|TIMER_UNIQUE|TIMER_STOPPABLE)//start loop
-	RegisterSignal(parent, COMSIG_MOB_CLIENT_PRE_MOVE, PROC_REF(update_step))
-	RegisterSignal(parent, COMSIG_MOB_CLIENT_MOVED, PROC_REF(update_glide))
+	RegisterSignal(parent, COMSIG_MOVABLE_PRE_MOVE, PROC_REF(update_step))
+	RegisterSignal(parent, COMSIG_MOVABLE_MOVED, PROC_REF(update_glide))
 	owner = parent
 
 /datum/component/after_image/UnregisterFromParent()
 	deltimer(loop_timer)
-	UnregisterSignal(parent, COMSIG_MOB_CLIENT_PRE_MOVE)
-	UnregisterSignal(parent, COMSIG_MOB_CLIENT_MOVED)
+	UnregisterSignal(parent, list(COMSIG_MOVABLE_PRE_MOVE, COMSIG_MOVABLE_MOVED))
 
-/datum/component/after_image/proc/update_step(mob/living/mover, dir) //when did the step start
+/datum/component/after_image/proc/update_step(mob/living/mover, atom/new_loc) //when did the step start
 	previous_loc = get_turf(mover)
 	last_movement = world.time
 
@@ -76,7 +77,10 @@
 	F.pixel_x = (traveled * x_modifier) + owner.pixel_x
 	F.pixel_y = (traveled * y_modifier) + owner.pixel_y
 
-	//give them a random colours
+	//give them colors
+	if(fade_color)
+		F.color = fade_color
+		return
 	if(!color_cycle)
 		return
 	if(!hsv)

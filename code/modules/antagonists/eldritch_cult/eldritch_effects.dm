@@ -157,9 +157,9 @@
   *
   * Automatically creates more reality smashes
   */
-/datum/reality_smash_tracker/proc/Generate(mob/caller)
-	if(istype(caller))
-		targets += caller
+/datum/reality_smash_tracker/proc/Generate(mob/caller_but_not_a_byond_built_in_proc)
+	if(istype(caller_but_not_a_byond_built_in_proc))
+		targets += caller_but_not_a_byond_built_in_proc
 	var/targ_len = length(targets)
 	var/smash_len = length(smashes)
 	var/number = max(targ_len * (4-(targ_len-1)) - smash_len,1)
@@ -386,7 +386,7 @@
 					BP.dismember(BURN)
 				if(PENANCE_SKELETON)
 					var/obj/item/bodypart/BP
-					while(!BP || BP.species_id == "skeleton")
+					while(!BP || BP.species_id == SPECIES_SKELETON)
 						if(!LAZYLEN(unspooked_limbs))
 							to_chat(C, span_warning("Something you did managed to break brazil limb sacrificing stuff, make a bug report!"))
 							return
@@ -394,7 +394,7 @@
 						BP = C.get_bodypart(target_zone)
 					var/obj/item/bodypart/replacement_part = new BP.type
 					replacement_part.max_damage = 15
-					replacement_part.species_id = "skeleton"
+					replacement_part.species_id = SPECIES_SKELETON
 					replacement_part.original_owner = "inside"
 					replacement_part.replace_limb(owner)
 					C.visible_message(span_warning("The skin on [owner]'s [BP] suddenly melts off, revealing bone!"), span_warning("The skin and muscle on your [BP] is suddenly melted off!"))

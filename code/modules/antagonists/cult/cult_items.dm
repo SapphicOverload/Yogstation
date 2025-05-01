@@ -500,7 +500,7 @@
 	name = "flask of unholy water"
 	desc = "Toxic to nonbelievers; reinvigorating to the faithful - this flask may be sipped or thrown."
 	icon = 'icons/obj/drinks.dmi'
-	icon_state = "holyflask"
+	icon_state = "unholyflask"
 	color = "#333333"
 	list_reagents = list(/datum/reagent/fuel/unholywater = 50)
 
@@ -633,7 +633,7 @@ GLOBAL_VAR_INIT(curselimit, 0)
 	if(istype(A, /obj/item))
 
 		var/list/cultists = list()
-		for(var/datum/mind/M in SSticker.mode.cult)
+		for(var/datum/mind/M in SSgamemode.cult)
 			if(M.current && M.current.stat != DEAD)
 				cultists |= M.current
 		var/mob/living/cultist_to_receive = input(user, "Who do you wish to call to [src]?", "Followers of the Geometer") as null|anything in (cultists - user)

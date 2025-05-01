@@ -464,7 +464,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 			new_character.forceMove(pick(GLOB.wizardstart))
 			var/datum/antagonist/wizard/A = new_character.mind.has_antag_datum(/datum/antagonist/wizard,TRUE)
 			A.equip_wizard()
-		if(ROLE_SYNDICATE)
+		if(ROLE_OPERATIVE)
 			new_character.forceMove(pick(GLOB.nukeop_start))
 			var/datum/antagonist/nukeop/N = new_character.mind.has_antag_datum(/datum/antagonist/nukeop,TRUE)
 			N.equip_op()
@@ -863,21 +863,6 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	SSblackbox.record_feedback("tally", "admin_verb", 1, "Make Everyone Random") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 
-/client/proc/toggle_random_events()
-	set category = "Server"
-	set name = "Toggle random events on/off"
-	set desc = "Toggles random events such as meteors, black holes, blob (but not space dust) on/off"
-	var/new_are = !CONFIG_GET(flag/allow_random_events)
-	CONFIG_SET(flag/allow_random_events, new_are)
-	if(new_are)
-		to_chat(usr, "Random events enabled", confidential=TRUE)
-		message_admins("Admin [key_name_admin(usr)] has enabled random events.")
-	else
-		to_chat(usr, "Random events disabled", confidential=TRUE)
-		message_admins("Admin [key_name_admin(usr)] has disabled random events.")
-	SSblackbox.record_feedback("nested tally", "admin_toggle", 1, list("Toggle Random Events", "[new_are ? "Enabled" : "Disabled"]")) //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
-
 /client/proc/admin_change_sec_level()
 	set category = "Admin.Round Interaction"
 	set name = "Set Security Level"
@@ -1102,12 +1087,13 @@ Traitors and the like can also be revived with the previous role mostly intact.
 
 /datum/admins/proc/modify_goals()
 	var/dat = "<HTML><HEAD><meta charset='UTF-8'></HEAD><BODY>"
-	for(var/datum/station_goal/S in SSticker.mode.station_goals)
-		dat += "[S.name] - <a href='?src=[REF(S)];[HrefToken()];announce=1'>Announce</a> | <a href='?src=[REF(S)];[HrefToken()];remove=1'>Remove</a><br>"
-	dat += "<br><a href='?src=[REF(src)];[HrefToken()];add_station_goal=1'>Add New Goal</a>"
+	for(var/datum/station_goal/S in SSgamemode.station_goals)
+		dat += "[S.name] - <a href='byond://?src=[REF(S)];[HrefToken()];announce=1'>Announce</a> | <a href='byond://?src=[REF(S)];[HrefToken()];remove=1'>Remove</a><br>"
+	dat += "<br><a href='byond://?src=[REF(src)];[HrefToken()];add_station_goal=1'>Add New Goal</a>"
 	dat += "</BODY></HTML>"
-	usr << browse(dat, "window=goals;size=400x400")
-
+	var/datum/browser/browser = new(usr, "goals", "Modify Goals", 400, 400)
+	browser.set_content(dat)
+	browser.open()
 
 /client/proc/toggle_hub()
 	set category = "Server"
@@ -1148,6 +1134,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 									ADMIN_PUNISHMENT_SMSPIDER,
 									ADMIN_PUNISHMENT_FLASHBANG,
 									ADMIN_PUNISHMENT_WIBBLY,
+									ADMIN_PUNISHMENT_WIBBLY_VIRUS,
 									ADMIN_PUNISHMENT_BACKROOMS)
 
 	var/punishment = input("Choose a punishment", "DIVINE SMITING") as null|anything in punishment_list
@@ -1333,8 +1320,12 @@ Traitors and the like can also be revived with the previous role mostly intact.
 			chucklenuts.flash_act()
 
 		if(ADMIN_PUNISHMENT_WIBBLY)
-			apply_wibbly_filters(target, 888)
+			apply_wibbly_filters(target)
 			to_chat(target, span_warning("Something feels very... wibbly!"))
+
+		if(ADMIN_PUNISHMENT_WIBBLY_VIRUS)
+			var/datum/disease/D = new /datum/disease/wibblification()
+			target.ForceContractDisease(D, FALSE, TRUE)
 			
 		if(ADMIN_PUNISHMENT_BACKROOMS)
 			INVOKE_ASYNC(target, TYPE_PROC_REF(/mob/living, clip_into_backrooms))
@@ -1399,7 +1390,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	var/list/msg = list()
 	msg += "<html><head><meta charset='UTF-8'><title>Playtime Report</title></head><body>Playtime:<BR><UL>"
 	for(var/client/C in GLOB.clients)
-		msg += "<LI> - [key_name_admin(C)]: <A href='?_src_=holder;[HrefToken()];getplaytimewindow=[REF(C.mob)]'>" + C.get_exp_living() + "</a></LI>"
+		msg += "<LI> - [key_name_admin(C)]: <A href='byond://?_src_=holder;[HrefToken()];getplaytimewindow=[REF(C.mob)]'>" + C.get_exp_living() + "</a></LI>"
 	msg += "</UL></BODY></HTML>"
 	src << browse(msg.Join(), "window=Player_playtime_check")
 
@@ -1500,9 +1491,10 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	set name = "Admin Cryo"
 	if(!check_rights(R_ADMIN))
 		return
-	var/confirm = alert(usr, "Are you Sure you want to offer them?", "Are you Sure", "Yes", "No")
+	var/confirm = alert(usr, "Are you sure you want to cryo them?", "Admin Cryo", "Yes", "No")
 	if(confirm == "No")
 		return
+	var/offer = alert(usr, "Do you want to offer control of their mob to ghosts?", "Offer Control", "Yes", "No")
 	for(var/obj/machinery/cryopod/cryopod in GLOB.cryopods)
 		if(cryopod.occupant)
 			continue
@@ -1514,7 +1506,11 @@ Traitors and the like can also be revived with the previous role mostly intact.
 		message_admins(msg)
 		log_admin(msg)
 		new /obj/effect/particle_effect/sparks/quantum(get_turf(target))
-		cryopod.close_machine(target)
+		if(offer == "Yes")
+			cryopod.close_machine(target, admin_forced = TRUE)
+			offer_control(target)
+		else
+			cryopod.close_machine(target)
 		return
 
 /datum/admins/proc/cmd_create_centcom()

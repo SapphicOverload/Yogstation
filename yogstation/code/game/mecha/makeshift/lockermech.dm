@@ -4,12 +4,12 @@
 	icon = 'yogstation/icons/mecha/lockermech.dmi'
 	icon_state = "lockermech"
 	max_integrity = 100 //its made of scraps
+	integrity_failure = 0
 	light_power = 5
 	step_in = 4 //Same speed as a ripley, for now.
 	armor = list(MELEE = 20, BULLET = 10, LASER = 10, ENERGY = 0, BOMB = 10, BIO = 0, RAD = 0, FIRE = 70, ACID = 60) //Same armour as a locker
 	internal_damage_threshold = 30 //Its got shitty durability
 	max_equip = 2 //You only have two arms and the control system is shitty
-	wreckage = null
 	var/list/cargo = list()
 	var/cargo_capacity = 5 // you can fit a few things in this locker but not much.
 
@@ -51,7 +51,7 @@
 	output += "<b>Cargo Compartment Contents:</b><div style=\"margin-left: 15px;\">"
 	if(cargo.len)
 		for(var/obj/O in cargo)
-			output += "<a href='?src=\ref[src];drop_from_cargo=\ref[O]'>Unload</a> : [O]<br>"
+			output += "<a href='byond://?src=\ref[src];drop_from_cargo=\ref[O]'>Unload</a> : [O]<br>"
 	else
 		output += "Nothing"
 	output += "</div>"

@@ -1,18 +1,21 @@
 /client/proc/rejuv_all()
 	set name = "Revive All"
 	set category = "Admin.Round End"
-	set desc = "Rejuvinate every mob/living."
+	set desc = "Rejuvenate every client with mob attached."
 
 	if(!check_rights(R_ADMIN))
 		return
 
-	var/confirm = alert(src, "Revive all mobs?", "Message", "Yes", "No")
+	var/confirm = alert(src, "Revive all players?", "Message", "Yes", "No")
 	if(confirm != "Yes")
 		return
 
 	var/revive_count = 0
-	for(var/mob/living/M in world)
-		M.revive(TRUE, TRUE)
+	for(var/mob/M in GLOB.player_list)
+		var/mob/living/P = M.mind?.current
+		if(!istype(P, /mob/living))
+			continue
+		P.revive(TRUE, TRUE)
 		revive_count++
 
 	var/fluff_adjective = pick("benevolent","sacred","holy","godly","magnificent","benign","generous","caring") //lol
@@ -103,11 +106,11 @@
 /client/proc/set_next_minetype()
 	set name = "Set Next Minetype"
 	set category = "Server"
-	set desc = "Sets the next mintype (jungleland or lavaland), provided that the map allows it."
+	set desc = "Sets the next minetype (jungleland or lavaland), provided that the map allows it."
 	var/list/l = list("Jungleland" = 0, "Lavaland" = 1, "Either" = 2)
 	var/answer = input(src,"Which one do you choose?","Selection","Either") in l
 	if(!answer)
 		return
-	message_admins("[src] the next minetype was picked.")
-	log_admin("[src] picked the next minetype.")
+	message_admins("[src] set the next minetype to [answer].")
+	log_admin("[src] set the next minetype to [answer].")
 	SSpersistence.SaveMinetype(l[answer])

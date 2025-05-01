@@ -173,8 +173,12 @@
 			continue
 
 		if(extended_safety_checks)
-			var/datum/component/lingering/safety_check = F.GetComponent(/datum/component/lingering)
-			if(safety_check && !safety_check.is_safe()) //chasms aren't /floor, and so are pre-filtered
+			var/list/components = F.GetComponents(/datum/component/lingering)
+			var/safe = TRUE
+			for(var/datum/component/lingering/safety_check as anything in components)
+				if(safety_check)
+					safe = (safe && safety_check.is_safe())
+			if(!safe)
 				continue
 					
 		// Check that we're not warping onto a table or window
@@ -200,7 +204,7 @@
 		if(T.is_transition_turf())
 			continue // Avoid picking these.
 		var/area/A = T.loc
-		if(!A.noteleport)
+		if(!(A.area_flags & NOTELEPORT))
 			posturfs.Add(T)
 	return posturfs
 

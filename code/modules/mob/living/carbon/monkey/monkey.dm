@@ -16,10 +16,21 @@
 	unique_name = TRUE
 	blocks_emissive = EMISSIVE_BLOCK_UNIQUE
 	bodyparts = list(/obj/item/bodypart/chest/monkey, /obj/item/bodypart/head/monkey, /obj/item/bodypart/l_arm/monkey,
-					 /obj/item/bodypart/r_arm/monkey, /obj/item/bodypart/r_leg/monkey, /obj/item/bodypart/l_leg/monkey)
+					 /obj/item/bodypart/r_arm/monkey, /obj/item/bodypart/leg/right/monkey, /obj/item/bodypart/leg/left/monkey)
 	hud_type = /datum/hud/monkey
 	blood_volume = BLOOD_VOLUME_MONKEY // Yogs -- Makes monkeys/xenos have different amounts of blood from normal carbonbois
 	can_be_held = TRUE
+
+GLOBAL_LIST_INIT(strippable_monkey_items, create_strippable_list(list(
+	/datum/strippable_item/mob_item_slot/head,
+	/datum/strippable_item/mob_item_slot/back,
+	/datum/strippable_item/mob_item_slot/mask,
+	/datum/strippable_item/mob_item_slot/neck,
+	/datum/strippable_item/hand/left,
+	/datum/strippable_item/hand/right,
+	/datum/strippable_item/mob_item_slot/handcuffs,
+	/datum/strippable_item/mob_item_slot/legcuffs,
+)))
 
 /mob/living/carbon/monkey/Initialize(mapload, cubespawned=FALSE, mob/spawner)
 	add_verb(src, /mob/living/proc/mob_sleep)
@@ -46,6 +57,7 @@
 	create_dna(src)
 	dna.initialize_dna(random_blood_type())
 	AddComponent(/datum/component/bloodysoles/feet)
+	AddElement(/datum/element/strippable, GLOB.strippable_monkey_items)
 
 /mob/living/carbon/monkey/Destroy()
 	SSmobs.cubemonkeys -= src
@@ -69,7 +81,7 @@
 	var/amount
 	if(reagents.has_reagent(/datum/reagent/medicine/morphine))
 		amount = -1
-	if(reagents.has_reagent(/datum/reagent/consumable/nuka_cola))
+	if(reagents.has_reagent(/datum/reagent/consumable/energy_drink/nuka_cola))
 		amount = -1
 	if(amount)
 		add_movespeed_modifier(MOVESPEED_ID_MONKEY_REAGENT_SPEEDMOD, TRUE, 100, override = TRUE, multiplicative_slowdown = amount)
@@ -100,11 +112,6 @@
 			. += ""
 			. += "Chemical Storage: [changeling.chem_charges]/[changeling.chem_storage]"
 			. += "Absorbed DNA: [changeling.absorbedcount]"
-
-/mob/living/carbon/monkey/IsAdvancedToolUser()//Unless its monkey mode monkeys cant use advanced tools
-	if(mind && is_monkey(mind))
-		return TRUE
-	return FALSE
 
 /mob/living/carbon/monkey/reagent_check(datum/reagent/R) //can metabolize all reagents
 	return FALSE

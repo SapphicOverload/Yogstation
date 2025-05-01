@@ -371,10 +371,12 @@
 	var/randomized_gun_spread = 0
 	var/rand_spr = rand()
 	if(spread > 0)
-		randomized_gun_spread =	rand(0,spread)
+		randomized_gun_spread += rand(0,spread) * (8 - user.get_skill(SKILL_FITNESS)) / 5
 	if(ishuman(user)) //nice shootin' tex
 		var/mob/living/carbon/human/H = user
 		bonus_spread += H.dna.species.aiminginaccuracy
+	if(HAS_TRAIT(user, TRAIT_POOR_AIM))
+		bonus_spread += 25
 	var/randomized_bonus_spread = rand(0, bonus_spread)
 
 	if(burst_size > 1)

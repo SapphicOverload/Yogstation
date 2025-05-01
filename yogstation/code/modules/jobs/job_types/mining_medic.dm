@@ -18,6 +18,15 @@
 
 	minimal_character_age = 26 //Matches MD
 
+	base_skills = list(
+		SKILL_PHYSIOLOGY = EXP_MID,
+		SKILL_MECHANICAL = EXP_NONE,
+		SKILL_TECHNICAL = EXP_NONE,
+		SKILL_SCIENCE = EXP_NONE,
+		SKILL_FITNESS = EXP_MID,
+	)
+	skill_points = 2
+
 	departments_list = list(
 		/datum/job_department/medical,
 		/datum/job_department/cargo,
@@ -28,8 +37,10 @@
 	)
 
 	//if it's skeleton there's probably no paramedic to save spaced miners that jaunted away from danger
-	added_access = list(ACCESS_SURGERY, ACCESS_CARGO, ACCESS_CLONING, ACCESS_MAINT_TUNNELS, ACCESS_EXTERNAL_AIRLOCKS)
-	base_access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_MINING, ACCESS_MINING_STATION, ACCESS_MAILSORTING, ACCESS_MINERAL_STOREROOM, ACCESS_MECH_MINING, ACCESS_MECH_MEDICAL)
+	added_access = list(ACCESS_SURGERY, ACCESS_CARGO_BAY, ACCESS_CLONING, ACCESS_MAINT_TUNNELS, ACCESS_EXTERNAL_AIRLOCKS)
+	base_access = list(ACCESS_CARGO, ACCESS_MEDICAL, ACCESS_MINING, ACCESS_MINING_STATION,
+					ACCESS_MORGUE, ACCESS_MECH_MINING, ACCESS_MECH_MEDICAL)
+
 	paycheck = PAYCHECK_HARD
 	paycheck_department = ACCOUNT_MED
 	display_order = JOB_DISPLAY_ORDER_MINING_MEDIC

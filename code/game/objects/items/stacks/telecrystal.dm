@@ -7,6 +7,7 @@
 	w_class = WEIGHT_CLASS_TINY
 	max_amount = 50
 	item_flags = NOBLUDGEON
+	novariants = FALSE
 	grind_results = list(/datum/reagent/redspace = 20)
 
 /obj/item/stack/telecrystal/attack_self(mob/user)
@@ -48,17 +49,6 @@
 					to_chat(user, span_notice("You press [src] onto yourself and charge your hidden uplink."))
 	else
 		return ..()
-
-/obj/item/stack/telecrystal/afterattack(obj/item/I, mob/user, proximity)
-	. = ..()
-	if(istype(I, /obj/item/cartridge/virus/frame))
-		var/obj/item/cartridge/virus/frame/cart = I
-		if(!cart.charges)
-			to_chat(user, span_notice("[cart] is out of charges, it's refusing to accept [src]."))
-			return
-		cart.telecrystals += amount
-		use(amount)
-		to_chat(user, span_notice("You slot [src] into [cart].  The next time it's used, it will also give telecrystals."))
 
 /obj/item/stack/telecrystal/five
 	amount = 5

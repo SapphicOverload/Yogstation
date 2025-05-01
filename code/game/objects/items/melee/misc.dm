@@ -250,7 +250,7 @@
 		return
 
 	// Special effects
-	if(affecting?.stamina_dam >= 50 && (istype(affecting, /obj/item/bodypart/l_leg) || istype(affecting, /obj/item/bodypart/r_leg)))
+	if(affecting?.stamina_dam >= 50 && (istype(affecting, /obj/item/bodypart/leg)))
 		desc = get_stun_description(target, user)
 		target.Knockdown(knockdown_time_carbon)
 
@@ -695,7 +695,7 @@
 /obj/item/melee/roastingstick/Initialize(mapload)
 	. = ..()
 	if (!ovens)
-		ovens = typecacheof(list(/obj/singularity, /obj/machinery/power/supermatter_crystal, /obj/structure/bonfire, /obj/structure/destructible/clockwork/massive/ratvar, /obj/structure/destructible/clockwork/massive/celestial_gateway))
+		ovens = typecacheof(list(/obj/singularity, /obj/machinery/power/supermatter_crystal, /obj/structure/bonfire, /obj/structure/destructible/clockwork/massive/ratvar, /obj/structure/destructible/clockwork/massive/celestial_gateway, /obj/mecha))
 
 /obj/item/melee/roastingstick/attack_self(mob/user)
 	on = !on
@@ -763,6 +763,11 @@
 		if (held_sausage && held_sausage.roasted)
 			to_chat("Your [held_sausage] has already been cooked.")
 			return
+		if(ismecha(target))
+			var/obj/mecha/overheating_mech = target
+			if(overheating_mech.overheat < OVERHEAT_THRESHOLD)
+				to_chat(user, span_warning("[overheating_mech] isn't hot enough!"))
+				return
 		if (istype(target, /obj/singularity) && get_dist(user, target) < 10)
 			to_chat(user, "You send [held_sausage] towards [target].")
 			playsound(src, 'sound/items/rped.ogg', 50, 1)

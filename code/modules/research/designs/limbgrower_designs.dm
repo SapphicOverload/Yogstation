@@ -8,7 +8,7 @@
 	build_type = LIMBGROWER
 	reagents_list = list(/datum/reagent/medicine/synthflesh = 25)
 	build_path = /obj/item/bodypart/l_arm
-	category = list("initial","human","lizard","fly","moth","plasmaman","polysmorph")
+	category = list("initial","human","lizard","fly","moth","plasmaman","polysmorph","vox")
 
 /datum/design/rightarm
 	name = "Right Arm"
@@ -16,30 +16,30 @@
 	build_type = LIMBGROWER
 	reagents_list = list(/datum/reagent/medicine/synthflesh = 25)
 	build_path = /obj/item/bodypart/r_arm
-	category = list("initial","human","lizard","fly","moth","plasmaman","polysmorph")
+	category = list("initial","human","lizard","fly","moth","plasmaman","polysmorph","vox")
 
 /datum/design/leftleg
 	name = "Left Leg"
 	id = "leftleg"
 	build_type = LIMBGROWER
 	reagents_list = list(/datum/reagent/medicine/synthflesh = 25)
-	build_path = /obj/item/bodypart/l_leg
-	category = list("initial","human","lizard","fly","moth","plasmaman","polysmorph")
+	build_path = /obj/item/bodypart/leg/left
+	category = list("initial","human","lizard","fly","moth","plasmaman","polysmorph","vox")
 
 /datum/design/rightleg
 	name = "Right Leg"
 	id = "rightleg"
 	build_type = LIMBGROWER
 	reagents_list = list(/datum/reagent/medicine/synthflesh = 25)
-	build_path = /obj/item/bodypart/r_leg
-	category = list("initial","human","lizard","fly","moth","plasmaman","polysmorph")
+	build_path = /obj/item/bodypart/leg/right
+	category = list("initial","human","lizard","fly","moth","plasmaman","polysmorph","vox")
 
 /datum/design/digi_leftleg
 	name = "Digitigrade Left Leg"
 	id = "digi_leftleg"
 	build_type = LIMBGROWER
 	reagents_list = list(/datum/reagent/medicine/synthflesh = 30)
-	build_path = /obj/item/bodypart/l_leg/digitigrade
+	build_path = /obj/item/bodypart/leg/left/digitigrade
 	category = list("initial","lizard","polysmorph")
 
 /datum/design/digi_rightleg
@@ -47,7 +47,7 @@
 	id = "digi_rightleg"
 	build_type = LIMBGROWER
 	reagents_list = list(/datum/reagent/medicine/synthflesh = 30)
-	build_path = /obj/item/bodypart/r_leg/digitigrade
+	build_path = /obj/item/bodypart/leg/right/digitigrade
 	category = list("initial","lizard","polysmorph")
 
 //Non-limb limb designs

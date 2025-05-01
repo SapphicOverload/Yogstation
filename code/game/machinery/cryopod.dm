@@ -19,7 +19,7 @@ GLOBAL_LIST_EMPTY(cryopod_computers)
 	icon_state = "cellconsole_1"
 	density = FALSE
 	interaction_flags_machine = INTERACT_MACHINE_OFFLINE
-	req_one_access = list(ACCESS_HEADS, ACCESS_ARMORY) //Heads of staff or the warden can go here to claim recover items from their department that people went were cryodormed with.
+	req_one_access = list(ACCESS_COMMAND, ACCESS_ARMORY) //Heads of staff or the warden can go here to claim recover items from their department that people went were cryodormed with.
 	var/mode = null
 
 	//Used for logging people entering cryosleep and important items they are carrying.
@@ -53,12 +53,12 @@ GLOBAL_LIST_EMPTY(cryopod_computers)
 	dat += "<HTML><HEAD><meta charset='UTF-8'></HEAD><BODY>"
 	dat += "<hr/><br/><b>[storage_name]</b><br/>"
 	dat += "<i>Welcome, [user.real_name].</i><br/><br/><hr/>"
-	dat += "<a href='?src=[REF(src)];log=1'>View storage log</a>.<br>"
+	dat += "<a href='byond://?src=[REF(src)];log=1'>View storage log</a>.<br>"
 	if(allow_items)
-		dat += "<a href='?src=[REF(src)];view=1'>View objects</a>.<br>"
+		dat += "<a href='byond://?src=[REF(src)];view=1'>View objects</a>.<br>"
 	if(allowed(user))
-		dat += "<a href='?src=[REF(src)];item=1'>Recover object</a>.<br>"
-		dat += "<a href='?src=[REF(src)];allitems=1'>Recover all objects</a>.<br>"
+		dat += "<a href='byond://?src=[REF(src)];item=1'>Recover object</a>.<br>"
+		dat += "<a href='byond://?src=[REF(src)];allitems=1'>Recover all objects</a>.<br>"
 	dat += "</BODY></HTML>"
 	user << browse(dat, "window=cryopod_console")
 	onclose(user, "cryopod_console")
@@ -208,7 +208,7 @@ GLOBAL_LIST_EMPTY(cryopod_computers)
 
 	return control_computer != null
 
-/obj/machinery/cryopod/close_machine(mob/user, waking = FALSE)
+/obj/machinery/cryopod/close_machine(mob/user, waking = FALSE, admin_forced = FALSE)
 	if(!control_computer)
 		find_control_computer(TRUE)
 	if((isnull(user) || istype(user)) && state_open && !panel_open)
@@ -223,7 +223,7 @@ GLOBAL_LIST_EMPTY(cryopod_computers)
 			to_chat(occupant, span_boldnotice("You feel cool air surround you. You go numb as your senses turn inward."))
 		if(!occupant) //Check they still exist
 			return
-		if(mob_occupant.client)//if they're logged in
+		if(mob_occupant.client && !admin_forced) //if they're logged in, admin forcing will handle this stuff anyway
 			despawn_timer = addtimer(VARSET_CALLBACK(src, ready, TRUE), time_till_despawn_online, TIMER_STOPPABLE)
 			if(tgui_alert(mob_occupant, "Do you want to offer yourself to ghosts?", "Ghost Offer", list("Yes", "No")) != "No")
 				deltimer(despawn_timer) //Player wants to offer, cancel the timer
@@ -292,7 +292,7 @@ GLOBAL_LIST_EMPTY(cryopod_computers)
 			if((O.type in subtypesof(/datum/objective/assassinate)) && O.check_completion()) //kill once/kill+clone objective that's already been completed, don't give a new objective
 				continue
 			O.target = null
-			O.find_target()
+			O.find_target(blacklist = list(mob_occupant.mind)) // don't pick the same person again, they're about to be deleted
 			O.update_explanation_text()
 
 			var/list/owners = O.get_owners()
@@ -447,7 +447,7 @@ GLOBAL_LIST_EMPTY(cryopod_computers)
 	to_chat(target, span_boldnotice("If you ghost, log out or close your client now, your character will shortly be permanently removed from the round."))
 	name = "[name] ([occupant.name])"
 	log_admin(span_notice("[key_name(target)] entered a stasis pod."))
-	message_admins("[key_name_admin(target)] entered a stasis pod. (<A HREF='?_src_=holder;[HrefToken()];adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>JMP</a>)")
+	message_admins("[key_name_admin(target)] entered a stasis pod. (<A href='byond://?_src_=holder;[HrefToken()];adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>JMP</a>)")
 	add_fingerprint(target)
 
 /obj/machinery/cryopod/proc/apply_effects_to_mob(mob/living/carbon/sleepyhead)

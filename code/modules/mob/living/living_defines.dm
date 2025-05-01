@@ -85,7 +85,7 @@
 
 	var/hellbound = 0 //People who've signed infernal contracts are unrevivable.
 
-	var/list/weather_immunities = list()
+	var/weather_immunities = NONE
 
 	var/stun_absorption = null //converted to a list of stun absorption sources this mob has when one is added
 
@@ -150,3 +150,5 @@
 	var/usable_hands = 2
 	/// What our current gravity state is. Used to avoid duplicate animates and such
 	var/gravity_state = null
+	/// Is the mob looking vertically
+	var/looking_vertically = FALSE
